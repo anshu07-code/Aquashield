@@ -1,0 +1,16 @@
+{
+  "summary": "Minto Bridge Underpass is CRITICAL (89). Heavy rain is continuing and a drain is blocked.",
+  "why": ["Rainfall is at 55 mm/hr, above this underpass's tolerance", "Low-lying underpass with poor drainage", "Verified report of a blocked drain 40 m away"],
+  "actions": [
+    { "type": "pump_dispatch", "priority": "P1", "reason": "Water is already at knee level and rising" },
+    { "type": "traffic_diversion", "priority": "P1", "reason": "Divert vehicles before the underpass" },
+    { "type": "drain_cleaning", "priority": "P2", "reason": "Clear the blocked inlet once water recedes" }
+  ],
+  "alertDraft": {
+    "en": "Minto Bridge underpass is flooded. Avoid this route and use an alternative.",
+    "hi": "मिंटो ब्रिज अंडरपास में पानी भर गया है। इस रास्ते से न जाएं, वैकल्पिक मार्ग अपनाएं।"
+  },
+  "workOrderIds": [],
+  "toolsUsed": ["get_zone_risk", "get_forecast", "get_nearby_reports"],
+  "confidenceNote": "Based on forecast at 10:00 UTC and 1 verified report."
+}

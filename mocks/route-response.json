@@ -1,0 +1,10 @@
+{
+  "routes": [
+    { "id": "route_fast", "geometry": [[77.2, 28.62], [77.2197, 28.6328], [77.25, 28.64]], "durationMin": 18, "distanceKm": 7.2,
+      "hazards": [{ "zoneId": "z_minto", "name": "Minto Bridge Underpass", "tier": "CRITICAL" }],
+      "score": 78, "unsafe": true, "recommended": false, "summary": "Fastest, but crosses 1 flooded underpass" },
+    { "id": "route_safe", "geometry": [[77.2, 28.62], [77.21, 28.65], [77.25, 28.64]], "durationMin": 24, "distanceKm": 9.1,
+      "hazards": [],
+      "score": 24, "unsafe": false, "recommended": true, "summary": "Avoids 1 flooded underpass - +6 min" }
+  ]
+}

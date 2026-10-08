@@ -1,0 +1,26 @@
+{
+  "name": "jalrakshak",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["packages/*", "apps/*", "services/*"],
+  "scripts": {
+    "validate:mocks": "tsx scripts/validate-mocks.ts",
+    "pre-push-check": "tsx scripts/pre-push-check.ts",
+    "install-hooks": "tsx scripts/install-hooks.ts",
+    "mock:api": "tsx scripts/mock-api-server.ts",
+    "test": "npm run validate:mocks && npx tsx --test packages/risk-core/test/risk.test.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.base.json",
+    "verify:p1": "npm run typecheck && echo 'P1: apps/web type-check passed'",
+    "verify:p2": "npm run validate:mocks && echo 'P2: mocks + SAM template OK'",
+    "verify:p3": "npm run typecheck && echo 'P3: type-check passed'",
+    "verify:p4": "npm run test && echo 'P4: risk-core tests passed'"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
+}

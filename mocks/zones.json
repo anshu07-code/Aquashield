@@ -1,0 +1,8 @@
+{
+  "zones": [
+    { "id": "z_minto", "name": "Minto Bridge Underpass", "lat": 28.6328, "lng": 77.2197, "isUnderpass": true, "risk": 89, "tier": "CRITICAL", "etaMin": 0, "updatedAt": "2026-10-09T10:00:00Z", "stale": false },
+    { "id": "z_prahladpur", "name": "Pul Prahladpur Underpass", "lat": 28.5047, "lng": 77.29, "isUnderpass": true, "risk": 68, "tier": "HIGH", "etaMin": 28, "updatedAt": "2026-10-09T10:00:00Z", "stale": false },
+    { "id": "z_ito", "name": "ITO Intersection", "lat": 28.6289, "lng": 77.2406, "isUnderpass": false, "risk": 41, "tier": "WATCH", "etaMin": null, "updatedAt": "2026-10-09T10:00:00Z", "stale": false },
+    { "id": "z_zakhira", "name": "Zakhira Underpass", "lat": 28.6657, "lng": 77.1535, "isUnderpass": true, "risk": 18, "tier": "SAFE", "etaMin": null, "updatedAt": "2026-10-09T10:00:00Z", "stale": false }
+  ]
+}

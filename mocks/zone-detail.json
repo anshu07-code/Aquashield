@@ -1,0 +1,24 @@
+{
+  "zone": { "id": "z_minto", "name": "Minto Bridge Underpass", "lat": 28.6328, "lng": 77.2197, "isUnderpass": true, "risk": 89, "tier": "CRITICAL", "etaMin": 0, "updatedAt": "2026-10-09T10:00:00Z", "stale": false },
+  "breakdown": {
+    "risk": 89, "tier": "CRITICAL", "etaMin": 0,
+    "factors": { "rainNow": 92, "antecedent24h": 70, "depression": 75, "drainageDeficit": 80, "history": 60, "liveEvidence": 90 },
+    "contributions": { "rainNow": 27.6, "antecedent24h": 10.5, "depression": 11.3, "drainageDeficit": 12, "history": 6, "liveEvidence": 13.5 },
+    "underpassMultiplier": 1.1,
+    "topReasons": ["Heavy rainfall now", "Verified citizen reports nearby", "Poor drainage nearby"]
+  },
+  "rain": { "nowMmHr": 55, "last24hMm": 70 },
+  "forecast": [
+    { "ts": "2026-10-09T10:15:00Z", "mmHr": 58 },
+    { "ts": "2026-10-09T10:30:00Z", "mmHr": 64 },
+    { "ts": "2026-10-09T10:45:00Z", "mmHr": 40 }
+  ],
+  "reports": [
+    {
+      "id": "r_001", "zoneId": "z_minto", "ts": "2026-10-09T09:52:00Z", "type": "blocked_drain",
+      "imageUrl": null, "note": "Drain blocked with plastic waste",
+      "vision": { "isRoadScene": true, "floodedRoad": true, "waterDepthTier": "knee", "blockedDrain": true, "debrisOrWasteObstruction": true, "vehiclesStranded": false, "confidence": 0.91, "rejectReason": null, "explanation": "Knee-deep water on road with waste blocking a drain inlet." },
+      "trust": 0.82, "status": "verified"
+    }
+  ]
+}
