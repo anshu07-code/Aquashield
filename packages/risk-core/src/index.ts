@@ -1,9 +1,9 @@
 /**
- * JalRakshak Flood Risk Index (0-100). Pure functions, no I/O.
+ * Aquashield Flood Risk Index (0-100). Pure functions, no I/O.
  * Used by BOTH the backend (ingest/zone Lambdas) and the browser (rainfall simulator),
  * so the simulator always matches the backend. It is an explainable index, NOT a probability.
  */
-import type { Contributions, Factors, ForecastPoint, RiskBreakdown, Tier } from "@jalrakshak/types";
+import type { Contributions, Factors, ForecastPoint, RiskBreakdown, Tier } from "@aquashield/types";
 
 export interface ZoneStatic {
   isUnderpass: boolean;

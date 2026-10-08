@@ -6,7 +6,7 @@
 ## Session start
 ```
 Read AGENTS.md, docs/CONTRACT.md, docs/RISK_ENGINE.md, docs/SYNCHRONIZATION.md, and this file first.
-You are P2. Work in services/api/, services/ingest/, and infra/. Validate everything against @jalrakshak/types.
+You are P2. Work in services/api/, services/ingest/, and infra/. Validate everything against @aquashield/types.
 ```
 
 ## What you're building
@@ -27,7 +27,7 @@ You are P2. Work in services/api/, services/ingest/, and infra/. Validate everyt
 
 ### ALWAYS do these
 - ✅ Every Lambda response must match the zod schema in `packages/types`
-- ✅ Import risk logic from `@jalrakshak/risk-core` (never re-implement)
+- ✅ Import risk logic from `@aquashield/risk-core` (never re-implement)
 - ✅ Consistent error JSON: `{ error: { code: "ERROR_CODE", message: "..." } }`
 - ✅ Structured JSON logs for CloudWatch
 - ✅ Deploy after every merge so team always has latest stack

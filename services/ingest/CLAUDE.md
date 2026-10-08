@@ -13,7 +13,7 @@ You are P2. The ingest Lambda is part of your scope.
 EventBridge Scheduler (every 15 min) → Lambda → Open-Meteo → risk-core → DynamoDB RiskSnapshots
 
 ## Critical rules
-- ✅ Import risk logic from `@jalrakshak/risk-core` (never re-implement)
+- ✅ Import risk logic from `@aquashield/risk-core` (never re-implement)
 - ✅ Cache last good forecast — if Open-Meteo fails, reuse cache and set `stale=true`
 - ✅ Write structured JSON logs for CloudWatch
 - ✅ TTL on RiskSnapshots = 48h

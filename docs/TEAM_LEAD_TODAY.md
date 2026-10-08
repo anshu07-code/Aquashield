@@ -12,19 +12,18 @@ The deadline hour is not published yet. Check https://www.wemakedevs.org/aws/env
 - Check the submission form on the hackathon page for any GitHub field before Sunday.
 
 ## Name
-Use **JalRakshak** (Hindi for "water protector"). "AquaShield" is a generic name used by many products; JalRakshak is
-distinctive, local and memorable. The name only appears in a few places (README, UI header, package scope), so it is
-easy to change later if you really want to.
+**Aquashield** — chosen by the team. Use it consistently everywhere: GitHub repo name, README, UI header,
+package names, demo video, and the submission form. Do not mix old names in.
 
 ---
 ## STEP 1 — Repo (first 20 min, you)
-1. Create public repo `jalrakshak` on GitHub (empty, add README off).
+1. Create public repo `aquashield` on GitHub (empty, add README off).
 2. Unzip the starter kit, then:
    ```bash
-   cd jalrakshak
+   cd aquashield
    git init && git add . && git commit -m "chore: initial scaffold, contract, mocks, docs"
    git branch -M main
-   git remote add origin https://github.com/<you>/jalrakshak.git
+   git remote add origin https://github.com/<you>/aquashield.git
    git push -u origin main
    ```
 3. Invite P1, P3, P4 (Settings -> Collaborators). Everyone clones and runs `npm install && npm test`.

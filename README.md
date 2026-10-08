@@ -1,4 +1,4 @@
-# JalRakshak (जलरक्षक)
+# Aquashield
 **Hyperlocal flood intelligence for Delhi's underpasses. Predict it. Verify it. Route around it. Act on it.**
 
 > Hackathon: WeMakeDevs x AWS Environmental Hacks (Bharat Builds Tour #02) · Track: Heat and Water · Oct 8-11, 2026
@@ -9,7 +9,7 @@
 TODO (2-3 sentences, sourced). Underpass waterlogging in Delhi traps commuters; warnings are late and not street-level.
 
 ## Solution
-TODO: what JalRakshak does, for whom (commuters + city ops).
+TODO: what Aquashield does, for whom (commuters + city ops).
 
 ## Live demo
 - App: TODO (Amplify URL)

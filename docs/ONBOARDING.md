@@ -1,4 +1,4 @@
-# JalRakshak — Team Onboarding Guide
+# Aquashield — Team Onboarding Guide
 
 > **Hackathon:** WeMakeDevs x AWS Environmental Hacks · Track: Heat and Water · Oct 8-11, 2026
 > **Deadline:** NOT yet published. Check [wemakedevs.org/aws/env/schedule](https://www.wemakedevs.org/aws/env/schedule) + Discord.
@@ -44,8 +44,8 @@ npm test     # must pass before starting
 
 ```bash
 # 1. Clone the repo (each member does this on their own machine)
-git clone https://github.com/<team-lead-username>/jalrakshak.git
-cd jalrakshak
+git clone https://github.com/<team-lead-username>/aquashield.git
+cd aquashield
 
 # 2. Install all dependencies
 npm install
@@ -112,16 +112,16 @@ cd apps/web
 #   NEXT_PUBLIC_API_URL=http://localhost:3001
 
 # Install workspace deps
-npm install @jalrakshak/types @jalrakshak/risk-core maplibre-gl
+npm install @aquashield/types @aquashield/risk-core maplibre-gl
 ```
 
 ### Build in this order:
 1. **Risk map** — MapLibre full-screen, zone markers coloured by tier (SAFE green / WATCH yellow / HIGH orange / CRITICAL red + pulse), legend, stale-data badge
 2. **Zone detail panel** — bottom sheet (mobile) / side panel (desktop): risk %, tier, ETA, 6 factor bars with contribution %, top reasons, active reports with verified badge
-3. **Rainfall simulator** — slider 0-100 mm/hr, calls `@jalrakshak/risk-core` in the browser. **SIMULATION** badge + reset button. Never re-implement the formula.
+3. **Rainfall simulator** — slider 0-100 mm/hr, calls `@aquashield/risk-core` in the browser. **SIMULATION** badge + reset button. Never re-implement the formula.
 4. **3-tap report flow** — type → camera/upload → submit. Presign → PUT to S3 → POST `/reports`. Result card: AI analysis, confidence, trust, verified badge, old→new risk.
 5. **Safe route** — origin (my location) + destination → 2-3 route cards → polylines on map → summary sentence ("Avoids 2 flooded underpasses · +6 min")
-6. **Ops dashboard at /ops** — passcode gate, ranked hotspots, "Ask JalRakshak" box, plan card, work-order board
+6. **Ops dashboard at /ops** — passcode gate, ranked hotspots, "Ask Aquashield" box, plan card, work-order board
 7. **PWA** — manifest.json, icons, service worker (offline cached zones), geolocation "risk near me"
 8. **Polish** — skeleton loaders, error toasts, empty states, EN/HI toggle
 
@@ -175,7 +175,7 @@ NEXT_PUBLIC_API_URL=https://your-api-id.execute-api.region.amazonaws.com/prod
 - Seed script: load `data/zones.geojson` or 4 mock zones into DynamoDB
 
 ### Hour 3-5:
-- **Ingest Lambda** (`services/ingest/`): EventBridge Scheduler 15 min → Open-Meteo → `@jalrakshak/risk-core` → RiskSnapshots. On failure: reuse cached forecast + set `stale=true`
+- **Ingest Lambda** (`services/ingest/`): EventBridge Scheduler 15 min → Open-Meteo → `@aquashield/risk-core` → RiskSnapshots. On failure: reuse cached forecast + set `stale=true`
 - **API Lambdas** for all endpoints from `docs/CONTRACT.md`
 
 ### Hour 5-8:

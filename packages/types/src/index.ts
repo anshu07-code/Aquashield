@@ -1,5 +1,5 @@
 /**
- * JalRakshak API contract. SINGLE SOURCE OF TRUTH.
+ * Aquashield API contract. SINGLE SOURCE OF TRUTH.
  * Rule: change this file only via a small PR announced in the team chat.
  * Frontend, backend, agent and mocks must all validate against these schemas.
  */

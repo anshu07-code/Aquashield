@@ -111,7 +111,7 @@ try {
 // ---- 4. FORBIDDEN PATTERN CHECK ----
 section("Forbidden pattern check");
 const FORBIDDEN = [
-  { pattern: /import.*risk-core.*from\s+["']@jalrakshak\/risk-core["']/g, note: "risk-core only in packages/risk-core and apps/web (for simulator)" },
+  { pattern: /import.*risk-core.*from\s+["']@aquashield\/risk-core["']/g, note: "risk-core only in packages/risk-core and apps/web (for simulator)" },
 ];
 // Only check outside allowed dirs
 const ALLOWED_RISK_CORE_IMPORTERS = ["apps/web/", "packages/risk-core/", "services/api/", "services/ingest/", "scripts/"];
@@ -136,7 +136,7 @@ for (const file of findFiles(join(ROOT, "packages"), ".ts")) {
   const rel = relative(ROOT, file).replace(/\\/g, "/");
   try {
     const content = readFileSync(file, "utf8");
-    if (content.includes("@jalrakshak/risk-core")) {
+    if (content.includes("@aquashield/risk-core")) {
       const allowed = ALLOWED_RISK_CORE_IMPORTERS.some(p => rel.startsWith(p));
       if (!allowed) {
         patternsOk = false;

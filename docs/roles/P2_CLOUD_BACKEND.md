@@ -2,7 +2,7 @@
 Folders: `services/api/`, `services/ingest/`, `infra/`. Also merges contract PRs (with team lead).
 
 ## Start every AI session with
-> Read AGENTS.md, docs/CONTRACT.md, docs/RISK_ENGINE.md and docs/roles/P2_CLOUD_BACKEND.md. I am P2. Own infra/template.yaml (AWS SAM), services/api and services/ingest. Validate every request/response with zod schemas from @jalrakshak/types, import risk logic from @jalrakshak/risk-core. Model IDs come from env vars. Tell me exactly which AWS console steps I must do manually.
+> Read AGENTS.md, docs/CONTRACT.md, docs/RISK_ENGINE.md and docs/roles/P2_CLOUD_BACKEND.md. I am P2. Own infra/template.yaml (AWS SAM), services/api and services/ingest. Validate every request/response with zod schemas from @aquashield/types, import risk logic from @aquashield/risk-core. Model IDs come from env vars. Tell me exactly which AWS console steps I must do manually.
 
 ## Build order
 1. **Skeleton in first 90 min:** `infra/template.yaml` (SAM): HTTP API, Lambda (Node 22 TS via esbuild), DynamoDB tables (Zones, RiskSnapshots[TTL 48h], Reports[TTL 6h], WorkOrders, Alerts), private S3 bucket (CORS, lifecycle 7d), SNS topic, EventBridge Scheduler rule (15 min -> ingest). Deploy `/health` and `/zones` returning `mocks/zones.json`. **Share the base URL with the team immediately.**

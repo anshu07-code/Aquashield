@@ -67,7 +67,7 @@ The schema in `packages/types/src/index.ts` decides. Fix code to match schema. N
 
 ---
 
-## THE PRODUCT: JalRakshak (जलरक्षक)
+## THE PRODUCT: Aquashield
 
 **Hyperlocal flood early-warning + safe routing for Delhi's underpasses.**
 Loop: **Detect → Verify → Predict → Explain → Act**
@@ -92,7 +92,7 @@ Tiers: <30 SAFE · 30-54 WATCH · 55-74 HIGH · ≥75 CRITICAL
 ```
 map (with real zones) → click zone (factor bars + ETA) → rainfall simulator slider
 → citizen report (3 taps, photo upload) → safe route (avoids flooded underpass)
-→ ops dashboard + "Ask JalRakshak" button → AWS console montage
+→ ops dashboard + "Ask Aquashield" button → AWS console montage
 ```
 **Protect this path above everything else.**
 

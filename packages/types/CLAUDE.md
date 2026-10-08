@@ -27,7 +27,7 @@ You are working on the shared API contract. Any change requires a tiny PR + chat
 
 ## Usage
 ```ts
-import { ZoneListResponseSchema, type ZoneSummary, CreateReportRequestSchema } from "@jalrakshak/types";
+import { ZoneListResponseSchema, type ZoneSummary, CreateReportRequestSchema } from "@aquashield/types";
 
 // Frontend: parse API responses
 const data = ZoneListResponseSchema.parse(await res.json());

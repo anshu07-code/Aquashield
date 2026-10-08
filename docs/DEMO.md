@@ -12,10 +12,10 @@ Only sourced claims. Label every simulation. Show REAL AWS console windows (not 
 | Time | Screen | Voiceover gist |
 |---|---|---|
 | 0:00-0:20 | Your own photo/footage of a flooded underpass (credited) | "Every monsoon, Delhi's underpasses trap people. They flood in minutes. Nobody warns you before you drive in." |
-| 0:20-0:50 | Live map, real forecast, click an underpass | "JalRakshak scores waterlogging risk street by street. Not a black box: here's why it's 61." Show factor bars |
+| 0:20-0:50 | Live map, real forecast, click an underpass | "Aquashield scores waterlogging risk street by street. Not a black box: here's why it's 61." Show factor bars |
 | 0:50-1:15 | Rainfall simulator 30 -> 60 -> 80 | "What if rain doubles? Same engine as the backend." Show SIMULATION label |
 | 1:15-1:50 | Citizen uploads photo | "3 taps. Amazon Bedrock verifies the photo, rejects fakes, scores trust. Risk jumps." (show old -> new) |
-| 1:50-2:15 | Safe route | "The fastest route crosses a critical underpass. JalRakshak's route avoids it: +6 minutes." |
+| 1:50-2:15 | Safe route | "The fastest route crosses a critical underpass. Aquashield's route avoids it: +6 minutes." |
 | 2:15-2:40 | Ops dashboard + Ask AI | "A Strands agent explains why, drafts an alert in English and Hindi, creates a work order for pump dispatch." |
 | 2:40-2:55 | **AWS proof montage** + architecture | "Fully serverless on AWS: Lambda, DynamoDB, S3, Bedrock, EventBridge, SNS. Scales to zero in dry weeks." |
 | 2:55 | End card | "Don't react to floods. Predict them." |

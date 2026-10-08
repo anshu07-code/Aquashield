@@ -1,13 +1,13 @@
 # AGENTS.md — READ THIS FIRST (every human and every AI coding agent)
 
-You are helping a 4-person student team build **JalRakshak** for the WeMakeDevs x AWS
+You are helping a 4-person student team build **Aquashield** for the WeMakeDevs x AWS
 **Environmental Hacks** hackathon (Track: Heat and Water), Oct 8-11, 2026.
 The project is judged ONLY from: a public GitHub repo + a <3 min YouTube demo video + a short writeup.
 Judging: Idea & Impact · Built on AWS · Design & Usability · Execution (working > ambitious) · Demo video.
 **The demo video must visibly show AWS.** A feature not shown in the video does not exist.
 
 ## 1. Product in one paragraph
-JalRakshak is a hyperlocal urban flood early-warning and safe-routing system for Delhi, focused on
+Aquashield is a hyperlocal urban flood early-warning and safe-routing system for Delhi, focused on
 **underpass waterlogging**. Loop: **Detect -> Verify -> Predict -> Explain -> Act**.
 - Citizens (PWA): risk map, 3-tap flood report with photo, safe route, alerts.
 - City ops (/ops): ranked hotspots, AI action plans, work orders, English+Hindi alert drafts.

@@ -24,8 +24,8 @@ Tiers: SAFE <30 · WATCH 30-54 · HIGH 55-74 · CRITICAL >=75.
 
 ## Usage
 ```ts
-import { computeRisk, computeEta, tierFor, WEIGHTS, TIER_THRESHOLDS } from "@jalrakshak/risk-core";
-import type { ZoneStatic, LiveInputs } from "@jalrakshak/risk-core";
+import { computeRisk, computeEta, tierFor, WEIGHTS, TIER_THRESHOLDS } from "@aquashield/risk-core";
+import type { ZoneStatic, LiveInputs } from "@aquashield/risk-core";
 
 const zone: ZoneStatic = { isUnderpass: true, depressionDepthM: 4.5, drainageDeficit: 80, historyScore: 60, criticalRainMmHr: 40 };
 const live: LiveInputs = { rainNowMmHr: 30, rain24hMm: 20, reportTrusts: [0.9] };
@@ -35,7 +35,7 @@ const result = computeRisk(zone, live);
 
 ## Critical rules
 - ❌ **NEVER change weights or thresholds without a PR + announcement** — demo numbers depend on them
-- ❌ **NEVER copy the formula elsewhere** — import from `@jalrakshak/risk-core`
+- ❌ **NEVER copy the formula elsewhere** — import from `@aquashield/risk-core`
 - ✅ Always return the full `RiskBreakdown` (includes factor breakdown for the UI)
 - ✅ The formula must be identical in Lambda and in the browser simulator
 

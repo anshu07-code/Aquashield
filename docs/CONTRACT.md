@@ -33,7 +33,7 @@ Ops endpoints (`/workorders`, `/alerts/*`, `/agent/ask` with `execute=true`) req
 - Image upload: client calls `/reports/presign`, PUTs the file to `uploadUrl` with the same Content-Type, then POSTs `/reports` with `imageKey`.
   Max 5 MB; jpeg/png/webp only.
 - `/reports` snaps to the nearest zone within 300 m if `zoneId` omitted; else 422 `NO_ZONE_NEARBY`.
-- The rainfall simulator runs **client-side** with `@jalrakshak/risk-core`. It never calls the backend.
+- The rainfall simulator runs **client-side** with `@aquashield/risk-core`. It never calls the backend.
 - Agent: `execute=false` returns a plan only. `execute=true` lets it create work orders / alert drafts; UI sets it only after a human click.
 - Language: `lang` is `en` or `hi`. The agent always returns both `alertDraft.en` and `alertDraft.hi`.
 
@@ -43,7 +43,7 @@ Ops endpoints (`/workorders`, `/alerts/*`, `/agent/ask` with `execute=true`) req
 
 ## Using the types
 ```ts
-import { ZoneListResponseSchema, type ZoneSummary } from "@jalrakshak/types";
+import { ZoneListResponseSchema, type ZoneSummary } from "@aquashield/types";
 const data = ZoneListResponseSchema.parse(await res.json()); // fails loudly on drift
 ```
 Backend: validate EVERY request with the matching schema and EVERY response before returning.

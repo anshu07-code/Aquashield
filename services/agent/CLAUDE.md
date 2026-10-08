@@ -44,7 +44,7 @@ This is the #1 hidden blocker for the whole team.
 1. **Vision triage module** (services/api/src/vision/):
    - Input: S3 image bytes → Bedrock multimodal → JSON only
    - Schema: `{isRoadScene, floodedRoad, waterDepthTier, blockedDrain, debrisOrWasteObstruction, vehiclesStranded, confidence, rejectReason, explanation}`
-   - Validate with zod from `@jalrakshak/types`
+   - Validate with zod from `@aquashield/types`
    - Retry once on malformed output, then `needs_review`
    - Prompts in `services/api/src/vision/prompts/` with version comments
 

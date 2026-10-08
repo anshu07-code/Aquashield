@@ -20,4 +20,4 @@ Prove one Bedrock multimodal call works from a Lambda in your chosen region with
 No hard-coded model IDs. No unvalidated model output reaching the UI. No agent side effects without `execute=true`.
 
 ## Done when
-Real flooded-road photo -> structured analysis <8 s; "Ask JalRakshak" -> grounded plan <20 s, with tools listed; rejects a selfie/cat photo gracefully.
+Real flooded-road photo -> structured analysis <8 s; "Ask Aquashield" -> grounded plan <20 s, with tools listed; rejects a selfie/cat photo gracefully.

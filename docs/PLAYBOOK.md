@@ -1,6 +1,6 @@
 > **Note:** This is the original planning playbook (full feature list P0/P1/P2, judging map, differentiators, stack rationale). If anything here conflicts with `AGENTS.md`, `docs/CONTRACT.md`, `docs/RISK_ENGINE.md` or the role files in `docs/roles/`, **those win** (e.g. the contract has 5 DynamoDB tables and refined schemas).
 
-# JalRakshak — Winning Playbook
+# Aquashield — Winning Playbook
 **Environmental Hacks (Bharat Builds Tour, Event 02) · Track 02: Heat and Water · Oct 8–11, 2026**
 
 > Tagline: **"Don't react to floods. Predict them, verify them, route around them, act on them."**
@@ -42,7 +42,7 @@
 
 ## 2. The product
 
-**JalRakshak** is a hyperlocal urban-flood early-warning and safe-routing system for Delhi. It combines live rainfall forecasts, terrain/drainage data, and AI-verified citizen reports to produce **street-level waterlogging risk**, then recommends actions to both commuters and the city.
+**Aquashield** is a hyperlocal urban-flood early-warning and safe-routing system for Delhi. It combines live rainfall forecasts, terrain/drainage data, and AI-verified citizen reports to produce **street-level waterlogging risk**, then recommends actions to both commuters and the city.
 
 **Why Delhi:** judges and organisers are in Delhi; underpass waterlogging there is well documented; DTU is the build-day venue. Make the city a config file (`city.config.json`) so it can be swapped.
 
@@ -95,7 +95,7 @@
 | P0-4 | **Rainfall Simulator** | Slider (0–100 mm/hr), recomputes map instantly client-side; labelled "SIMULATION" |
 | P0-5 | **Citizen report + AI vision triage** | Photo → S3 → Bedrock multimodal → structured JSON → risk updates |
 | P0-6 | **Safe-route navigator** | A→B, 2–3 alternatives, scored against hazard zones, recommended route highlighted |
-| P0-7 | **AI Action Agent ("Ask JalRakshak")** | Strands agent with tools; returns why + actions + alert draft |
+| P0-7 | **AI Action Agent ("Ask Aquashield")** | Strands agent with tools; returns why + actions + alert draft |
 | P0-8 | **Deployed on AWS with public URL** | Amplify frontend + SAM backend |
 
 ### P1 — SHOULD SHIP (adds the "wow" and the usability score)
@@ -307,7 +307,7 @@ Put the shared TypeScript types in `packages/types`. **Whoever changes a contrac
 ## 11. Repo structure
 
 ```
-jalrakshak/
+aquashield/
 ├── apps/web/                 # Next.js PWA + /ops dashboard
 ├── packages/risk-core/       # shared TS risk engine + tests
 ├── packages/types/           # shared API types
@@ -354,7 +354,7 @@ README sections: Problem · Solution · How it works · Architecture · AWS serv
 - Bilingual alert drafting (EN/HI) and `draft_alert`/`publish_alert` flow
 - Evaluation set of 20–30 labelled images + a script that outputs accuracy for the README
 - **Writes the AWS Builder Center blog** (AirPods prize): problem, stack, "what fought back"
-**Done when:** upload a real flooded-road photo → structured analysis in <8 s; "Ask JalRakshak" returns a grounded plan in <20 s.
+**Done when:** upload a real flooded-road photo → structured analysis in <8 s; "Ask Aquashield" returns a grounded plan in <20 s.
 **Tip:** enable Bedrock access today and test one image call in the first hour.
 
 ### 👤 P4 — Data, Risk & Routing Lead (owns *credibility*)
@@ -410,10 +410,10 @@ README sections: Problem · Solution · How it works · Architecture · AWS serv
 | Time | Screen | Voiceover gist |
 |---|---|---|
 | 0:00–0:20 | Hook: your own photo/footage of a flooded underpass (credited) | "Every monsoon, Delhi's underpasses trap people. They flood in minutes. Nobody warns you before you drive in." |
-| 0:20–0:50 | Live map, real forecast data, click an underpass | "JalRakshak scores waterlogging risk street by street. Not a black box: here's why it's 61." Show factor bars. |
+| 0:20–0:50 | Live map, real forecast data, click an underpass | "Aquashield scores waterlogging risk street by street. Not a black box: here's why it's 61." Show factor bars. |
 | 0:50–1:15 | Rainfall simulator 30 → 60 → 80 | "What if rain doubles? Map turns red. Same engine as the backend." Label SIMULATION. |
 | 1:15–1:50 | Citizen uploads blocked-drain/flood photo | "Citizens report in 3 taps. Amazon Bedrock verifies the photo, rejects fakes, scores trust. Risk jumps." |
-| 1:50–2:15 | Safe route | "Fast route goes through a critical underpass. JalRakshak's route avoids it for +6 minutes." |
+| 1:50–2:15 | Safe route | "Fast route goes through a critical underpass. Aquashield's route avoids it for +6 minutes." |
 | 2:15–2:40 | Ops dashboard + Ask AI | "For the city: a Strands agent explains why, drafts an alert in English and Hindi, and creates a work order for pump dispatch." |
 | 2:40–2:55 | **AWS proof montage** (Lambda, DynamoDB, S3, Bedrock, EventBridge, SNS) + architecture | "Fully serverless on AWS, scale-to-zero in dry weeks, scales in a storm." |
 | 2:55 | End card | "Don't react to floods. Predict them." |
@@ -458,7 +458,7 @@ README sections: Problem · Solution · How it works · Architecture · AWS serv
 
 ```
 You are a senior full-stack + cloud engineer helping a 4-person student team build
-"JalRakshak" for the WeMakeDevs x AWS "Environmental Hacks" hackathon (Track: Heat and Water).
+"Aquashield" for the WeMakeDevs x AWS "Environmental Hacks" hackathon (Track: Heat and Water).
 The project must be built NEW during Oct 8-11, 2026, deployed on AWS, and judged from a
 public repo + a <3 minute demo video. Judges score: Idea & Impact, Built on AWS, Design &
 Usability, Execution (working > ambitious), Demo video.
@@ -500,14 +500,14 @@ Work in small steps. After each step tell me what to run to verify it, and what 
 ## B2. P1 — Frontend & UX prompt
 
 ```
-ROLE: Frontend & UX lead for JalRakshak. Build apps/web (Next.js + TS + Tailwind, PWA).
+ROLE: Frontend & UX lead for Aquashield. Build apps/web (Next.js + TS + Tailwind, PWA).
 
 BUILD, IN ORDER:
 1. App shell, design tokens (SAFE green, WATCH yellow, HIGH orange, CRITICAL red; high contrast,
    large touch targets), mobile-first layout, EN/HI language toggle.
 2. Full-screen MapLibre risk map: zones as colour-coded markers/polygons from GET /zones,
    click opens a bottom sheet (mobile) / side panel (desktop) with risk, tier, ETA-to-critical,
-   factor bars (from the breakdown), active reports, "Ask JalRakshak", "Report", "Safe route" buttons.
+   factor bars (from the breakdown), active reports, "Ask Aquashield", "Report", "Safe route" buttons.
 3. Rainfall Simulator: slider 0-100 mm/hr that calls packages/risk-core in the browser to
    recompute all zones instantly. Show a clear "SIMULATION" badge when active, and a reset button.
 4. Report flow (3 taps max): choose type -> take/upload photo -> submit. Presign -> PUT to S3 ->
@@ -529,7 +529,7 @@ Keep the demo path (map -> click -> simulate -> report -> route -> ask AI) flawl
 ## B3. P2 — Cloud & Backend prompt
 
 ```
-ROLE: Cloud & backend lead for JalRakshak. Own infra/template.yaml (AWS SAM) and services/api + services/ingest.
+ROLE: Cloud & backend lead for Aquashield. Own infra/template.yaml (AWS SAM) and services/api + services/ingest.
 
 BUILD, IN ORDER:
 1. SAM skeleton deployed in the first 90 minutes: HTTP API, Lambda (Node 22/TypeScript, esbuild),
@@ -556,7 +556,7 @@ reproducible from a clean account. Tell me exactly which AWS console steps I mus
 ## B4. P3 — AI prompt
 
 ```
-ROLE: AI lead for JalRakshak. Own the Bedrock vision triage, trust scoring, Strands agent, bilingual alerts, evaluation.
+ROLE: AI lead for Aquashield. Own the Bedrock vision triage, trust scoring, Strands agent, bilingual alerts, evaluation.
 
 BUILD, IN ORDER:
 1. Bedrock vision module (TypeScript, used by the reports Lambda): take S3 image bytes, call the
@@ -586,7 +586,7 @@ and report any model-access or inference-profile errors immediately.
 ## B5. P4 — Data, Risk & Routing prompt
 
 ```
-ROLE: Data, risk and routing lead for JalRakshak. Own data/, packages/risk-core, the /route logic and the demo scenario.
+ROLE: Data, risk and routing lead for Aquashield. Own data/, packages/risk-core, the /route logic and the demo scenario.
 
 BUILD, IN ORDER:
 1. packages/risk-core (TypeScript, zero dependencies, 100% pure functions):
