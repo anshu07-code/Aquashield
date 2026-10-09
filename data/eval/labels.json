@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "description": "Evaluation labels for the Aquashield vision triage model",
+  "note": "This file is part of the evaluation set. Do NOT modify after labelling — keep a backup.",
+  "labels": [
+    {
+      "id": "eval_001",
+      "filename": "TODO: add your image filename here (e.g. eval_001.jpg)",
+      "description": "TODO: describe the image",
+      "source": "TODO: who took this photo or where it came from",
+      "isRoadScene": true,
+      "floodedRoad": true,
+      "waterDepthTier": "knee",
+      "blockedDrain": false,
+      "debrisOrWasteObstruction": false,
+      "vehiclesStranded": false,
+      "difficulty": "easy",
+      "notes": "TODO: any additional notes about this image"
+    }
+  ],
+  "schema": {
+    "isRoadScene": "boolean — true if image shows a recognizable road/street",
+    "floodedRoad": "boolean — true if standing water visibly covers the road",
+    "waterDepthTier": "none|ankle|knee|waist|vehicle_submerged",
+    "blockedDrain": "boolean",
+    "debrisOrWasteObstruction": "boolean",
+    "vehiclesStranded": "boolean",
+    "difficulty": "easy|medium|hard (subjective assessment of how hard the image is to classify)"
+  },
+  "instructions": [
+    "1. Add images to data/eval/images/ directory",
+    "2. Create one entry per image in the labels array above",
+    "3. Label each image with the ground truth values based on visual inspection",
+    "4. Run: MOCK_MODE=1 python data/eval/run_eval.py",
+    "5. Check data/eval/results.md for accuracy and confusion matrix"
+  ]
+}
