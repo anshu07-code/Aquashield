@@ -204,6 +204,23 @@ export const AlertSchema = z.object({
   publishedAt: z.string().nullable(),
 });
 
+// ---------- ops create endpoints (agent tools + ops UI: "Create work order" / "Draft alert") ----------
+export const CreateWorkOrderRequestSchema = z.object({
+  zoneId: z.string(),
+  type: ActionTypeSchema,
+  priority: PrioritySchema,
+  note: z.string().max(280).default(""),
+  status: z.enum(["open", "dispatched", "resolved"]).default("open"),
+});
+export type CreateWorkOrderRequest = z.infer<typeof CreateWorkOrderRequestSchema>;
+
+export const CreateAlertRequestSchema = z.object({
+  zoneId: z.string(),
+  lang: z.enum(["en", "hi"]).default("en"),
+  text: z.string().max(160),
+});
+export type CreateAlertRequest = z.infer<typeof CreateAlertRequestSchema>;
+
 // ---------- errors ----------
 export const ErrorResponseSchema = z.object({
   error: z.object({ code: z.string(), message: z.string() }),

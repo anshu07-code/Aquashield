@@ -174,13 +174,12 @@ def get_work_orders() -> dict[str, Any]:
 # Alerts
 # ---------------------------------------------------------------------------
 
-def draft_alert(zone_id: str, lang: str) -> dict[str, Any]:
+def draft_alert(zone_id: str, lang: str, text: str) -> dict[str, Any]:
     """
-    Draft an alert. The agent generates text; this tool stores/prepares it.
-    The agent itself generates alertDraft.en and alertDraft.hi in its output.
-    This tool stores the draft alert record.
+    POST /alerts (ops endpoint — requires x-ops-passcode header).
+    Creates a draft alert record with the agent-generated text.
     """
-    return _request("POST", "/alerts", {"zoneId": zone_id, "lang": lang})
+    return _request("POST", "/alerts", {"zoneId": zone_id, "lang": lang, "text": text})
 
 
 def publish_alert(alert_id: str) -> dict[str, Any]:
@@ -272,9 +271,23 @@ def _mock_response(path: str, method: str, body: dict | None) -> dict[str, Any]:
     if path == "/workorders" and method == "GET":
         return {"workOrders": []}
     if path.startswith("/alerts/") and path.endswith("/publish"):
-        return {"id": "alert_001", "zoneId": zone_id, "status": "published"}
+        return {
+            "id": "alert_001",
+            "zoneId": zone_id,
+            "lang": "en",
+            "text": "Minto Bridge underpass flooding — avoid the area.",
+            "status": "published",
+            "publishedAt": "2026-10-09T10:05:00Z",
+        }
     if path == "/alerts" and method == "POST":
-        return {"id": "alert_001", "zoneId": zone_id, "status": "draft"}
+        return {
+            "id": "alert_001",
+            "zoneId": body.get("zoneId") if body else zone_id,
+            "lang": body.get("lang") if body and body.get("lang") else "en",
+            "text": body.get("text") if body and body.get("text") else "Minto Bridge underpass flooding — avoid the area.",
+            "status": "draft",
+            "publishedAt": None,
+        }
 
     return {}
 
