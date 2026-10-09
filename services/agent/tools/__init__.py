@@ -96,9 +96,9 @@ def create_work_order(
     return {**result, "dryRun": False}
 
 
-def draft_alert(zone_id: str, lang: str = "en") -> dict:
+def draft_alert(zone_id: str, lang: str = "en", text: str = "") -> dict:
     """Create a draft alert."""
-    return api_client.draft_alert(zone_id, lang)
+    return api_client.draft_alert(zone_id, lang, text)
 
 
 def publish_alert(alert_id: str, execute: bool = False) -> dict:

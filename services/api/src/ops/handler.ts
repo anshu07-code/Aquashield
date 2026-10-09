@@ -1,15 +1,19 @@
 /**
- * GET /workorders · PATCH /workorders/{id} · POST /alerts/{id}/publish
+ * POST /workorders · GET /workorders · PATCH /workorders/{id}
+ * POST /alerts · POST /alerts/{id}/publish
  * All ops endpoints require the x-ops-passcode header (docs/CONTRACT.md).
  */
+import { randomUUID } from "node:crypto";
 import {
   WorkOrderListResponseSchema,
   WorkOrderPatchSchema,
   WorkOrderSchema,
   AlertSchema,
+  CreateWorkOrderRequestSchema,
+  CreateAlertRequestSchema,
 } from "@aquashield/types";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
-import { GetCommand, ScanCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, PutCommand, ScanCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import {
   route, ok, parseBody, assertOps, notFound, validation, type ReqEvent, type Res,
 } from "../shared/http.ts";
@@ -58,6 +62,27 @@ async function patchWorkOrder(event: ReqEvent): Promise<Res> {
   });
 }
 
+async function createWorkOrder(event: ReqEvent): Promise<Res> {
+  const { zoneId, type, priority, note } = parseBody(CreateWorkOrderRequestSchema, event);
+  const id = `wo_${randomUUID().slice(0, 8)}`;
+  const createdAt = new Date().toISOString();
+  await ddb.send(
+    new PutCommand({
+      TableName: Tables.workorders,
+      Item: { id, zoneId, type, priority, status: "open", note, createdAt },
+    }),
+  );
+  return ok(WorkOrderSchema, { id, zoneId, type, priority, status: "open", note, createdAt }, 201);
+}
+
+async function createDraftAlert(event: ReqEvent): Promise<Res> {
+  const { zoneId, lang, text } = parseBody(CreateAlertRequestSchema, event);
+  const id = `al_${randomUUID().slice(0, 8)}`;
+  const alert = { id, zoneId, lang, text, status: "draft" as const, publishedAt: null };
+  await ddb.send(new PutCommand({ TableName: Tables.alerts, Item: alert }));
+  return ok(AlertSchema, alert, 201);
+}
+
 async function publishAlert(event: ReqEvent): Promise<Res> {
   const id = event.pathParameters?.id;
   if (!id) throw notFound("Alert");
@@ -94,6 +119,8 @@ async function publishAlert(event: ReqEvent): Promise<Res> {
 
 export const handler = route(async (event: ReqEvent): Promise<Res> => {
   assertOps(event); // every ops endpoint is passcode protected
+  if (event.routeKey === "POST /workorders") return createWorkOrder(event);
+  if (event.routeKey === "POST /alerts") return createDraftAlert(event);
   const method = event.requestContext.http.method;
   if (method === "GET") return listWorkOrders();
   if (method === "PATCH") return patchWorkOrder(event);

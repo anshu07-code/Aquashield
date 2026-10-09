@@ -25,6 +25,7 @@ from typing import Any
 
 BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:3000").rstrip("/")
 API_KEY = os.environ.get("API_KEY", "")
+OPS_PASSCODE = os.environ.get("OPS_PASSCODE", "")   # sent as x-ops-passcode for ops endpoints (work orders, alerts)
 MOCK_MODE = os.environ.get("MOCK_MODE", "0") == "1"
 
 
@@ -55,6 +56,8 @@ def _request(method: str, path: str, body: dict | None = None) -> dict[str, Any]
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
     if API_KEY:
         headers["x-api-key"] = API_KEY
+    if OPS_PASSCODE:
+        headers["x-ops-passcode"] = OPS_PASSCODE
 
     data = json.dumps(body).encode("utf-8") if body is not None else None
 
@@ -171,13 +174,12 @@ def get_work_orders() -> dict[str, Any]:
 # Alerts
 # ---------------------------------------------------------------------------
 
-def draft_alert(zone_id: str, lang: str) -> dict[str, Any]:
+def draft_alert(zone_id: str, lang: str, text: str) -> dict[str, Any]:
     """
-    Draft an alert. The agent generates text; this tool stores/prepares it.
-    The agent itself generates alertDraft.en and alertDraft.hi in its output.
-    This tool stores the draft alert record.
+    POST /alerts (ops endpoint — requires x-ops-passcode header).
+    Creates a draft alert record with the agent-generated text.
     """
-    return _request("POST", "/alerts", {"zoneId": zone_id, "lang": lang})
+    return _request("POST", "/alerts", {"zoneId": zone_id, "lang": lang, "text": text})
 
 
 def publish_alert(alert_id: str) -> dict[str, Any]:
@@ -269,9 +271,23 @@ def _mock_response(path: str, method: str, body: dict | None) -> dict[str, Any]:
     if path == "/workorders" and method == "GET":
         return {"workOrders": []}
     if path.startswith("/alerts/") and path.endswith("/publish"):
-        return {"id": "alert_001", "zoneId": zone_id, "status": "published"}
+        return {
+            "id": "alert_001",
+            "zoneId": zone_id,
+            "lang": "en",
+            "text": "Minto Bridge underpass flooding — avoid the area.",
+            "status": "published",
+            "publishedAt": "2026-10-09T10:05:00Z",
+        }
     if path == "/alerts" and method == "POST":
-        return {"id": "alert_001", "zoneId": zone_id, "status": "draft"}
+        return {
+            "id": "alert_001",
+            "zoneId": body.get("zoneId") if body else zone_id,
+            "lang": body.get("lang") if body and body.get("lang") else "en",
+            "text": body.get("text") if body and body.get("text") else "Minto Bridge underpass flooding — avoid the area.",
+            "status": "draft",
+            "publishedAt": None,
+        }
 
     return {}
 
