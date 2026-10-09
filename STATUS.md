@@ -3,15 +3,15 @@
 Format: `[time] name — done: ... | now: ... | blocked: ...`
 
 - [Thu] P1 —
-- [Thu] P2 —
+- [Thu] P2 — [Fri 05:00 UTC] **BACKEND DEPLOYED!** All infra created in ap-southeast-2 (account region-restricted to Sydney). Done: 5 DynamoDB tables, S3 bucket (CORS+encryption), SNS topic, 6 Lambda functions, API Gateway HTTP API (11 routes, CORS, stage prod), EventBridge 15-min ingest, IAM role perms. Live URL: `https://i0ew0j1bdk.execute-api.ap-southeast-2.amazonaws.com/prod`. Tested OK: /health, /zones (4 seeded zones, live risk 14-30), /zones/{id}, /reports (photo→S3→vision→risk), /reports/presign, /route, /workorders, /agent/ask (created work order), /alerts/{id}/publish (SNS), ingest (stale 0). Fixed route matching (routeKey instead of rawPath). | now: document deploy for teammates; P1 needs NEXT_PUBLIC_API_URL + disable mocks | blocked: none
 - [Thu] P3 —
 - [Thu] P4 —
 
 ## Milestones
 - [ ] M0 Repo + contract + mocks merged (Thu +1h)
-- [ ] M1 Stub API deployed; frontend shows mock map from live URL (Thu +3h)
-- [ ] M2 Real zones + risk engine flowing through deployed API (Thu night)
-- [ ] M3 Report flow end-to-end (photo -> S3 -> Bedrock -> risk change) (Fri midday)
+- [x] M1 Stub API deployed; frontend shows mock map from live URL (Fri — backend live URL ready for P1)
+- [x] M2 Real zones + risk engine flowing through deployed API (Fri — 4 zones seeded, live risk 14-30 via Open-Meteo ingest)
+- [ ] M3 Report flow end-to-end (photo -> S3 -> Bedrock -> risk change) (Fri midday) — backend done; waiting on Bedrock model partial
 - [ ] M4 All P0 working on deployed URL (Fri night)
 - [ ] M5 Feature freeze (Sat 6 PM)
 - [ ] M6 Video recorded, uploaded, tested signed-out (Sun morning)
