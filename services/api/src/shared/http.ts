@@ -7,6 +7,7 @@ import type { ZodType } from "zod";
 import { ErrorResponseSchema } from "@aquashield/types";
 
 export interface ReqEvent {
+  routeKey: string;
   rawPath: string;
   pathParameters?: Record<string, string> | null;
   queryStringParameters?: Record<string, string> | null;

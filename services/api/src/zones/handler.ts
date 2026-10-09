@@ -123,9 +123,9 @@ async function zoneDetail(event: ReqEvent): Promise<Res> {
 
 export const handler = route(async (event: ReqEvent): Promise<Res> => {
   const method = event.requestContext.http.method;
-  if (method === "GET" && event.rawPath === "/health") {
+  if (event.routeKey === "GET /health") {
     return raw({ ok: true, time: new Date().toISOString() });
   }
-  if (method === "GET" && event.rawPath === "/zones") return listZones();
+  if (event.routeKey === "GET /zones") return listZones();
   return zoneDetail(event); // GET /zones/{id}
 });
