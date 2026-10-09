@@ -25,6 +25,7 @@ from typing import Any
 
 BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:3000").rstrip("/")
 API_KEY = os.environ.get("API_KEY", "")
+OPS_PASSCODE = os.environ.get("OPS_PASSCODE", "")   # sent as x-ops-passcode for ops endpoints (work orders, alerts)
 MOCK_MODE = os.environ.get("MOCK_MODE", "0") == "1"
 
 
@@ -55,6 +56,8 @@ def _request(method: str, path: str, body: dict | None = None) -> dict[str, Any]
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
     if API_KEY:
         headers["x-api-key"] = API_KEY
+    if OPS_PASSCODE:
+        headers["x-ops-passcode"] = OPS_PASSCODE
 
     data = json.dumps(body).encode("utf-8") if body is not None else None
 

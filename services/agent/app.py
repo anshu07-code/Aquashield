@@ -5,12 +5,12 @@ Handles POST /agent/ask with body: {zoneId, question, lang, execute}
 Returns: AgentPlan JSON matching AgentPlanSchema
 
 Environment variables required:
-  BEDROCK_MODEL_ID  — Bedrock model ID (e.g. anthropic.claude-sonnet-4-20250514)
-  AWS_REGION         — AWS region (e.g. us-east-1)
+  BEDROCK_MODEL_ID  — Bedrock model ID (deployed value: amazon.nova-lite-v1:0)
+  AWS_REGION         — AWS region (deployed value: ap-southeast-2)
   API_BASE_URL       — Base URL of the Aquashield API (default: http://localhost:3000)
   API_KEY            — Internal API key (optional for local dev)
   MOCK_MODE          — If "1", use mock API responses (for local dev without backend)
-  OPS_PASSCODE       — Passcode for ops endpoints (work orders, alerts)
+  OPS_PASSCODE       — Passcode for ops endpoints (work orders, alerts); sent as x-ops-passcode
 
 The agent uses tools that call our own API — never invents facts.
 execute flag: false=plan only, true=may create work orders/publish alerts.
@@ -90,7 +90,7 @@ def _get_agent():
         ]
 
         _agent_instance = Agent(
-            model=os.environ.get("BEDROCK_MODEL_ID", "anthropic.claude-sonnet-4-20250514"),
+            model=os.environ.get("BEDROCK_MODEL_ID", "amazon.nova-lite-v1:0"),
             system_prompt=SYSTEM_PROMPT_V1,
             tools=tools,
         )
