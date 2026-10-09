@@ -37,8 +37,9 @@ package names, demo video, and the submission form. Do not mix old names in.
 3. **AWS Budgets:** create alerts at $5, $20, $50 (email you).
 4. **Create IAM users** (MFA on) for P2 (admin), P3 (Bedrock + S3 + Lambda + CloudWatch access), P1/P4 (read-only + console).
    Only P2 deploys the shared stack; others call the deployed URL.
-5. Pick a region. Check in the Bedrock console which Claude models are available/enabled there. Choose the region where
-   you can run a current Claude multimodal model. Mumbai (ap-south-1) is nice for latency only if the model is available.
+5. Pick a region. Check in the Bedrock console which Claude models are available/enabled there. NOTE (Oct 9, 2026): this
+   hackathon account is region-locked to Sydney (ap-southeast-2) — all resources must be created there, and the SCP blocks
+   Mumbai writes. Verified Claude multi-modal availability in ap-southeast-2 before choosing.
 6. **Request Bedrock model access NOW** (P3 or P2). Approval can lag. Record the model ID in the private chat, not in git.
 7. Builder Center: each member confirms student verification status (SheerID). It is needed for rewards and the
    Amazon fast-track check.

@@ -159,7 +159,7 @@ sam build
 sam deploy --guided    # first time (creates samconfig.toml — DO NOT COMMIT THIS FILE)
 
 # Share the deployed URL in team chat IMMEDIATELY
-# e.g. https://abc123.execute-api.ap-south-1.amazonaws.com/prod
+# e.g. https://abc123.execute-api.ap-southeast-2.amazonaws.com/prod
 ```
 
 After URL is shared, everyone updates their `.env.local`:
