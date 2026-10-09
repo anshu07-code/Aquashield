@@ -124,9 +124,14 @@ function getModelId(): string {
   return id;
 }
 
+/** Minimal structural type for any SDK client (BedrockRuntimeClient, etc.). */
+export interface SendableClient {
+  send(cmd: unknown, opts?: { abortSignal?: AbortSignal }): Promise<unknown>;
+}
+
 /** Times out a promise after TIMEOUT_MS */
 async function timedCall(
-  client: { send: (cmd: unknown, opts?: { abortSignal?: AbortSignal }) => Promise<{ body: { transformToString: () => Promise<string> } }> },
+  client: SendableClient,
   command: unknown,
   abortSignal?: AbortSignal,
 ): Promise<string> {
@@ -144,8 +149,8 @@ async function timedCall(
 
     client
       .send(command, { abortSignal })
-      .then((result: { body: { transformToString: () => Promise<string> } }) =>
-        result.body.transformToString(),
+      .then((result) =>
+        (result as { body: { transformToString: () => Promise<string> } }).body.transformToString(),
       )
       .then((text: string) => {
         clearTimeout(timer);
