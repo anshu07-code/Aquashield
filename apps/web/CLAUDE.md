@@ -65,8 +65,18 @@ Switch to real API: set `NEXT_PUBLIC_USE_MOCKS=false` and point to P2's deployed
 
 ## Verify before push
 ```bash
-npm run verify:p1
+cd apps/web && npx tsc --noEmit && npm run build   # this is the real check
+npm test                                            # repo-wide (risk-core + mocks)
 ```
+Note: the root `npm run verify:p1` runs `tsc -p tsconfig.base.json`, which only covers `packages/` and
+`scripts/` — **not** `apps/web`. It is currently red from pre-existing strict errors in P2's `scripts/*.ts`,
+so don't treat that as a frontend failure. Verify the frontend with the commands above.
+
+## Windows + OneDrive gotcha
+If the repo lives inside an OneDrive-synced folder, OneDrive turns `.next/` into cloud reparse points and
+`next dev`/`next build` die with `EINVAL: ... readlink '.next/package.json'`. `npm run dev` / `npm run build`
+here already run `scripts/clear-next.mjs` first, which deletes `.next` without tripping on reparse points.
+If you hit it anywhere else, run `node ./scripts/clear-next.mjs` manually.
 
 ## If you're blocked
 - No API URL yet? Use `npm run mock:api` → builds against `mocks/*.json`
