@@ -2,7 +2,11 @@
   "name": "aquashield",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["packages/*", "apps/*", "services/*"],
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "services/*"
+  ],
   "scripts": {
     "validate:mocks": "tsx scripts/validate-mocks.ts",
     "pre-push-check": "tsx scripts/pre-push-check.ts",
@@ -14,19 +18,25 @@
     "test": "npm run validate:mocks && npx tsx --test packages/risk-core/test/risk.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.base.json",
     "verify:backend": "tsx scripts/verify-live-api.ts",
-  "verify:zones": "tsx scripts/validate-zones-geojson.ts",
-  "clips:aws": "tsx scripts/aws-demo-clips.ts",
-  "verify:p1": "npm run typecheck && echo 'P1: type-check passed'",
+    "verify:zones": "tsx scripts/validate-zones-geojson.ts",
+    "clips:aws": "tsx scripts/aws-demo-clips.ts",
+    "verify:p1": "npm run typecheck && echo 'P1: type-check passed'",
     "verify:p2": "npm run validate:mocks && sam validate -t infra/template.yaml && echo 'P2: mocks + SAM template OK'",
     "verify:p3": "npm run typecheck && echo 'P3: type-check passed'",
     "verify:p4": "npm run test && echo 'P4: risk-core tests passed'"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.6.0",
-    "@types/node": "^22.0.0"
+    "typescript": "^5.6.0"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1148.0",
+    "@aws-sdk/client-dynamodb": "^3.1148.0",
+    "@aws-sdk/client-s3": "^3.1148.0",
+    "@aws-sdk/client-sns": "^3.1148.0",
+    "@aws-sdk/lib-dynamodb": "^3.1148.0",
+    "@aws-sdk/s3-request-presigner": "^3.1148.0",
     "zod": "^3.23.8"
   }
 }
