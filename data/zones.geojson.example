@@ -1,0 +1,37 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "z_minto",
+        "name": "Minto Bridge Underpass",
+        "isUnderpass": true,
+        "depressionDepthM": 4.5,
+        "drainageDeficit": 80,
+        "historyScore": 60,
+        "criticalRainMmHr": 40
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.2090, 28.6139]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "z_zakhira",
+        "name": "Zakhira Underpass",
+        "isUnderpass": true,
+        "depressionDepthM": 4.0,
+        "drainageDeficit": 75,
+        "historyScore": 55,
+        "criticalRainMmHr": 40
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.1535, 28.6657]
+      }
+    }
+  ]
+}
