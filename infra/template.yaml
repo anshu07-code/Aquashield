@@ -146,6 +146,12 @@ Resources:
         - DynamoDBCrudPolicy: { TableName: !Ref AlertsTable }
         - SNSPublishMessagePolicy: { TopicName: !GetAtt AlertTopic.TopicName }
       Events:
+        WorkorderCreate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /workorders
+            Method: POST
         WorkordersList:
           Type: HttpApi
           Properties:
@@ -158,6 +164,12 @@ Resources:
             ApiId: !Ref HttpApi
             Path: /workorders/{id}
             Method: PATCH
+        AlertDraftCreate:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /alerts
+            Method: POST
         AlertPublish:
           Type: HttpApi
           Properties:

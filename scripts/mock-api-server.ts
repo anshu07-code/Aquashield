@@ -135,6 +135,24 @@ function route(req: http.IncomingMessage, res: http.ServerResponse) {
         return;
       }
 
+      // POST /workorders (create work order — from agent tool / ops UI button)
+      if (pathname === "/workorders" && method === "POST") {
+        let created = { id: `wo_${Date.now().toString(36)}`, status: "open", createdAt: new Date().toISOString() };
+        try { created = { ...created, ...JSON.parse(body) }; } catch { /* ignore */ }
+        res.writeHead(201, CORS);
+        res.end(JSON.stringify(created));
+        return;
+      }
+
+      // POST /alerts (create draft alert — from agent tool / ops UI button)
+      if (pathname === "/alerts" && method === "POST") {
+        let created = { id: `al_${Date.now().toString(36)}`, status: "draft", publishedAt: null };
+        try { created = { ...created, ...JSON.parse(body) }; } catch { /* ignore */ }
+        res.writeHead(201, CORS);
+        res.end(JSON.stringify(created));
+        return;
+      }
+
       // PATCH /workorders/:id
       const woPatch = pathname.match(/^\/workorders\/(.+)$/);
       if (woPatch && method === "PATCH") {
@@ -147,7 +165,14 @@ function route(req: http.IncomingMessage, res: http.ServerResponse) {
       const alertPub = pathname.match(/^\/alerts\/(.+)\/publish$/);
       if (alertPub && method === "POST") {
         res.writeHead(200, CORS);
-        res.end(JSON.stringify({ id: alertPub[1], status: "published", publishedAt: new Date().toISOString() }));
+        res.end(JSON.stringify({
+          id: alertPub[1],
+          zoneId: "z_minto",
+          lang: "en",
+          text: "Minto Bridge underpass flooding — avoid the area.",
+          status: "published",
+          publishedAt: new Date().toISOString(),
+        }));
         return;
       }
 
