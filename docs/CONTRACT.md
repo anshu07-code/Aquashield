@@ -18,7 +18,9 @@ Mock coordinates/names in `mocks/` are placeholders; P4 replaces them with verif
 | POST | `/route` | `RouteRequest` | `RouteResponse` | `mocks/route-response.json` |
 | POST | `/agent/ask` | `AgentAskRequest` | `AgentPlan` | `mocks/agent-plan.json` |
 | GET | `/workorders` | - | `WorkOrderListResponse` | `mocks/workorders.json` |
+| POST | `/workorders` | `CreateWorkOrderRequest` | `WorkOrder` | - |
 | PATCH | `/workorders/{id}` | `WorkOrderPatch` | `WorkOrder` | - |
+| POST | `/alerts` | `CreateAlertRequest` | `Alert` | - |
 | POST | `/alerts/{id}/publish` | - | `Alert` | - |
 
 Ops endpoints (`/workorders`, `/alerts/*`, `/agent/ask` with `execute=true`) require header `x-ops-passcode`.
