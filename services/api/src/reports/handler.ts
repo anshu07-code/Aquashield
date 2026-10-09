@@ -250,8 +250,7 @@ async function listReports(event: ReqEvent): Promise<Res> {
 }
 
 export const handler = route(async (event: ReqEvent): Promise<Res> => {
-  const method = event.requestContext.http.method;
-  if (method === "POST" && event.rawPath === "/reports/presign") return presign(event);
-  if (method === "POST" && event.rawPath === "/reports") return createReport(event);
+  if (event.routeKey === "POST /reports/presign") return presign(event);
+  if (event.routeKey === "POST /reports") return createReport(event);
   return listReports(event); // GET /reports?zoneId=
 });
