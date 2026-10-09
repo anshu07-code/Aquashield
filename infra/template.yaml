@@ -1,0 +1,273 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Aquashield — hyperlocal flood early-warning API for Delhi underpasses.
+  Serverless: API Gateway HTTP API + Lambda + DynamoDB (TTL) + S3 (presigned) +
+  EventBridge (15-min forecast ingest) + SNS (alerts) + Amazon Bedrock (vision/agent).
+
+Parameters:
+  OpsPasscode:
+    Type: String
+    NoEcho: true
+    Description: Passcode for ops endpoints (x-ops-passcode header). Pass at deploy time.
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    MemorySize: 512
+    Architectures: [x86_64]
+    Environment:
+      Variables:
+        TABLE_ZONES: !Ref ZonesTable
+        TABLE_SNAPSHOTS: !Ref SnapshotsTable
+        TABLE_REPORTS: !Ref ReportsTable
+        TABLE_WORKORDERS: !Ref WorkOrdersTable
+        TABLE_ALERTS: !Ref AlertsTable
+        MEDIA_BUCKET: !Ref MediaBucket
+        ALERT_TOPIC_ARN: !Ref AlertTopic
+        OPS_PASSCODE: !Ref OpsPasscode
+        BEDROCK_MODEL_ID: ''
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+    Tags:
+      Project: Aquashield
+      Hackathon: wemakedevs-aws-env-2026
+
+Resources:
+  # ----------------------------- API -----------------------------
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+      CorsConfiguration:
+        AllowOrigins: ['*']
+        AllowHeaders: ['content-type', 'x-ops-passcode']
+        AllowMethods: [GET, POST, PATCH, OPTIONS]
+        MaxAge: 3600
+
+  # zones + health (read-only)
+  ZonesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: services/api/
+      Handler: dist/zones.handler
+      Description: Health, zone list, zone detail
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref ZonesTable }
+        - DynamoDBReadPolicy: { TableName: !Ref SnapshotsTable }
+        - DynamoDBReadPolicy: { TableName: !Ref ReportsTable }
+      Events:
+        Health:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /health, Method: GET }
+        Zones:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /zones, Method: GET }
+        ZoneDetail:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /zones/{id}, Method: GET }
+
+  # citizen reports (write path: presign -> S3 -> vision -> risk recompute)
+  ReportsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: services/api/
+      Handler: dist/reports.handler
+      Timeout: 30
+      Description: Photo presign, report submission (Bedrock vision + trust), active reports
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref ReportsTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref ZonesTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref SnapshotsTable }
+        - S3CrudPolicy: { BucketName: !Ref MediaBucket }
+        - Statement:
+            - Effect: Allow
+              Action: [bedrock:InvokeModel, bedrock:InvokeModelWithResponseStream]
+              Resource: '*'
+      Events:
+        Presign:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /reports/presign, Method: POST }
+        CreateReport:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /reports, Method: POST }
+        ListReports:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /reports, Method: GET }
+
+  # safe routing
+  RouteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: services/api/
+      Handler: dist/route.handler
+      Description: Safe-route alternatives scored against zone hazards (P4 owns scoring)
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref ZonesTable }
+        - DynamoDBReadPolicy: { TableName: !Ref SnapshotsTable }
+      Events:
+        Route:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /route, Method: POST }
+
+  # ops (work orders + alerts) — passcode protected
+  OpsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: services/api/
+      Handler: dist/ops.handler
+      Description: Work orders and SNS alert publishing (x-ops-passcode required)
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref WorkOrdersTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref AlertsTable }
+        - SNSPublishMessagePolicy: { TopicName: !GetAtt AlertTopic.TopicName }
+      Events:
+        WorkordersList:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /workorders, Method: GET }
+        WorkorderPatch:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /workorders/{id}, Method: PATCH }
+        AlertPublish:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /alerts/{id}/publish, Method: POST }
+
+  # AI agent (placeholder plan builder until P3's Strands Lambda lands; contract-stable)
+  AgentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: services/api/
+      Handler: dist/agent.handler
+      Timeout: 30
+      Description: Ask Aquashield — grounded action plan (execute=true creates work orders)
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref ZonesTable }
+        - DynamoDBReadPolicy: { TableName: !Ref SnapshotsTable }
+        - DynamoDBReadPolicy: { TableName: !Ref ReportsTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref WorkOrdersTable }
+        - Statement:
+            - Effect: Allow
+              Action: [bedrock:InvokeModel, bedrock:InvokeModelWithResponseStream]
+              Resource: '*'
+      Events:
+        AgentAsk:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /agent/ask, Method: POST }
+
+  # forecast ingestion every 15 min
+  IngestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: services/ingest/
+      Handler: dist/ingest.handler
+      Timeout: 240
+      Description: Open-Meteo forecast -> risk-core -> RiskSnapshots (every 15 min)
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref ZonesTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref SnapshotsTable }
+        - DynamoDBReadPolicy: { TableName: !Ref ReportsTable }
+      Events:
+        Every15Min:
+          Type: Schedule
+          Properties:
+            Schedule: rate(15 minutes)
+            Enabled: true
+            Description: Refresh forecasts and recompute zone risk
+
+  # --------------------------- Storage ---------------------------
+  ZonesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: zoneId, AttributeType: S }
+      KeySchema:
+        - { AttributeName: zoneId, KeyType: HASH }
+      PointInTimeRecoverySpecification: { PointInTimeRecoveryEnabled: false }
+
+  SnapshotsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: zoneId, AttributeType: S }
+        - { AttributeName: ts, AttributeType: S }
+      KeySchema:
+        - { AttributeName: zoneId, KeyType: HASH }
+        - { AttributeName: ts, KeyType: RANGE }
+      TimeToLiveSpecification: { AttributeName: ttl, TimeToLiveEnabled: true }
+
+  ReportsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: zoneId, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: zoneId, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+      TimeToLiveSpecification: { AttributeName: ttl, TimeToLiveEnabled: true }
+
+  WorkOrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: id, KeyType: HASH }
+
+  AlertsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: id, KeyType: HASH }
+
+  MediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [PUT, GET, HEAD]
+            AllowedOrigins: ['*']
+            MaxAge: 3600
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-uploaded-images
+            Status: Enabled
+            ExpirationInDays: 7
+
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: aquashield-alerts
+      DisplayName: Aquashield flood alerts
+
+Outputs:
+  ApiUrl:
+    Description: Base URL for the frontend (share with the team, set as NEXT_PUBLIC_API_URL)
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+  MediaBucketName:
+    Description: Private bucket for citizen photos (presigned access only)
+    Value: !Ref MediaBucket
+  AlertTopicArn:
+    Description: SNS topic for alert publishing
+    Value: !GetAtt AlertTopic.TopicName
+  RegionsTable:
+    Value: !Ref ZonesTable
+  SnapshotsTable:
+    Value: !Ref SnapshotsTable
+  ReportsTable:
+    Value: !Ref ReportsTable

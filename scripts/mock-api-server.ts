@@ -17,7 +17,7 @@ const MOCKS = path.join(__dirname, "..", "mocks");
 const PORT = 3001;
 
 // Read a mock file, return parsed JSON
-function readMock(filename) {
+function readMock(filename: string) {
   const file = path.join(MOCKS, filename);
   if (!fs.existsSync(file)) return null;
   return JSON.parse(fs.readFileSync(file, "utf8"));
@@ -32,7 +32,7 @@ const CORS = {
 };
 
 // Parse URL, method; route to mock or 404
-function route(req, res) {
+function route(req: http.IncomingMessage, res: http.ServerResponse) {
   // CORS preflight
   if (req.method === "OPTIONS") {
     res.writeHead(204, CORS);
@@ -40,12 +40,12 @@ function route(req, res) {
     return;
   }
 
-  const url = new URL(req.url, `http://localhost:${PORT}`);
+  const url = new URL(req.url ?? "", `http://localhost:${PORT}`);
   const pathname = url.pathname.replace(/\/$/, "");
   const method = req.method;
 
   let body = "";
-  req.on("data", chunk => body += chunk);
+  req.on("data", (chunk: Buffer) => body += chunk);
   req.on("end", () => {
     res.setHeader("Access-Control-Allow-Origin", CORS["Access-Control-Allow-Origin"]);
 
@@ -62,7 +62,7 @@ function route(req, res) {
         const zoneId = url.searchParams.get("id");
         const zones = readMock("zones.json");
         if (zoneId) {
-          const zone = zones?.zones?.find(z => z.id === zoneId);
+          const zone = zones?.zones?.find((z: Record<string, unknown>) => z["id"] === zoneId);
           res.writeHead(200, CORS);
           res.end(JSON.stringify(zone || { error: { code: "NOT_FOUND", message: "Zone not found" } }));
         } else {
@@ -156,7 +156,7 @@ function route(req, res) {
       res.end(JSON.stringify({ error: { code: "NOT_FOUND", message: `Route ${method} ${pathname} not found` } }));
     } catch (err) {
       res.writeHead(500, CORS);
-      res.end(JSON.stringify({ error: { code: "INTERNAL", message: err.message } }));
+      res.end(JSON.stringify({ error: { code: "INTERNAL", message: (err as Error).message } }));
     }
   });
 }

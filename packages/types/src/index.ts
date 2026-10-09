@@ -131,6 +131,8 @@ export const CreateReportResponseSchema = z.object({
   previousRisk: z.number().int(),
   updated: RiskBreakdownSchema,
 });
+/** GET /reports?zoneId= — active reports for one zone. */
+export const ReportsListSchema = z.object({ reports: z.array(ReportSchema) });
 
 // ---------- routing ----------
 export const RouteRequestSchema = z.object({

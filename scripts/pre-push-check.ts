@@ -23,7 +23,7 @@ const RISK_CORE_TEST = join(ROOT, "packages/risk-core/test/risk.test.ts");
 const CONTRACTS_PKGS = ["packages/types/src/index.ts", "packages/risk-core/src/index.ts"];
 
 // ---- helpers ----
-function run(cmd, opts = {}) {
+function run(cmd: string, opts: Record<string, unknown> = {}) {
   try {
     return execSync(cmd, {
       cwd: ROOT,
@@ -31,14 +31,14 @@ function run(cmd, opts = {}) {
       timeout: 60_000,
       ...opts,
     }).toString().trim();
-  } catch (e) {
-    return e.stdout?.toString()?.trim() || e.message;
+  } catch (e: unknown) {
+    return (e as { stdout?: { toString(): string } })?.stdout?.toString()?.trim() || String(e);
   }
 }
 
-function green(msg) { console.log(`  \x1b[32m✓\x1b[0m  ${msg}`); }
-function red(msg) { console.log(`  \x1b[31m✗\x1b[0m  ${msg}`); }
-function section(name) { console.log(`\n── ${name}`); }
+function green(msg: string) { console.log(`  \x1b[32m✓\x1b[0m  ${msg}`); }
+function red(msg: string) { console.log(`  \x1b[31m✗\x1b[0m  ${msg}`); }
+function section(name: string) { console.log(`\n── ${name}`); }
 
 // ---- 1. MOCK VALIDATION ----
 section("Mock validation (contract check)");
@@ -61,9 +61,9 @@ try {
   } else {
     green("All mocks validate against schemas");
   }
-} catch (e) {
+} catch (e: unknown) {
   mocksOk = false;
-  red(`Mock validation error: ${e.message}`);
+  red(`Mock validation error: ${(e as Error).message}`);
 }
 
 // ---- 2. RISK-CORE TESTS ----
@@ -71,21 +71,21 @@ section("Risk-core unit tests");
 let testsOk = true;
 try {
   const out = run(`node --import tsx --test packages/risk-core/test/*.test.ts`, { timeout: 30_000 });
-  if (out.includes("failures") && out.includes("failures") > 0) {
+  if (out.includes("failures") && (out.match(/failures/g) || []).length > 0) {
     testsOk = false;
     red("Risk-core tests failed");
   } else {
     const passed = (out.match(/^\s*\d+ passed/gm) || []).length;
     green(`Risk-core tests passed${passed ? ` (${passed} test file(s))` : ""}`);
   }
-} catch (e) {
+} catch (e: unknown) {
   // node --test might not be available in all Node versions
   try {
     const out = run(`npx tsx --test packages/risk-core/test/*.test.ts`, { timeout: 30_000 });
     green("Risk-core tests passed");
   } catch {
     testsOk = false;
-    red(`Tests may have failed: ${e.message.slice(0, 120)}`);
+    red(`Tests may have failed: ${(e as Error).message.slice(0, 120)}`);
   }
 }
 
@@ -103,9 +103,9 @@ try {
   } else {
     green("TypeScript type-check passed");
   }
-} catch (e) {
+} catch (e: unknown) {
   typeOk = false;
-  red(`Type check error: ${e.message.slice(0, 120)}`);
+  red(`Type check error: ${(e as Error).message.slice(0, 120)}`);
 }
 
 // ---- 4. FORBIDDEN PATTERN CHECK ----
@@ -117,7 +117,7 @@ const FORBIDDEN = [
 const ALLOWED_RISK_CORE_IMPORTERS = ["apps/web/", "packages/risk-core/", "services/api/", "services/ingest/", "scripts/"];
 let patternsOk = true;
 
-function findFiles(dir, ext) {
+function findFiles(dir: string, ext: string): string[] {
   const files = [];
   try {
     for (const entry of readdirSync(dir)) {

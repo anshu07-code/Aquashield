@@ -5,7 +5,7 @@
  * Run: npx tsx scripts/install-hooks.ts
  */
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
-import path from "node:path";
+import path, { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
 

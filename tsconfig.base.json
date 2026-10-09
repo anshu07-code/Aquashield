@@ -10,5 +10,6 @@
     "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["packages/**/*.ts", "scripts/**/*.ts"]
+  "include": ["packages/**/*.ts", "scripts/**/*.ts", "services/**/*.ts"],
+  "exclude": ["node_modules", "**/dist/**", "apps/**"]
 }
