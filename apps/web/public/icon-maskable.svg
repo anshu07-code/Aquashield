@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="dropm" x1="160" y1="112" x2="352" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67e8f9" />
+      <stop offset="0.55" stop-color="#22d3ee" />
+      <stop offset="1" stop-color="#0e7490" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="#060a14" />
+  <path
+    d="M256 136c51 58.4 86.9 105.8 86.9 147.7a86.9 86.9 0 0 1-173.8 0C169.1 241.8 205 194.4 256 136Z"
+    fill="url(#dropm)"
+  />
+  <path
+    d="M256 199v113M214 272l42 42 42-42"
+    stroke="#04222b"
+    stroke-width="19"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity=".9"
+  />
+</svg>

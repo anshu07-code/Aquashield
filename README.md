@@ -51,6 +51,17 @@ TODO: vision accuracy on our labelled image set (n=__), confusion matrix, limita
 ## Data sources & licences
 TODO: Open-Meteo, OpenStreetMap contributors (ODbL), public waterlogging sources (see `data/SOURCES.md`), image credits.
 
+Frontend (`apps/web`) — already in use, all open source:
+| Component | Licence |
+|---|---|
+| [MapLibre GL JS](https://maplibre.org/) | BSD-3-Clause |
+| [Next.js](https://nextjs.org/) / React | MIT |
+| [Tailwind CSS](https://tailwindcss.com/) | MIT |
+| [zod](https://zod.dev/) | MIT |
+| CARTO dark basemap tiles | © [CARTO](https://carto.com/) © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL) — shown in the map attribution control |
+| Fonts: Inter, Space Grotesk, Noto Sans Devanagari (next/font) | SIL Open Font License 1.1 |
+| UI icons | hand-written inline SVG (no third-party icon set) |
+
 ## Impact
 TODO: only sourced or clearly-labelled claims.
 
@@ -70,3 +81,10 @@ npm test
 cp .env.example .env.local
 # see docs/roles/ for per-folder commands
 ```
+
+Frontend (citizen PWA + ops dashboard):
+```bash
+npm run mock:api          # mock backend on :3001 (no AWS needed)
+cd apps/web && npm run dev   # app on :3000
+```
+Set `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_USE_MOCKS=false` in `apps/web/.env.local` to hit the real API instead.
