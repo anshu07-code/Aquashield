@@ -10,6 +10,8 @@
 import type { VisionAnalysis } from "@aquashield/types";
 
 const REPORT_TTL_MS = 6 * 60 * 60 * 1000; // 6 h
+/** Public alias so tests + callers reference the TTL directly. */
+export const TRUST_TTL_MS = REPORT_TTL_MS;
 
 export interface TrustInputs {
   vision: VisionAnalysis;

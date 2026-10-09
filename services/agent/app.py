@@ -23,8 +23,16 @@ import os
 import traceback
 from typing import Any
 
-from .schemas import AgentPlan, AgentAskRequest
-from .prompts import SYSTEM_PROMPT_V1, SYSTEM_PROMPT_VERSION
+# Work both as a packaged Lambda module (relative) and run standalone (absolute).
+try:  # packaged as `services.agent.app` (Chalice/SAM Python Lambda)
+    from .schemas import AgentPlan, AgentAskRequest
+    from .prompts import SYSTEM_PROMPT_V1, SYSTEM_PROMPT_VERSION
+except ImportError:  # running as `python app.py` from services/agent/
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).parent))
+    from schemas import AgentPlan, AgentAskRequest  # type: ignore
+    from prompts import SYSTEM_PROMPT_V1, SYSTEM_PROMPT_VERSION  # type: ignore
 
 
 # ---------------------------------------------------------------------------
@@ -44,16 +52,28 @@ def _get_agent():
         from strands import Agent
         from strands_tools import lambda_tool
 
-        from .tools import (
-            get_zone_risk,
-            get_forecast,
-            get_nearby_reports,
-            get_nearby_zones,
-            plan_safe_route,
-            create_work_order,
-            draft_alert,
-            publish_alert,
-        )
+        try:  # packaged as a module
+            from .tools import (
+                get_zone_risk,
+                get_forecast,
+                get_nearby_reports,
+                get_nearby_zones,
+                plan_safe_route,
+                create_work_order,
+                draft_alert,
+                publish_alert,
+            )
+        except ImportError:  # running standalone
+            from tools import (
+                get_zone_risk,
+                get_forecast,
+                get_nearby_reports,
+                get_nearby_zones,
+                plan_safe_route,
+                create_work_order,
+                draft_alert,
+                publish_alert,
+            )
 
         # Wrap tools with the Strands @tool decorator
         # Note: Actual tool registration depends on Strands SDK version

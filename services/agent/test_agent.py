@@ -26,6 +26,12 @@ sys.path.insert(0, str(Path(__file__).parent))
 # Set mock mode before importing agent modules
 os.environ["MOCK_MODE"] = "1"
 
+# Windows consoles default to cp1252 and cannot print Devanagari — force UTF-8
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 from schemas import AgentPlan
 
 MOCK_FILE = Path(__file__).parent.parent.parent / "mocks" / "agent-plan.json"
