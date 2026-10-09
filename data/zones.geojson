@@ -1,0 +1,275 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "z_minto",
+      "geometry": { "type": "Point", "coordinates": [77.2197, 28.6328] },
+      "properties": {
+        "id": "z_minto",
+        "name": "Minto Bridge Underpass",
+        "lat": 28.6328,
+        "lng": 77.2197,
+        "isUnderpass": true,
+        "depressionDepthM": 4.8,
+        "drainageDeficit": 82,
+        "historyScore": 88,
+        "criticalRainMmHr": 35,
+        "source": "Coordinates: route-snapped via OSRM + OSM (underpass landmark). Wikipedia (https://en.wikipedia.org/wiki/Minto_Bridge) confirms Minto Bridge underpass exists and has flooded since ~1950s. ToI (https://timesofindia.indiatimes.com/city/delhi/minto-bridge-168-more-underpasses-declared-prone-to-waterlogging/articleshow/131976209.cms, Jun 2026) confirms Delhi govt flags Minto among 169 waterlogging-prone sites and calls it a 'notorious' hotspot; Parvesh Verma (PWD minister) posted footage of Minto Bridge in the same monsoon (HT Jul 2026). Depression depth from SRTM DEM (90m resolution, ~90m horizontal accuracy — indicative only). Drainage deficit from OSM municipal drain proximity. History score from cited PWD Delhi flood reports 2020–2024.",
+        "dataQuality": "coordinates: ROUTE-SNAPPED (OSRM+OSM; ~250m from Wikipedia coord 28.6336,77.2172) | depressionDepthM: ESTIMATE (SRTM) | drainageDeficit: ESTIMATE (OSM) | historyScore: ESTIMATE (PWD reports) | criticalRainMmHr: ESTIMATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_prahladpur",
+      "geometry": { "type": "Point", "coordinates": [77.2900, 28.5047] },
+      "properties": {
+        "id": "z_prahladpur",
+        "name": "Pul Prahladpur Underpass",
+        "lat": 28.5047,
+        "lng": 77.2900,
+        "isUnderpass": true,
+        "depressionDepthM": 3.9,
+        "drainageDeficit": 68,
+        "historyScore": 71,
+        "criticalRainMmHr": 40,
+        "source": "Coordinates: route-snapped via OSRM + OSM (MB Road landmark). HT (https://www.hindustantimes.com/cities/delhi-news/delhis-pul-prahladpur-no-longer-a-waterlogging-hotspot-101717700099736.html, Aug 2024) confirms Pul Prahladpur as notorious waterlogging hotspot on Mehrauli-Badarpur Road, South-East Delhi. IMPORTANT NOTE: PWD removed Pul Prahladpur from its official hotspot list in 2024 after no waterlogging was recorded the previous monsoon. historyScore=71 and HIGH tier reflect historical severity; current risk likely lower. Depression depth from SRTM DEM. Drainage deficit from OSM land-use/built-up share.",
+        "dataQuality": "coordinates: ROUTE-SNAPPED (OSRM+OSM) | depressionDepthM: ESTIMATE (SRTM) | drainageDeficit: ESTIMATE (OSM) | historyScore: ESTIMATE (PWD reports) | criticalRainMmHr: ESTIMATE | IMPORTANT: PWD removed this zone from hotspot list 2024 — current risk may be lower than historyScore indicates"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_zakhira",
+      "geometry": { "type": "Point", "coordinates": [77.1535, 28.6657] },
+      "properties": {
+        "id": "z_zakhira",
+        "name": "Zakhira Underpass",
+        "lat": 28.6657,
+        "lng": 77.1535,
+        "isUnderpass": true,
+        "depressionDepthM": 3.2,
+        "drainageDeficit": 55,
+        "historyScore": 62,
+        "criticalRainMmHr": 42,
+        "source": "Coordinates: route-snapped via OSRM + OSM (New Rohtak Road landmark). HT (https://www.hindustantimes.com/cities/delhi-news/zakhira-stretch-flooding-pwd-begins-repairs-101776193541993.html, Jan 2025) reports PWD launched a 60-day, INR 4.36 crore drainage repair project on New Rohtak Road (Zakhira stretch). Multiple sources confirm Zakhira underpass waterlogging: ToI, ABP Live, WION, TimesNow (2023–2025). Depression depth from SRTM DEM. Drainage deficit from OSM municipal drain proximity.",
+        "dataQuality": "coordinates: ROUTE-SNAPPED (OSRM+OSM) | depressionDepthM: ESTIMATE (SRTM) | drainageDeficit: ESTIMATE (OSM) | historyScore: ESTIMATE (PWD reports) | criticalRainMmHr: ESTIMATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_ito",
+      "geometry": { "type": "Point", "coordinates": [77.2406, 28.6289] },
+      "properties": {
+        "id": "z_ito",
+        "name": "ITO Intersection",
+        "lat": 28.6289,
+        "lng": 77.2406,
+        "isUnderpass": false,
+        "depressionDepthM": 1.5,
+        "drainageDeficit": 45,
+        "historyScore": 55,
+        "criticalRainMmHr": 55,
+        "source": "Coordinates: route-snapped via OSRM + OSM (ITO landmark). ITO crossing is a repeatedly confirmed waterlogging hotspot: PWD officially reported waterlogging at ITO — HT (https://www.hindustantimes.com/cities/delhi-news/imd-delhi-rainfall-waterlogging-rekha-gupta-ncr-saurabh-bhardwaj-aap-bjp-commuters-metro-rain-mcd-pwd-parvesh-verma-101785262082269.html, Jul 2026) quotes PWD waterlogging reported at 'ITO, Mundka, Palla, Moti Nagar, Pitampura and the Punjabi Bagh underpass'. CORRECTION: previously cited NDTV ISBT article removed — it covers only ISBT Kashmere Gate, not ITO. This is a surface intersection, not an underpass. Depression depth estimated from road elevation (minimal bowl). Drainage deficit from urban built-up density. History score from traffic waterlogging reports.",
+        "dataQuality": "coordinates: ROUTE-SNAPPED (OSRM+OSM) | depressionDepthM: ESTIMATE (road elevation) | drainageDeficit: ESTIMATE (built-up density) | historyScore: ESTIMATE (traffic reports) | criticalRainMmHr: ESTIMATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_daryaoganj",
+      "geometry": { "type": "Point", "coordinates": [77.2410, 28.6680] },
+      "properties": {
+        "id": "z_daryaoganj",
+        "name": "ISBT Kashmere Gate Underpass",
+        "lat": 28.6680,
+        "lng": 77.2410,
+        "isUnderpass": true,
+        "depressionDepthM": 5.2,
+        "drainageDeficit": 85,
+        "historyScore": 92,
+        "criticalRainMmHr": 30,
+        "source": "Coordinates: estimated from OSM landmark proximity to ISBT Kashmere Gate / Ring Road underpass. CORRECTION: Daryaganj proper is ~3 km SW of these coordinates (28.644N, 77.238E). The stored coordinate corresponds to the ISBT Kashmere Gate / Ring Road underpass corridor. Name changed from 'Daryaoganj Underpass (ISBT)' to 'ISBT Kashmere Gate Underpass' to reflect actual location. Waterlogging history strongly corroborated: NDTV (https://www.ndtv.in/india/rain-in-delhi-water-level-of-yamuna-river-increased-waterlogging-at-kashmiri-gate-isbt-9211038, Sep 2025) confirms ISBT Kashmere Gate submerged during Yamuna swell; HT (https://www.hindustantimes.com/cities/delhi-news/delhis-ring-road-gridlocked-due-to-waterlogging-101756923612119.html, 2025) confirms Ring Road gridlocked at ISBT Kashmere Gate; New Indian Express (https://www.newindianexpress.com/cities/delhi/2025/Sep/05/civil-lines-kashmiri-gate-ring-road-flooded, Sep 2025) reports Ring Road near Kashmiri Gate waist-deep and the Kashmiri Gate Bus Stand footover submerged (NOT 'ISBT police station' — corrected); ABP Live drone footage confirms ISBT inundated Sep 2025. Depression depth from SRTM DEM. Drainage deficit from OSM drain proximity (Ring Road area, low-lying near Yamuna).",
+        "dataQuality": "coordinates: ESTIMATE (OSM landmark proximity — accurately represents ISBT Kashmere Gate area, NOT Daryaganj) | depressionDepthM: ESTIMATE (SRTM) | drainageDeficit: ESTIMATE (OSM) | historyScore: ESTIMATE (news reports, cited) | criticalRainMmHr: ESTIMATE | NOTE: Name changed from 'Daryaoganj' to 'ISBT Kashmere Gate' to correct geographic error"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_nd_railway",
+      "geometry": { "type": "Point", "coordinates": [77.2200, 28.6422] },
+      "properties": {
+        "id": "z_nd_railway",
+        "name": "New Delhi Railway Station Underpass",
+        "lat": 28.6422,
+        "lng": 77.2200,
+        "isUnderpass": true,
+        "depressionDepthM": 4.1,
+        "drainageDeficit": 78,
+        "historyScore": 80,
+        "criticalRainMmHr": 35,
+        "source": "Coordinates estimated from OpenStreetMap landmark proximity (New Delhi Railway Station). Depression depth estimated from DEM. Frequently reported waterlogging location per news sources.",
+        "dataQuality": "coordinates: ESTIMATE | depressionDepthM: ESTIMATE | drainageDeficit: ESTIMATE | historyScore: ESTIMATE | criticalRainMmHr: ESTIMATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_azad_market",
+      "geometry": { "type": "Point", "coordinates": [77.2092, 28.6596] },
+      "properties": {
+        "id": "z_azad_market",
+        "name": "Azad Market Underpass",
+        "lat": 28.6596,
+        "lng": 77.2092,
+        "isUnderpass": true,
+        "depressionDepthM": 3.6,
+        "drainageDeficit": 72,
+        "historyScore": 74,
+        "criticalRainMmHr": 38,
+        "source": "Coordinates estimated from OpenStreetMap landmark proximity (Azad Market). Depression depth estimated from DEM. History score from PWD incident reports.",
+        "dataQuality": "coordinates: ESTIMATE | depressionDepthM: ESTIMATE | drainageDeficit: ESTIMATE | historyScore: ESTIMATE | criticalRainMmHr: ESTIMATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_pratap_nagar",
+      "geometry": { "type": "Point", "coordinates": [77.2830, 28.6480] },
+      "properties": {
+        "id": "z_pratap_nagar",
+        "name": "Pandav Nagar Underpass",
+        "lat": 28.6480,
+        "lng": 77.2830,
+        "isUnderpass": true,
+        "depressionDepthM": 3.0,
+        "drainageDeficit": 65,
+        "historyScore": 60,
+        "criticalRainMmHr": 40,
+        "source": "CORRECTION (2026): zone renamed and relocated. Old data claimed 'Pratap Nagar Underpass' at [77.2055, 28.6512] in NW Delhi supported by a ToI article — but that article names 'Pandav Nagar underpass', and Pratap Nagar and Pandav Nagar are ~8 km apart, NOT adjacent. The ToI article (https://timesofindia.indiatimes.com/city/delhi/delhi-fails-first-real-monsoon-test/articleshow/132295208.cms, Jul 10 2026) explicitly lists 'Pandav Nagar underpass' among Delhi Traffic Police waterlogging flags (alongside Murga Mandi, Ghazipur) — East Delhi location. Coordinates updated to Pandav Nagar locality (OSM landmark proximity; ESTIMATE, not GPS-verified). Depression depth from DEM. Drainage deficit from built-up density. History score from the Delhi Traffic Police / ToI reference.",
+        "dataQuality": "coordinates: ESTIMATE (OSM landmark proximity — Pandav Nagar, E Delhi) | depressionDepthM: ESTIMATE (SRTM) | drainageDeficit: ESTIMATE (built-up density) | historyScore: ESTIMATE (single ToI/Traffic Police reference) | criticalRainMmHr: ESTIMATE | CORRECTED 2026: was 'Pratap Nagar Underpass' (NW Delhi coords) — renamed to Pandav Nagar to match actual ToI evidence"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_rajinder_nagar",
+      "geometry": { "type": "Point", "coordinates": [77.1765, 28.6420] },
+      "properties": {
+        "id": "z_rajinder_nagar",
+        "name": "Rajinder Nagar Underpass",
+        "lat": 28.6420,
+        "lng": 77.1765,
+        "isUnderpass": true,
+        "depressionDepthM": 2.8,
+        "drainageDeficit": 60,
+        "historyScore": 58,
+        "criticalRainMmHr": 42,
+        "source": "Coordinates estimated from OpenStreetMap landmark proximity (Rajinder Nagar). Depression depth estimated from DEM. Drainage deficit estimated from built-up density.",
+        "dataQuality": "coordinates: ESTIMATE | depressionDepthM: ESTIMATE | drainageDeficit: ESTIMATE | historyScore: ESTIMATE | criticalRainMmHr: ESTIMATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_mayur_vihar",
+      "geometry": { "type": "Point", "coordinates": [77.2890, 28.5935] },
+      "properties": {
+        "id": "z_mayur_vihar",
+        "name": "Mayur Vihar Underpass",
+        "lat": 28.5935,
+        "lng": 77.2890,
+        "isUnderpass": true,
+        "depressionDepthM": 3.4,
+        "drainageDeficit": 70,
+        "historyScore": 65,
+        "criticalRainMmHr": 38,
+        "source": "Coordinates: estimated from OSM landmark proximity (Mayur Vihar Phase 1 area). CORRECTED: This zone's waterlogging evidence is from Yamuna river flooding of the Mayur Vihar Phase 1 residential area and NH-24 underpasses, NOT from a specific 'Mayur Vihar Underpass' identified in isolation. DownToEarth (https://www.downtoearth.org.in/natural-disasters/flood-relief-camps-set-up-in-mayur-vihar-as-yamuna-swells) confirms relief camps set up in Mayur Vihar as Yamuna swelled Aug 2025; The Hindu (https://www.thehindu.com/news/cities/Delhi/yamuna-water-level-delhi-people-in-relief-camp/article70015143.ece, Sep 2025) and Economic Times (https://economictimes.indiatimes.com/news/india/yamuna-water-enters-parts-of-delhi-leading-to-severe-waterlogging-in-delhi/articleshow/123689782.cms) confirm Yamuna flooding of Mayur Vihar Phase 1 relief camps; DD India, TV9 Hindi corroborate. The NH-24 underpass near Mayur Vihar is a known low-lying flood-prone stretch. Depression depth from SRTM DEM. Drainage deficit from East Delhi municipal reports.",
+        "dataQuality": "coordinates: ESTIMATE (OSM proximity — Mayur Vihar Phase 1 / NH-24 corridor) | depressionDepthM: ESTIMATE (SRTM) | drainageDeficit: ESTIMATE (EDMC reports) | historyScore: ESTIMATE (Yamuna flood reports) | criticalRainMmHr: ESTIMATE | NOTE: Zone represents Yamuna flooding impact on Mayur Vihar Phase 1 / NH-24 underpass corridor"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_seelampur",
+      "geometry": { "type": "Point", "coordinates": [77.2710, 28.6720] },
+      "properties": {
+        "id": "z_seelampur",
+        "name": "Seelampur Underpass",
+        "lat": 28.6720,
+        "lng": 77.2710,
+        "isUnderpass": true,
+        "depressionDepthM": 4.0,
+        "drainageDeficit": 76,
+        "historyScore": 75,
+        "criticalRainMmHr": 35,
+        "source": "PARTIALLY VERIFIED: https://www.youtube.com/watch?v=SVay97eS_98 — YouTube video titled 'Flooded underpass near Old Yamuna Bridge during monsoon in Delhi' (title verified during audit; video itself not watchable in this environment). Old Yamuna Bridge is ~1 km NE of the Seelampur coordinates [77.2710, 28.6720]. This corroborates underpass flooding in the Seelampur corridor but does NOT independently confirm a named 'Seelampur Underpass' structure. Coordinates estimated from OpenStreetMap landmark proximity (Seelampur). Depression depth estimated from DEM. History score from PWD North Delhi waterlogging reports — PARTIALLY VERIFIED (no single named-underpass source found).",
+        "dataQuality": "coordinates: ESTIMATE | depressionDepthM: ESTIMATE | drainageDeficit: ESTIMATE | historyScore: ESTIMATE | criticalRainMmHr: ESTIMATE | status: PARTIALLY VERIFIED (YouTube evidence is corridor-level, not a named underpass)"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_shakur_basti",
+      "geometry": { "type": "Point", "coordinates": [77.1328, 28.6842] },
+      "properties": {
+        "id": "z_shakur_basti",
+        "name": "Shakur Basti Underpass",
+        "lat": 28.6842,
+        "lng": 77.1328,
+        "isUnderpass": true,
+        "depressionDepthM": 2.5,
+        "drainageDeficit": 50,
+        "historyScore": 35,
+        "criticalRainMmHr": 45,
+        "source": "Coordinates: estimated from OSM landmark proximity (Shakur Basti). Shakurbasti Railway Station is a real Indian Railways station in North Delhi. Moovit lists 'Shakur Basti Railway Underpass' as a transit stop. However: no specific waterlogging incidents at this underpass were found in PWD reports, traffic police advisories, or news sources. Shakur Basti area is low-lying and adjacent to the Yamuna flood plain — general flood risk is plausible, but the specific underpass is not a documented hotspot. historyScore reduced from 45 to 35 to reflect this uncertainty. Depression depth from SRTM DEM. Drainage deficit from North DMC reports.",
+        "dataQuality": "coordinates: ESTIMATE (OSM proximity) | depressionDepthM: ESTIMATE (SRTM) | drainageDeficit: ESTIMATE (North DMC) | historyScore: ESTIMATE (reduced from 45 → 35; no confirmed underpass waterlogging found) | criticalRainMmHr: ESTIMATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_rohtak_road",
+      "geometry": { "type": "Point", "coordinates": [77.0870, 28.6615] },
+      "properties": {
+        "id": "z_rohtak_road",
+        "name": "Mundka Underpass",
+        "lat": 28.6615,
+        "lng": 77.0870,
+        "isUnderpass": true,
+        "depressionDepthM": 2.2,
+        "drainageDeficit": 48,
+        "historyScore": 40,
+        "criticalRainMmHr": 48,
+        "source": "Coordinates: estimated from OSM landmark proximity to Rohtak Road near Mundka. CORRECTION: The original name 'Rohtak Road Underpass (Narela)' was geographically incorrect — Narela is in far North Delhi (~28.86N, 77.09E), while these coordinates are on Rohtak Road in the Mundka/Najafgarh area (~28.66N, 77.09E), 15+ km away. Corrected name to 'Mundka Underpass' to match actual location. Waterlogging corroborated: TimesNow (https://www.timesnownews.com/delhi/delhi-ncr-hit-by-heavy-rain-waterlogging-in-noida-traffic-disrupted-on-rohtak-road-article-112407943) confirms 'Mundka has caused significant traffic disruptions on Rohtak Road'; Jagran (https://www.jagran.com/delhi/new-delhi-city-mundka-underpass-potholes-waterlogging-cause-accidents-40134814.html) reports Mundka underpass flooding; Tribune India (https://www.tribuneindia.com/news/delhi/sewage-overflow-potholes-plague-vermas-ancestral-village-mundka/) confirms 'waterlogging' on Rohtak Road at Mundka. YouTube also documents Mundka Underpass drain project. Depression depth from SRTM DEM. Low history score reflects lower-density area.",
+        "dataQuality": "coordinates: ESTIMATE (OSM proximity — Mundka/Najafgarh area, NOT Narela) | depressionDepthM: ESTIMATE (SRTM) | drainageDeficit: ESTIMATE (OSM) | historyScore: ESTIMATE (local reports) | criticalRainMmHr: ESTIMATE | NAME CORRECTED: was 'Rohtak Road Underpass (Narela)' — Narela is 15+ km away"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_pitampura",
+      "geometry": { "type": "Point", "coordinates": [77.1360, 28.7010] },
+      "properties": {
+        "id": "z_pitampura",
+        "name": "Pitampura Underpass",
+        "lat": 28.7010,
+        "lng": 77.1360,
+        "isUnderpass": true,
+        "depressionDepthM": 2.0,
+        "drainageDeficit": 42,
+        "historyScore": 38,
+        "criticalRainMmHr": 50,
+        "source": "Coordinates estimated from OpenStreetMap landmark proximity (Pitampura). Depression depth estimated from DEM. History score from North DMC reports.",
+        "dataQuality": "coordinates: ESTIMATE | depressionDepthM: ESTIMATE | drainageDeficit: ESTIMATE | historyScore: ESTIMATE | criticalRainMmHr: ESTIMATE"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "z_model_town",
+      "geometry": { "type": "Point", "coordinates": [77.1930, 28.7180] },
+      "properties": {
+        "id": "z_model_town",
+        "name": "Model Town Underpass",
+        "lat": 28.7180,
+        "lng": 77.1930,
+        "isUnderpass": true,
+        "depressionDepthM": 2.3,
+        "drainageDeficit": 44,
+        "historyScore": 42,
+        "criticalRainMmHr": 48,
+        "source": "Coordinates estimated from OpenStreetMap landmark proximity (Model Town, North Campus). Depression depth estimated from DEM. History score from North DMC reports.",
+        "dataQuality": "coordinates: ESTIMATE | depressionDepthM: ESTIMATE | drainageDeficit: ESTIMATE | historyScore: ESTIMATE | criticalRainMmHr: ESTIMATE"
+      }
+    }
+  ]
+}
