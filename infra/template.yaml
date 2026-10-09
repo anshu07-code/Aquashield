@@ -58,13 +58,22 @@ Resources:
       Events:
         Health:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /health, Method: GET }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /health
+            Method: GET
         Zones:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /zones, Method: GET }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /zones
+            Method: GET
         ZoneDetail:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /zones/{id}, Method: GET }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /zones/{id}
+            Method: GET
 
   # citizen reports (write path: presign -> S3 -> vision -> risk recompute)
   ReportsFunction:
@@ -86,13 +95,22 @@ Resources:
       Events:
         Presign:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /reports/presign, Method: POST }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /reports/presign
+            Method: POST
         CreateReport:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /reports, Method: POST }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /reports
+            Method: POST
         ListReports:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /reports, Method: GET }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /reports
+            Method: GET
 
   # safe routing
   RouteFunction:
@@ -107,7 +125,10 @@ Resources:
       Events:
         Route:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /route, Method: POST }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /route
+            Method: POST
 
   # ops (work orders + alerts) — passcode protected
   OpsFunction:
@@ -123,13 +144,22 @@ Resources:
       Events:
         WorkordersList:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /workorders, Method: GET }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /workorders
+            Method: GET
         WorkorderPatch:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /workorders/{id}, Method: PATCH }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /workorders/{id}
+            Method: PATCH
         AlertPublish:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /alerts/{id}/publish, Method: POST }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /alerts/{id}/publish
+            Method: POST
 
   # AI agent (placeholder plan builder until P3's Strands Lambda lands; contract-stable)
   AgentFunction:
@@ -151,7 +181,10 @@ Resources:
       Events:
         AgentAsk:
           Type: HttpApi
-          Properties: { ApiId: !Ref HttpApi, Path: /agent/ask, Method: POST }
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /agent/ask
+            Method: POST
 
   # forecast ingestion every 15 min
   IngestFunction:
