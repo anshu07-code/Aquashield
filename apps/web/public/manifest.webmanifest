@@ -1,0 +1,26 @@
+{
+  "name": "JalRakshak — Delhi flood early warning",
+  "short_name": "JalRakshak",
+  "description": "Hyperlocal flood risk for Delhi's underpasses: explainable risk index, AI-verified citizen reports, safe routing.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#060a14",
+  "theme_color": "#060a14",
+  "orientation": "portrait-primary",
+  "categories": ["navigation", "weather", "utilities"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -26,7 +26,7 @@ function readMock(filename: string) {
 // CORS headers for local dev
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, x-ops-passcode",
   "Content-Type": "application/json",
 };
@@ -92,6 +92,13 @@ function route(req: http.IncomingMessage, res: http.ServerResponse) {
           uploadUrl: `http://localhost:3001/upload/${key}`,
           key,
         }));
+        return;
+      }
+
+      // PUT /upload/:key — accepts the presigned photo bytes (S3 emulation)
+      if (pathname.startsWith("/upload/") && method === "PUT") {
+        res.writeHead(200, { ...CORS, ETag: `"mock-${Date.now()}"` });
+        res.end(JSON.stringify({ ok: true }));
         return;
       }
 
