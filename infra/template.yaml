@@ -10,6 +10,10 @@ Parameters:
     Type: String
     NoEcho: true
     Description: Passcode for ops endpoints (x-ops-passcode header). Pass at deploy time.
+  BedrockModelId:
+    Type: String
+    Default: anthropic.claude-sonnet-4-5-20250929-v1:0
+    Description: Bedrock Claude multimodal model id (vision + agent). Must be enabled in the deploy region.
 
 Globals:
   Function:
@@ -26,7 +30,7 @@ Globals:
         MEDIA_BUCKET: !Ref MediaBucket
         ALERT_TOPIC_ARN: !Ref AlertTopic
         OPS_PASSCODE: !Ref OpsPasscode
-        BEDROCK_MODEL_ID: ''
+        BEDROCK_MODEL_ID: !Ref BedrockModelId
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
     Tags:
       Project: Aquashield
