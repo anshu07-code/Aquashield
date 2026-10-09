@@ -1,16 +1,8 @@
 {
-  "name": "@aquashield/ingest",
-  "private": true,
+  "name": "@aquashield/lambda-ingest",
   "version": "0.1.0",
-  "description": "Forecast ingestion Lambda — Open-Meteo -> risk-core -> RiskSnapshots",
+  "description": "Ingest Lambda runtime deps.",
   "dependencies": {
-    "@aquashield/risk-core": "*",
-    "@aquashield/types": "*",
-    "@aws-sdk/client-dynamodb": "^3.750.0",
-    "@aws-sdk/lib-dynamodb": "^3.750.0"
-  },
-  "devDependencies": {
-    "esbuild": "^0.25.0",
-    "tsx": "^4.19.0"
+    "zod": "^3.23.8"
   }
 }

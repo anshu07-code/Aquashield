@@ -48,8 +48,8 @@ Resources:
   ZonesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: services/api/
-      Handler: dist/zones.handler
+      CodeUri: ../services/api/
+      Handler: dist/zones/handler.handler
       Description: Health, zone list, zone detail
       Policies:
         - DynamoDBReadPolicy: { TableName: !Ref ZonesTable }
@@ -79,8 +79,8 @@ Resources:
   ReportsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: services/api/
-      Handler: dist/reports.handler
+      CodeUri: ../services/api/
+      Handler: dist/reports/handler.handler
       Timeout: 30
       Description: Photo presign, report submission (Bedrock vision + trust), active reports
       Policies:
@@ -116,8 +116,8 @@ Resources:
   RouteFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: services/api/
-      Handler: dist/route.handler
+      CodeUri: ../services/api/
+      Handler: dist/route/handler.handler
       Description: Safe-route alternatives scored against zone hazards (P4 owns scoring)
       Policies:
         - DynamoDBReadPolicy: { TableName: !Ref ZonesTable }
@@ -134,8 +134,8 @@ Resources:
   OpsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: services/api/
-      Handler: dist/ops.handler
+      CodeUri: ../services/api/
+      Handler: dist/ops/handler.handler
       Description: Work orders and SNS alert publishing (x-ops-passcode required)
       Policies:
         - DynamoDBCrudPolicy: { TableName: !Ref WorkOrdersTable }
@@ -165,8 +165,8 @@ Resources:
   AgentFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: services/api/
-      Handler: dist/agent.handler
+      CodeUri: ../services/api/
+      Handler: dist/agent/handler.handler
       Timeout: 30
       Description: Ask Aquashield — grounded action plan (execute=true creates work orders)
       Policies:
@@ -190,8 +190,8 @@ Resources:
   IngestFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: services/ingest/
-      Handler: dist/ingest.handler
+      CodeUri: ../services/ingest/
+      Handler: dist/ingest/handler.handler
       Timeout: 240
       Description: Open-Meteo forecast -> risk-core -> RiskSnapshots (every 15 min)
       Policies:

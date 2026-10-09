@@ -26,13 +26,14 @@ const targets = [
 void (async () => {
   for (const t of targets) {
     const serviceDir = join(root, "services", t.service);
-    const outdir = join(serviceDir, "dist");
+    // Each Lambda gets its own subdirectory to avoid overwrites
+    const outdir = join(serviceDir, "dist", t.out);
     rmSync(outdir, { recursive: true, force: true });
     mkdirSync(outdir, { recursive: true });
 
     await build({
       entryPoints: [join(serviceDir, t.entry)],
-      outfile: join(outdir, `${t.out}.js`),
+      outfile: join(outdir, "handler.js"),
       bundle: true,
       platform: "node",
       target: "node20",
@@ -42,7 +43,7 @@ void (async () => {
       logLevel: "info",
       absWorkingDir: root,
     });
-    console.log(`built: services/${t.service}/dist/${t.out}.js`);
+    console.log(`built: services/${t.service}/dist/${t.out}/handler.js`);
   }
   console.log("All Lambda bundles built.");
 })();
