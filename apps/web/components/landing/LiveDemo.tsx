@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { WaterWave } from "./WaterWave";
 import { useApp } from "@/lib/store";
 import { translate } from "@/lib/i18n";
@@ -65,31 +64,7 @@ export function LiveDemo() {
           </div>
         </div>
 
-        {/* CTAs */}
-        <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <Link
-            href="/map"
-            className="btn-hero flex items-center gap-3"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-5 w-5">
-              <path d="M3 15c3.5 0 3.5-3 7-3s3.5 3 7-3 3.5-3 4-3" strokeLinecap="round" />
-              <path d="M3 20c3.5 0 3.5-3 7-3s3.5 3 7-3 3.5-3 4-3" strokeLinecap="round" opacity=".5" />
-            </svg>
-            {translate(lang, "landing.live.cta.app")}
-          </Link>
-          <Link
-            href="/ops"
-            className="btn-hero-ghost flex items-center gap-3"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
-              <rect x="3" y="3" width="7" height="7" rx="1.6" />
-              <rect x="14" y="3" width="7" height="7" rx="1.6" />
-              <rect x="3" y="14" width="7" height="7" rx="1.6" />
-              <rect x="14" y="14" width="7" height="7" rx="1.6" />
-            </svg>
-            {translate(lang, "landing.live.cta.ops")}
-          </Link>
-        </div>
+
       </div>
 
       {/* Bottom decorative wave */}
