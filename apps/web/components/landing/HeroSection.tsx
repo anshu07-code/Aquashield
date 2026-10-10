@@ -177,11 +177,7 @@ export function HeroSection() {
         >
           <Link
             href="/map"
-            className="group flex items-center gap-3 rounded-2xl px-8 py-4 text-base font-bold text-slate-950 transition-all hover:scale-105 active:scale-95"
-            style={{
-              background: "linear-gradient(135deg, #00e5ff 0%, #0096c7 50%, #005577 100%)",
-              boxShadow: "0 8px 32px -4px rgba(0,180,216,0.5), inset 0 1px 0 rgba(255,255,255,0.4)",
-            }}
+            className="btn-hero group flex items-center gap-3"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-5 w-5">
               <path d="M3 15c3.5 0 3.5-3 7-3s3.5 3 7 3 3.5-3 4-3" strokeLinecap="round" />
@@ -195,7 +191,7 @@ export function HeroSection() {
 
           <button
             onClick={scrollToFeatures}
-            className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/5 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/10 hover:border-white/30"
+            className="btn-hero-ghost flex items-center gap-3"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
               <path d="M12 3a5 5 0 0 0-3.2 8.8c.5.5.8 1.1.9 1.7h4.6c.1-.6.4-1.2.9-1.7A5 5 0 0 0 12 3Z" strokeLinejoin="round" />

@@ -76,11 +76,7 @@ export function LiveDemo() {
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/map"
-            className="flex items-center gap-3 rounded-2xl px-8 py-4 text-base font-bold text-slate-950 transition-all hover:scale-105 active:scale-95"
-            style={{
-              background: "linear-gradient(135deg, #00e5ff 0%, #0096c7 100%)",
-              boxShadow: "0 8px 32px -4px rgba(0,180,216,0.45)",
-            }}
+            className="btn-hero flex items-center gap-3"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-5 w-5">
               <path d="M3 15c3.5 0 3.5-3 7-3s3.5 3 7-3 3.5-3 4-3" strokeLinecap="round" />
@@ -90,7 +86,7 @@ export function LiveDemo() {
           </Link>
           <Link
             href="/ops"
-            className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/5 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/10"
+            className="btn-hero-ghost flex items-center gap-3"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
               <rect x="3" y="3" width="7" height="7" rx="1.6" />
