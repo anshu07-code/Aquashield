@@ -1,4 +1,4 @@
-# DEMO.md — JalRakshak 3-Minute Demo Script
+# DEMO.md — Aquashield 3-Minute Demo Script
 
 > **For presenters:** This script is for the live demo or recorded video.
 > Steps marked `SIMULATION` use seeded/estimated data. Steps marked `PLANNED`
@@ -14,10 +14,10 @@
 | Time | Screen | Voiceover gist |
 |---|---|---|
 | 0:00-0:20 | Your own photo/footage of a flooded underpass (credited) | "Every monsoon, Delhi's underpasses trap people. They flood in minutes. Nobody warns you before you drive in." |
-| 0:20-0:50 | Live map, real forecast, click an underpass | "Aquashield scores waterlogging risk street by street. Not a black box: here's why it's 61." Show factor bars |
-| 0:50-1:15 | Rainfall simulator 30 -> 60 -> 80 | "What if rain doubles? Same engine as the backend." Show SIMULATION label |
+| 0:20-0:50 | Live map, real forecast, click an underpass | "Aquashield scores waterlogging risk street by street. Not a black box: here's why Minto is WATCH today — and what a downpour would do to it." Show factor bars |
+| 0:50-1:15 | Rainfall simulator 0 -> 40 -> 60 | "What if rain doubles? The same engine as the backend recomputes risk — watch it climb to CRITICAL." Show SIMULATION label |
 | 1:15-1:50 | Citizen uploads photo | "3 taps. Amazon Bedrock verifies the photo, rejects fakes, scores trust. Risk jumps." (show old -> new) |
-| 1:50-2:15 | Safe route | "The fastest route crosses a critical underpass. Aquashield's route avoids it: +6 minutes." |
+| 1:50-2:15 | Route alternatives + hazard flags | "Two routes. The engine flags every flooded zone along each — today that's WATCH, but crossing a CRITICAL zone never gets recommended." |
 | 2:15-2:40 | Ops dashboard + Ask AI | "A Strands agent explains why, drafts an alert in English and Hindi, creates a work order for pump dispatch." |
 | 2:40-2:55 | **AWS proof montage** + architecture | "Fully serverless on AWS: Lambda, DynamoDB, S3, Bedrock, EventBridge, SNS. Scales to zero in dry weeks." |
 | 2:55 | End card | "Don't react to floods. Predict them." |
@@ -36,10 +36,16 @@
 | Parameter | Value | Note |
 |-----------|-------|------|
 | Selected zone | Minto Bridge Underpass (`z_minto`) | `lat=28.6328, lng=77.2197` |
-| Origin (demo route) | Near Minto Bridge (Gole Market area) | `[28.6380, 77.2140]` |
-| Destination (demo route) | ITO | `[28.6289, 77.2406]` |
-| Rainfall slider value | `60 mm/hr` | SIMULATION |
+| Live risk (today) | `36 / WATCH` | Real value from the deployed API on 10-Oct; varies with rain — read it off the screen, don't hard-code |
+| Origin (demo route) | Central Delhi (app default) | `[28.61, 77.2]` — the app's default "From: Central Delhi" |
+| Destination (demo route) | Minto Bridge Underpass (`z_minto`) | `[28.6328, 77.2197]` — destination chip |
+| Rainfall slider values | `0 -> 40 -> 60 mm/hr` | SIMULATION |
+| Minto at 0 mm/hr (sim) | `60 / HIGH` | recomputed by `@aquashield/risk-core` |
+| Minto at 40 mm/hr (sim) | `85 / CRITICAL` | recomputed by `@aquashield/risk-core` |
+| Minto at 60 mm/hr (sim) | `93 / CRITICAL` | recomputed by `@aquashield/risk-core` |
 | Simulation label | `⚠️ SIMULATION — seeded from estimates` | Always show this badge |
+
+> **Verified against the live API on 10-Oct-2026:** all 15 zones seeded with fresh snapshots (~5 min old), Minto `36/WATCH`. The risk + route numbers below were re-verified live; simulator values are the literal output of `computeRisk` with the frontend's Minto seed.
 
 ---
 
@@ -49,13 +55,13 @@
 **Scene:** Full-screen risk map of Delhi, zone markers colored by tier.
 
 **Narration:**
-> "JalRakshak — hyperlocal urban flood early warning for Delhi's underpasses.
+> "Aquashield — hyperlocal urban flood early warning for Delhi's underpasses.
 >  Every marker is a real location with live risk computed from rainfall, drainage,
 >  and citizen reports. This is not a mock — these are real coordinates, seeded
 >  from OSM, municipal reports, and SRTM elevation data."
 
-**Action:** Pan/zoom the map to show zone distribution. Point out a CRITICAL zone
-(Minto Bridge, red + pulsing).
+**Action:** Pan/zoom the map to show zone distribution. Point out the highest-risk zones
+(currently ISBT Kashmere Gate ~39 / WATCH and Minto Bridge ~36 / WATCH — yellow markers).
 
 **Presenter note:** If the map is slow, zoom in on Central Delhi to show 3-4 zones.
 
@@ -64,20 +70,23 @@
 ### [0:15–0:45] Zone Risk Inspection
 **Scene:** Click Minto Bridge marker → zone detail panel slides in.
 
-**Expected UI:**
-- Risk score: **82** (SIMULATION) — CRITICAL
-- Tier badge: 🔴 CRITICAL
-- ETA to critical: **0 min** (already critical)
-- Factor breakdown bars: rainNow 92%, depression 75%, drainageDeficit 82%, history 60%
-- Top reasons: "Heavy rainfall now", "Low-lying / bowl-shaped location", "Poor drainage nearby"
+**Expected UI (live, verified 10-Oct):**
+- Risk score: **36** — WATCH (live; read current value off screen)
+- Tier badge: 🟡 WATCH
+- ETA to critical: **n/a** (forecast shows no critical within 3 h — dry day)
+- Factor breakdown bars: drainageDeficit 82, depression 80, history 88, rainNow 0, antecedent24h ≈ 0, liveEvidence 0
+- Top reasons: "Poor drainage nearby", "Low-lying / bowl-shaped location", "Known waterlogging history"
+
+> **Presenter note:** A dry October day is honest — Minto is a real hotspot (`drainage 82`, `depression 80`, `history 88`) but without rain it stays WATCH. That fixes the demo, then the **rainfall simulator** does the drama (next scene).
 
 **Narration:**
-> "Minto Bridge Underpass. Risk 82 — CRITICAL.
->  The breakdown shows why: deep underpass bowl, poor drainage, and heavy rainfall
->  have pushed it past the critical threshold. Notice the ETA is zero — it's already
->  flooded. All these numbers come from the risk engine in `packages/risk-core`."
+> "Minto Bridge Underpass. Live risk 36 — WATCH. Not a black box — the breakdown
+>  shows exactly what's driving it: this underpass sits in a 4.8-metre bowl with
+>  poor drainage and a long waterlogging history. Right now it's not raining,
+>  so it's watch-and-wait. These numbers come from the risk engine in
+>  `packages/risk-core`, refreshed every 15 minutes from live weather."
 
-**Action:** Click through the factor bars. Show the **⚠️ SIMULATION** badge.
+**Action:** Click through the factor bars. The **⚠️ SIMULATION** badge only appears once the slider is used — it's a separate screen.
 
 **Presenter note:** If live data is stale, show the "stale data" badge and say:
 > "This data is 50 minutes old — the ingest Lambda updates every 15 minutes."
@@ -89,18 +98,19 @@
 
 **Action:** Drag slider to `60 mm/hr`.
 
-**Expected change:**
-- Risk: 82 → **95** (SIMULATION)
-- Tier: CRITICAL (no change, already critical)
-- Factor bars update: rainNow increases to ~100%
+**Expected change (computed, verified via `@aquashield/risk-core`):**
+- Risk: 60 → **93** (SIMULATION) — crosses into **CRITICAL**
+- Tier: HIGH → **CRITICAL**
+- Factor bars update: rainNow jumps 0% → **100%**
 
 **Narration:**
 > "Now let's simulate 60 millimeters per hour — a record-breaking deluge.
->  Watch the rainNow factor jump. Risk climbs from 82 to 95.
->  This is running client-side using the exact same risk engine as the backend.
+>  The simulator seeds Minto's baseline at risk 60 — HIGH — because of its bad
+>  drainage and waterlogging history. Watch the rainNow factor jump with the slider.
+>  The same engine as the backend: at 60 mm/hr, Minto hits 93 — CRITICAL.
 >  The formula never changes between simulator and production."
 
-**Presenter note:** Reset the slider to 0 after demo. Say:
+**Presenter note:** Reset the slider to 0 after demo (risk returns to 60 HIGH, the seed baseline). Say:
 > "Resetting to baseline — this was a simulation."
 
 ---
@@ -112,12 +122,11 @@
 1. Tap **"Report flooding"** button
 2. Camera opens → take photo of standing water (or upload)
 3. Select type: `flooding`
-4. Submit → loading state → result card:
-   - AI analysis: "Knee-deep water with debris blocking drain"
-   - Confidence: 91%
-   - Trust: 0.82
+4. Submit → loading state → result card (from `mocks/report-response.json` unless live):
+   - AI analysis: "Waist-deep water, a vehicle is stranded." (mock `explanation`; live = model text)
+   - Confidence: 88% / Trust: 0.74
    - Status: `verified` badge
-   - Previous risk → updated risk
+   - Previous risk 72 → updated risk **89 CRITICAL** (mock shows the delta style)
 
 **Narration:**
 > "A citizen reports flooding at this underpass. The photo is analyzed by
@@ -133,26 +142,32 @@
 ---
 
 ### [1:45–2:15] Hazard-Aware Route Selection
-**Scene:** Route panel — origin: near Minto Bridge (Gole Market), destination: ITO.
+**Scene:** Route panel — app default origin "Central Delhi" `[28.61, 77.2]`, destination chip = Minto Bridge Underpass.
 
-**Expected routes (from `services/api/src/route/` handler — OSRM):**
-| Route | Duration | Hazards | Recommended |
-|-------|----------|---------|-------------|
-| Fastest (`route_1`) | 15 min | Minto Bridge 🔴 CRITICAL | ❌ unsafe |
-| Safe (`route_2`) | 22 min | ITO 🟡 WATCH (destination only) | ✅ recommended |
+**Expected routes (live OSRM, verified 10-Oct):**
+| Route | Duration | Distance | Hazards (live tiers) | Recommended |
+|-------|----------|----------|----------------------|-------------|
+| `r_fast` | ~7 min | 3.2 km | Minto Bridge 🟡 WATCH (near route) | ✅ |
+| `r_alt`  | ~7 min | 3.3 km | Minto Bridge 🟡 WATCH (near route) | — |
 
-**Route polyline on map:** Both routes drawn. Recommended route in green, fastest in grey.
+_(If you route Central Delhi → ITO instead: two alternatives ~9.6/9.8 min, hazards = ITO 🟢 SAFE.)_
+
+> **Honesty note:** The engine flags every zone within ~40 m of a polyline. Today all 15 zones are SAFE/WATCH (dry October), so **no live route is `unsafe`** — a route is only marked unsafe and never recommended when it crosses a **CRITICAL** zone. That state is reachable in a real downpour (or in the simulator on the map). Do NOT claim a live route currently avoids a flooded underpass — it doesn't today.
+
+**Route polyline on map:** Both routes drawn. Recommended route in the default accent, alternative in grey. Hazard chips show "Minto Bridge Underpass".
 
 **Narration:**
-> "Requesting a safe route from near Minto Bridge to ITO.
->  OSRM returns two alternatives. The fastest route? It goes right through
->  the Minto Bridge underpass — marked CRITICAL. We detect this by checking
->  every segment of the polyline against our zone database.
->  The safe route adds 7 minutes but avoids the flooded underpass completely.
->  This is real OSRM routing with real zone hazard detection — not a mock."
+> "Requesting a route from Central Delhi to Minto Bridge.
+>  OSRM returns two alternatives. The engine checks every segment of the
+>  polyline against our zone database and flags what each route touches —
+>  here, the Minto underpass, WATCH today. The scoring prefers the route with
+>  the lowest hazard-weighted time. On a day with real rain, when a zone is
+>  CRITICAL, any route crossing it is marked unsafe and the safe alternative
+>  is always recommended instead — never the flooded one."
 
-**Action:** Click the safe route to highlight it on map. Show the summary:
-> "Avoids 1 flooded underpass — +7 min"
+**Action:** Click the recommended route to highlight it on the map. Show the summary and hazard chips.
+
+**Fallback if you must show an "avoid a CRITICAL underpass" moment:** run the route against `mocks/route-response.json` (fastest crosses Minto CRITICAL +6 min, safe alternative) and say out loud it is a **SIMULATION** polyline — per AGENTS.md, any simulated polyline must be disclosed.
 
 ---
 
@@ -161,7 +176,7 @@
 
 **Expected (if agent is live):**
 - Zone ranked list with action buttons
-- "Ask JalRakshak" input box
+- "Ask Aquashield" input box
 - AI plan returned with actions (pump dispatch, barricade, alert draft)
 - Bilingual alert draft: English + Hindi
 
@@ -174,7 +189,7 @@
 >  Execute is disabled by default; a human must confirm before any action."
 
 **Presenter note:** If agent is not live yet, show the mock response:
-> "PLANNED: Ask JalRakshak agent — returns action plan + bilingual alert drafts."
+> "PLANNED: Ask Aquashield agent — returns action plan + bilingual alert drafts."
 
 ---
 
