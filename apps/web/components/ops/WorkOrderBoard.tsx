@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import type { WorkOrder } from "@aquashield/types";
-import { ApiError, fetchWorkOrders, patchWorkOrder, type WorkOrderStatus } from "@/lib/api";
-import { useToast } from "@/components/ui/Toast";
 import { translate, type Lang, type TKey } from "@/lib/i18n";
 import { clockTime } from "@/lib/format";
 
-const COLUMNS: { status: WorkOrderStatus; key: TKey; accent: string }[] = [
+const COLUMNS: { status: WorkOrder["status"]; key: TKey; accent: string }[] = [
   { status: "open", key: "ops.board.open", accent: "#fb4d63" },
   { status: "dispatched", key: "ops.board.dispatched", accent: "#fbbf24" },
   { status: "resolved", key: "ops.board.resolved", accent: "#2dd4a7" },
@@ -29,54 +27,32 @@ const PRIORITY_STYLE: Record<string, string> = {
 };
 
 export function WorkOrderBoard({
-  passcode,
   lang,
   pending,
+  orders,
+  loading,
+  error,
+  onAdvance,
 }: {
-  passcode: string;
   lang: Lang;
+  /** orders the agent created this session (not yet confirmed by a server round-trip) */
   pending: WorkOrder[];
+  /** orders fetched from `GET /workorders` */
+  orders: WorkOrder[];
+  loading: boolean;
+  error: string | null;
+  /** advance a work order's status (optimistic update happens in the page) */
+  onAdvance: (o: WorkOrder) => void;
 }) {
-  const toast = useToast();
-  const [orders, setOrders] = useState<WorkOrder[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setError(null);
-    try {
-      setOrders(await fetchWorkOrders(passcode));
-    } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Failed to load work orders");
-    } finally {
-      setLoading(false);
-    }
-  }, [passcode]);
+  // merge anything the agent created locally this session with server orders
+  const all = [...orders, ...pending.filter((p) => !orders.some((o) => o.id === p.id))];
 
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  // merge anything the agent created locally this session
-  const all = [...pending, ...orders];
-
-  const advance = async (o: WorkOrder) => {
-    const next: WorkOrderStatus = o.status === "open" ? "dispatched" : o.status === "dispatched" ? "resolved" : "resolved";
+  const advance = (o: WorkOrder) => {
     setBusy(o.id);
-    // optimistic update
-    setOrders((prev) => prev.map((w) => (w.id === o.id ? { ...w, status: next } : w)));
-    try {
-      await patchWorkOrder(o.id, next, passcode);
-      toast.success(translate(lang, "ops.board.updated"));
-    } catch (e) {
-      // revert on failure
-      setOrders((prev) => prev.map((w) => (w.id === o.id ? { ...w, status: o.status } : w)));
-      const msg = e instanceof ApiError ? e.message : "Update failed";
-      toast.error(translate(lang, "ops.error"), msg);
-    } finally {
-      setBusy(null);
-    }
+    onAdvance(o);
+    setTimeout(() => setBusy(null), 800);
   };
 
   if (loading) {
@@ -92,7 +68,7 @@ export function WorkOrderBoard({
     );
   }
 
-  if (error) {
+  if (error && all.length === 0) {
     return (
       <div className="card p-4">
         <div className="skeleton mb-3 h-5 w-40 rounded-full" />
