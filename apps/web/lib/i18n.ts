@@ -63,6 +63,11 @@ const en = {
   "zone.route": "Safe route",
   "zone.close": "Close",
   "zone.liveData": "Live view",
+  "zone.alert": "Public alert",
+  "zone.alert.none": "No active alert",
+  "zone.alert.published": "Alert active",
+  "zone.alert.resolved": "Alert resolved",
+  "zone.alert.publishedAt": "Sent",
 
   "factor.rainNow": "Rain right now",
   "factor.antecedent24h": "Saturated ground (24h)",
@@ -402,6 +407,11 @@ const hi: Record<keyof typeof en, string> = {
   "zone.route": "सुरक्षित मार्ग",
   "zone.close": "बंद करें",
   "zone.liveData": "लाइव व्यू",
+  "zone.alert": "पब्लिक अलर्ट",
+  "zone.alert.none": "कोई सक्रिय अलर्ट नहीं",
+  "zone.alert.published": "अलर्ट सक्रिय",
+  "zone.alert.resolved": "अलर्ट हल हो गया",
+  "zone.alert.publishedAt": "भेजा गया",
 
   "factor.rainNow": "अभी बारिश",
   "factor.antecedent24h": "सैचुरेटेड ज़मीन (24 घंटे)",

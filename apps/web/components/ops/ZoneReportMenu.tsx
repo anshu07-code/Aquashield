@@ -8,12 +8,12 @@
  *
  * Honest note: the backend has no "resolve report" endpoint, so resolution
  * is tracked client-side in localStorage — it's real UI state on real data,
- * not faked numbers. Alerts have no list endpoint yet, so that pane is a
- * labelled placeholder (per team decision).
+ * not faked numbers. The Alerts pane lists live published/draft alerts from
+ * the alerts API, filtered by zone.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Report, ZoneSummary } from "@aquashield/types";
-import { fetchZoneReports } from "@/lib/api";
+import type { Alert, Report, ZoneSummary } from "@aquashield/types";
+import { fetchZoneReports, fetchAlerts } from "@/lib/api";
 import { translate, type Lang } from "@/lib/i18n";
 import { clockTime } from "@/lib/format";
 
@@ -45,6 +45,7 @@ const STATUS_STYLE: Record<Report["status"], string> = {
   unverified: "border-amber-400/35 bg-amber-400/12 text-amber-300",
   rejected: "border-rose-400/35 bg-rose-400/12 text-rose-300",
   needs_review: "border-sky-400/35 bg-sky-400/12 text-sky-300",
+  resolved: "border-emerald-400/35 bg-emerald-400/12 text-emerald-300",
 };
 
 function statusKey(s: Report["status"]) {
@@ -57,6 +58,8 @@ function statusKey(s: Report["status"]) {
       return "zone.rejected";
     case "needs_review":
       return "zone.needsReview";
+    case "resolved":
+      return "zone.resolved";
   }
 }
 
@@ -207,6 +210,45 @@ function ReportCard({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ZoneAlertsList({ zoneId, lang }: { zoneId: string; lang: Lang }) {
+  const [alerts, setAlerts] = useState<Alert[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const stored = sessionStorage.getItem("aq_ops_passcode") ?? undefined;
+    fetchAlerts({ zoneId }, stored)
+      .then((a) => { if (!cancelled) { setAlerts(a); setLoading(false); } })
+      .catch((e: unknown) => { if (!cancelled) { setError(e instanceof Error ? e.message : "Failed to load alerts"); setLoading(false); } });
+    return () => { cancelled = true; };
+  }, [zoneId]);
+
+  if (loading) return (
+    <div className="space-y-1.5 py-1">
+      {[0,1].map(i => <div key={i} className="skeleton h-10 w-full rounded-xl" />)}
+    </div>
+  );
+  if (error) return <p className="text-[10.5px] text-rose-300/80">{error}</p>;
+  if (!alerts?.length) return <p className="text-[10.5px] text-white/40">{translate(lang, "zone.alert.none")}</p>;
+  return (
+    <div className="space-y-1.5">
+      {alerts.map((a) => (
+        <div key={a.id} className={`rounded-xl border px-2.5 py-2 text-[11px] ${a.status === "published" ? "border-amber-400/30 bg-amber-400/8 text-amber-200" : a.status === "resolved" ? "border-emerald-400/25 bg-emerald-400/8 text-emerald-300" : "border-white/10 bg-white/4 text-white/60"}`}>
+          <div className="mb-0.5 flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 rounded-full ${a.status === "published" ? "bg-amber-400" : a.status === "resolved" ? "bg-emerald-400" : "bg-white/30"}`} />
+            <span className="font-bold uppercase tracking-wider">{a.status}</span>
+            <span className="ml-auto text-[9.5px] text-white/35">{clockTime(a.publishedAt ?? a.createdAt)}</span>
+          </div>
+          <p className="leading-snug">{a.lang === "hi" || lang === "hi" ? a.text : a.text}</p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -375,13 +417,11 @@ export function ZoneReportMenu({ zone, lang }: { zone: ZoneSummary; lang: Lang }
       {view === "alerts" && (
         <div>
           <BackButton lang={lang} onClick={() => setView("root")} />
-          <div className="grid place-items-center gap-1.5 py-4 text-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="h-6 w-6 text-white/20">
-              <path d="M12 3a5 5 0 0 0-3.2 8.8c.5.5.8 1.1.9 1.7h4.6c.1-.6.4-1.2.9-1.7A5 5 0 0 0 12 3Z" strokeLinejoin="round" />
-              <path d="M10 18h4M10.5 21h3" strokeLinecap="round" />
-            </svg>
-            <p className="text-xs font-semibold text-white/60">{translate(lang, "ops.zone.alerts.coming")}</p>
-            <p className="max-w-[16rem] text-[10.5px] text-white/35">{translate(lang, "ops.zone.alerts.coming.sub")}</p>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-white/50">
+              {translate(lang, "ops.zone.alerts")}
+            </p>
+            <ZoneAlertsList zoneId={zone.id} lang={lang} />
           </div>
         </div>
       )}
