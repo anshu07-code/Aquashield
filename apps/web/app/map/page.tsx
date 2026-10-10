@@ -153,13 +153,12 @@ export default function MapPage() {
 
       <TopBar />
 
-      {/* Left column: Risk legend + Rain simulator stacked under the top bar (large screens) */}
+      {/* Left column: Risk legend under the top bar (large screens) */}
       <div
         className="fixed left-3 z-40 hidden flex-col gap-3 lg:flex"
         style={{ top: "calc(var(--topbar-h, 76px) + 6px)" }}
       >
         <Legend />
-        <RainSimulator />
       </div>
 
       {/* Critical alert strip */}
@@ -193,9 +192,9 @@ export default function MapPage() {
         </div>
       ) : null}
 
-      {/* Zone quick-bar — bottom-right carousel; locate + report buttons on the same row */}
+      {/* Zone quick-bar — bottom carousel bridging the rain simulator on the left; locate + report on the same row */}
       {effectiveZones.length > 0 && !selectedId ? (
-        <div className="fixed bottom-4 right-4 z-40 flex max-w-[min(100vw-1.5rem,54rem)] flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+        <div className="fixed bottom-4 left-[4.75rem] right-4 z-40 flex sm:bottom-6 sm:right-6">
           <div className="flex w-full items-center gap-2">
             <button
               onClick={() => scrollCards(-1)}
@@ -272,7 +271,7 @@ export default function MapPage() {
               >
                 <path d="M12 5v14M5 12h14" strokeLinecap="round" />
               </svg>
-              <span className="text-sm font-bold">
+              <span className="hidden text-sm font-bold sm:inline">
                 {translate(lang, "nav.report")}
               </span>
             </button>
@@ -300,8 +299,8 @@ export default function MapPage() {
         </div>
       ) : null}
 
-      {/* Rain simulator (mobile only — large screens get it stacked under the legend) */}
-      <div className="fixed bottom-4 left-4 z-40 sm:bottom-6 sm:left-6 lg:hidden">
+      {/* Rain simulator — bottom-left launcher; panel opens upward */}
+      <div className="fixed bottom-4 left-4 z-40 sm:bottom-6 sm:left-6">
         <RainSimulator />
       </div>
 

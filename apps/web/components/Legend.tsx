@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { TIER_META, TIER_ORDER } from "@/lib/tiers";
 import { useApp } from "@/lib/store";
@@ -9,13 +10,29 @@ export function Legend() {
   const { lang, effectiveZones, staleCount } = useApp();
   const [open, setOpen] = useState(true);
 
+  // Expose the legend's rendered height as --legend-h so the rain-sim popup can
+  // cap itself below it (never overlaps the legend).
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const apply = () => {
+      const h = Math.ceil(el.getBoundingClientRect().height);
+      document.documentElement.style.setProperty("--legend-h", `${h}px`);
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [open]);
+
   const counts = TIER_ORDER.map((t) => ({
     tier: t,
     n: effectiveZones.filter((z) => z.tier === t).length,
   }));
 
   return (
-    <div className="glass-strong w-64 overflow-hidden rounded-3xl shadow-glow">
+    <div ref={rootRef} className="glass-strong w-64 overflow-hidden rounded-3xl shadow-glow">
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center gap-2 px-4 py-3 text-left"
