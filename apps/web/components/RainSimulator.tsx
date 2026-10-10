@@ -7,7 +7,7 @@ import { TIER_META, TIER_ORDER } from "@/lib/tiers";
 
 export function RainSimulator() {
   const { lang, simRain, simActive, setSimRain, startSim, resetSim, effectiveZones } = useApp();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const distribution = TIER_ORDER.map((t) => ({
     tier: t,
@@ -15,19 +15,19 @@ export function RainSimulator() {
   }));
   const total = effectiveZones.length || 1;
 
-  // Shared panel markup (desktop inline + mobile popup)
+  // Shared panel markup (inline panel + popup)
   const panel = !simActive ? (
-    <div className="glass-strong w-64 overflow-hidden rounded-3xl p-4 shadow-glow">
+    <div className="glass-strong w-72 overflow-hidden rounded-3xl p-4 shadow-glow">
       <div className="flex items-start gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] text-sky-300">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-5 w-5">
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] text-sky-300">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-6 w-6">
             <path d="M8 19h1M12 21h1M16 19h1M5 16h1M19 16h1" strokeLinecap="round" />
             <path d="M7 13a4 4 0 0 1 1.4-7.8A5.5 5.5 0 0 1 19 7.6 3.5 3.5 0 0 1 18 13H7Z" strokeLinejoin="round" />
           </svg>
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-bold text-white">{translate(lang, "sim.title")}</h3>
-          <p className="mt-0.5 text-[11px] leading-relaxed text-white/45">{translate(lang, "sim.sub")}</p>
+          <h3 className="text-base font-bold text-white">{translate(lang, "sim.title")}</h3>
+          <p className="mt-0.5 text-xs leading-relaxed text-white/45">{translate(lang, "sim.sub")}</p>
         </div>
       </div>
       <button onClick={startSim} className="btn-primary mt-3.5 w-full">
@@ -39,7 +39,7 @@ export function RainSimulator() {
       </button>
     </div>
   ) : (
-    <div className="glass-strong w-64 overflow-hidden rounded-3xl shadow-glow">
+    <div className="glass-strong w-72 overflow-hidden rounded-3xl shadow-glow">
       <div className="flex items-center gap-2 border-b border-white/8 px-4 py-3">
         <span className="relative flex h-2.5 w-2.5">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-70" />
@@ -119,18 +119,37 @@ export function RainSimulator() {
   );
 
   return (
-    <>
-      {/* Desktop / tablet: inline panel */}
-      <div className="hidden lg:block">{panel}</div>
+    <div className="relative">
+      {/* Panel opens upward from the bottom-anchored launcher, capped below the legend */}
+      {open ? (
+        <div
+          className="absolute bottom-full left-0 z-50 mb-3 w-72 overflow-y-auto overscroll-contain"
+          style={{ maxHeight: "calc(100dvh - var(--topbar-h, 76px) - var(--legend-h, 0px) - 7.5rem)" }}
+        >
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label={translate(lang, "zone.close")}
+              className="absolute -right-2 -top-2 z-10 grid h-7 w-7 place-items-center rounded-full border border-white/15 bg-[var(--surface-3)] text-white/70 shadow-lg transition hover:text-white"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="h-4 w-4">
+                <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            {panel}
+          </div>
+        </div>
+      ) : null}
 
-      {/* Small screens: collapsed icon button */}
+      {/* Launcher — same height as the bottom scroll-bar row buttons (h-11) so it aligns */}
       <button
         type="button"
-        onClick={() => setMobileOpen((o) => !o)}
+        onClick={() => setOpen((o) => !o)}
         aria-label={translate(lang, "sim.title")}
-        aria-expanded={mobileOpen}
+        aria-expanded={open}
         title={translate(lang, "sim.title")}
-        className="glass relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl border transition-all duration-200 hover:scale-105 active:scale-95 lg:hidden"
+        className="glass relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl border transition-all duration-200 hover:scale-105 active:scale-95"
         style={{
           borderColor: simActive ? "rgba(251,191,36,0.45)" : "rgba(255,255,255,0.12)",
         }}
@@ -153,25 +172,6 @@ export function RainSimulator() {
           </span>
         ) : null}
       </button>
-
-      {/* Small screens: popup opened from icon */}
-      {mobileOpen ? (
-        <div className="fixed bottom-[92px] left-4 z-50 lg:hidden">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setMobileOpen(false)}
-              aria-label={translate(lang, "zone.close")}
-              className="absolute -right-2 -top-2 z-10 grid h-7 w-7 place-items-center rounded-full border border-white/15 bg-[var(--surface-3)] text-white/70 shadow-lg transition hover:text-white"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="h-4 w-4">
-                <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            {panel}
-          </div>
-        </div>
-      ) : null}
-    </>
+    </div>
   );
 }
