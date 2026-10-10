@@ -126,14 +126,24 @@ export default function MapPage() {
   const criticalZones = effectiveZones.filter((z) => z.tier === "CRITICAL");
   const hasCritical = criticalZones.length > 0;
 
-  // live count of published public alerts (shown as a badge under the top bar)
+  // live count of published public alerts (polled + refreshed on focus so newly
+  // published alerts appear without a page reload)
   const [publishedCount, setPublishedCount] = useState<number | null>(null);
   useEffect(() => {
     let on = true;
-    fetchAlerts({ status: "published" })
-      .then((list) => { if (on) setPublishedCount(list.filter((a) => a.status === "published").length); })
-      .catch(() => { if (on) setPublishedCount(0); });
-    return () => { on = false; };
+    const refresh = () => {
+      fetchAlerts({ status: "published" })
+        .then((list) => { if (on) setPublishedCount(list.filter((a) => a.status === "published").length); })
+        .catch(() => { if (on) setPublishedCount(0); });
+    };
+    refresh();
+    const id = window.setInterval(refresh, 30_000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      on = false;
+      window.clearInterval(id);
+      window.removeEventListener("focus", refresh);
+    };
   }, []);
 
   return (
