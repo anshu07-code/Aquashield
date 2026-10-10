@@ -20,7 +20,7 @@ const OPS_POLL_MS = 30_000;
 type WorkOrderStatus = WorkOrder["status"];
 
 export default function OpsPage() {
-  const { zones, lang } = useApp();
+  const { zones, reloadZones, lang } = useApp();
   const toast = useToast();
   const [passcode, setPasscode] = useState("");
   const [authed, setAuthed] = useState(false);
@@ -78,6 +78,8 @@ export default function OpsPage() {
   const syncRef = useRef(syncAll);
   syncRef.current = syncAll;
 
+  // auto-refresh zone KPIs so the dashboard reflects live ingest data
+
   const onCreateWorkOrders = (plan: AgentPlan, focusZone: string | null) => {
     const base: WorkOrder[] =
       plan.workOrderIds.length > 0
@@ -117,12 +119,17 @@ export default function OpsPage() {
   }, []);
 
   // kick off a sync as soon as the passcode gate is passed, then poll in the background
+  // (also refresh zone KPIs so the dashboard reflects live ingest data)
   useEffect(() => {
     if (!authed) return;
     syncRef.current();
-    const id = setInterval(() => syncRef.current(), OPS_POLL_MS);
+    reloadZones();
+    const id = setInterval(() => {
+      syncRef.current();
+      reloadZones();
+    }, OPS_POLL_MS);
     return () => clearInterval(id);
-  }, [authed]);
+  }, [authed, reloadZones]);
 
   const advanceOrder = async (o: WorkOrder) => {
     const next: WorkOrderStatus = o.status === "open" ? "dispatched" : o.status === "dispatched" ? "resolved" : "resolved";
@@ -245,7 +252,7 @@ export default function OpsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/" className="btn-ghost px-3.5 text-xs">
+            <Link href="/map" className="btn-ghost px-3.5 text-xs">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="h-4 w-4">
                 <path d="M9 20 3 12l6-8M15 4l6 8-6 8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
