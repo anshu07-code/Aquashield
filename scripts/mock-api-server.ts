@@ -14,7 +14,8 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MOCKS = path.join(__dirname, "..", "mocks");
-const PORT = 3001;
+/** Overridable so mock can run beside the web dev server: MOCK_PORT=4000 */
+const PORT = Number(process.env.MOCK_PORT ?? 3001);
 
 // Read a mock file, return parsed JSON
 function readMock(filename: string) {
