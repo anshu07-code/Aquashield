@@ -224,6 +224,18 @@ export default function RiskMap({
     });
   }, [routes, selectedRouteId, ready]);
 
+  // ---- fit to selected route ----
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !selectedRouteId || !routes) return;
+    const route = routes.find((r) => r.id === selectedRouteId);
+    if (!route || route.geometry.length < 2) return;
+    const coords = route.geometry;
+    const bounds = new maplibregl.LngLatBounds();
+    coords.forEach(([lng, lat]) => bounds.extend([lng, lat]));
+    map.fitBounds(bounds, { padding: { top: 120, bottom: 160, left: 80, right: 480 }, duration: 900, maxZoom: 14 });
+  }, [selectedRouteId, ready, routes]);
+
   // ---- user location ----
   useEffect(() => {
     const map = mapRef.current;
