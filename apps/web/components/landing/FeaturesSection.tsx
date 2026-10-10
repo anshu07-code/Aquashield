@@ -1,6 +1,14 @@
 "use client";
 
-const FEATURES = [
+import { useApp } from "@/lib/store";
+import { translate, type TKey } from "@/lib/i18n";
+
+const FEATURES: {
+  titleKey: TKey;
+  descKey: TKey;
+  color: string;
+  icon: React.ReactNode;
+}[] = [
   {
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-8 w-8">
@@ -9,8 +17,8 @@ const FEATURES = [
       </svg>
     ),
     color: "#00b4d8",
-    title: "Real-Time Risk Index",
-    desc: "AI-computed Flood Risk Index (0–100) for every underpass, updated every 15 minutes from live weather + citizen reports.",
+    titleKey: "landing.features.f1.title",
+    descKey: "landing.features.f1.desc",
   },
   {
     icon: (
@@ -21,8 +29,8 @@ const FEATURES = [
       </svg>
     ),
     color: "#06d6a0",
-    title: "AI Vision Verification",
-    desc: "Submit a photo of flooding — Amazon Bedrock Claude analyses it, confirms water depth, flags drains & debris, updates zone risk instantly.",
+    titleKey: "landing.features.f2.title",
+    descKey: "landing.features.f2.desc",
   },
   {
     icon: (
@@ -34,8 +42,8 @@ const FEATURES = [
       </svg>
     ),
     color: "#ffd166",
-    title: "Safe Route Planning",
-    desc: "Enter your destination — OSRM calculates multiple routes, colours each by flood risk, highlights unsafe zones, opens in Google Maps.",
+    titleKey: "landing.features.f3.title",
+    descKey: "landing.features.f3.desc",
   },
   {
     icon: (
@@ -46,8 +54,8 @@ const FEATURES = [
       </svg>
     ),
     color: "#f4a261",
-    title: "Citizen Report Flow",
-    desc: "3-tap report: pick type → snap photo → submit. AI verifies in seconds. No account needed. Report from anywhere.",
+    titleKey: "landing.features.f4.title",
+    descKey: "landing.features.f4.desc",
   },
   {
     icon: (
@@ -60,8 +68,8 @@ const FEATURES = [
       </svg>
     ),
     color: "#ef476f",
-    title: "Ops Command Dashboard",
-    desc: "City operations team sees ranked hotspots, AI-generated action plans, work order tracking, and one-click public alert publishing — all in one screen.",
+    titleKey: "landing.features.f5.title",
+    descKey: "landing.features.f5.desc",
   },
   {
     icon: (
@@ -71,12 +79,14 @@ const FEATURES = [
       </svg>
     ),
     color: "#a78bfa",
-    title: "What-If Simulator",
-    desc: "Slide the rainfall intensity — risk engine recomputes all zones in real-time in your browser. See what happens if rain doubles right now.",
+    titleKey: "landing.features.f6.title",
+    descKey: "landing.features.f6.desc",
   },
 ];
 
 export function FeaturesSection() {
+  const { lang } = useApp();
+
   return (
     <section
       id="features"
@@ -88,20 +98,17 @@ export function FeaturesSection() {
       {/* Section header */}
       <div className="mx-auto mb-20 max-w-7xl px-5 text-center lg:px-8">
         <span className="mb-4 inline-block text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
-          What AquaShield Does
+          {translate(lang, "landing.features.eyebrow")}
         </span>
-        <h2
-          className="mb-5 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl"
-        >
-          Built for Delhi&apos;s
+        <h2 className="mb-5 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
+          {translate(lang, "landing.features.title1")}
           <br />
           <span className="bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
-            Flood Vulnerabilities
+            {translate(lang, "landing.features.title2")}
           </span>
         </h2>
         <p className="mx-auto max-w-xl text-lg text-white/45">
-          From satellite weather feeds to citizen reports — every data point
-          flows into a single explainable risk score you can trust.
+          {translate(lang, "landing.features.sub")}
         </p>
       </div>
 
@@ -135,8 +142,8 @@ export function FeaturesSection() {
             </div>
 
             {/* Content */}
-            <h3 className="mb-3 text-lg font-bold text-white">{f.title}</h3>
-            <p className="text-sm leading-relaxed text-white/45">{f.desc}</p>
+            <h3 className="mb-3 text-lg font-bold text-white">{translate(lang, f.titleKey)}</h3>
+            <p className="text-sm leading-relaxed text-white/45">{translate(lang, f.descKey)}</p>
 
             {/* Corner glow on hover */}
             <div

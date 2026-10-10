@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { WaterWave } from "./WaterWave";
+import { useApp } from "@/lib/store";
+import { translate } from "@/lib/i18n";
 
 const RiskMap = dynamic(() => import("@/components/map/RiskMap"), { ssr: false });
 
@@ -14,6 +16,8 @@ const DEMO_ZONES = [
 ];
 
 export function LiveDemo() {
+  const { lang } = useApp();
+
   return (
     <section
       id="live-demo"
@@ -24,13 +28,13 @@ export function LiveDemo() {
         {/* Header */}
         <div className="mb-12 text-center">
           <span className="mb-4 inline-block text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
-            See it Live
+            {translate(lang, "landing.live.eyebrow")}
           </span>
           <h2 className="mb-4 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Real Zones. Real Risk.
+            {translate(lang, "landing.live.title")}
           </h2>
           <p className="text-lg text-white/45">
-            Live data from AWS Lambda + DynamoDB · Refreshes every 15 min
+            {translate(lang, "landing.live.sub")}
           </p>
         </div>
 
@@ -48,9 +52,9 @@ export function LiveDemo() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-60" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-cyan-400" />
               </span>
-              <span className="text-xs font-bold tracking-widest text-cyan-300">LIVE DATA</span>
+              <span className="text-xs font-bold tracking-widest text-cyan-300">{translate(lang, "landing.live.status")}</span>
             </div>
-            <span className="text-xs text-cyan-400/60">Updated just now</span>
+            <span className="text-xs text-cyan-400/60">{translate(lang, "landing.live.updated")}</span>
           </div>
 
           {/* Map */}
@@ -82,7 +86,7 @@ export function LiveDemo() {
               <path d="M3 15c3.5 0 3.5-3 7-3s3.5 3 7-3 3.5-3 4-3" strokeLinecap="round" />
               <path d="M3 20c3.5 0 3.5-3 7-3s3.5 3 7-3 3.5-3 4-3" strokeLinecap="round" opacity=".5" />
             </svg>
-            Open Full App
+            {translate(lang, "landing.live.cta.app")}
           </Link>
           <Link
             href="/ops"
@@ -94,7 +98,7 @@ export function LiveDemo() {
               <rect x="3" y="14" width="7" height="7" rx="1.6" />
               <rect x="14" y="14" width="7" height="7" rx="1.6" />
             </svg>
-            Ops Dashboard
+            {translate(lang, "landing.live.cta.ops")}
           </Link>
         </div>
       </div>

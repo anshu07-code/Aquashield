@@ -62,7 +62,8 @@ body {
   font-feature-settings: "cv02","cv03","cv04","ss01";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow: hidden;
+  /* overflow: hidden intentionally removed — the map page locks itself with
+     h-[100dvh] overflow-hidden, and the landing page needs normal scrolling. */
 }
 
 /* ---- Thin scrollbars ---- */

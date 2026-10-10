@@ -1,6 +1,38 @@
 "use client";
 
+import { useApp } from "@/lib/store";
+import { translate } from "@/lib/i18n";
+
 export function Footer() {
+  const { lang } = useApp();
+
+  const cols = [
+    {
+      title: translate(lang, "landing.footer.col.product"),
+      links: [
+        { label: translate(lang, "landing.footer.live"), href: "/map" },
+        { label: translate(lang, "landing.footer.ops"), href: "/ops" },
+        { label: translate(lang, "landing.footer.sim"), href: "/map" },
+      ],
+    },
+    {
+      title: translate(lang, "landing.footer.col.aws"),
+      links: [
+        { label: translate(lang, "landing.footer.l1"), href: "#" },
+        { label: translate(lang, "landing.footer.l2"), href: "#" },
+        { label: translate(lang, "landing.footer.l3"), href: "#" },
+      ],
+    },
+    {
+      title: translate(lang, "landing.footer.col.track"),
+      links: [
+        { label: translate(lang, "landing.footer.t1"), href: "#" },
+        { label: translate(lang, "landing.footer.t2"), href: "#" },
+        { label: translate(lang, "landing.footer.t3"), href: "#" },
+      ],
+    },
+  ];
+
   return (
     <footer
       className="relative border-t border-white/6 px-5 py-12 lg:px-8"
@@ -19,39 +51,13 @@ export function Footer() {
               <span className="font-display text-lg font-bold text-white">AquaShield</span>
             </div>
             <p className="text-sm leading-relaxed text-white/35">
-              Hyperlocal urban flood early-warning system for Delhi.
-              Detect · Verify · Predict · Explain · Act.
+              {translate(lang, "landing.footer.tagline")}
             </p>
           </div>
 
           {/* Links */}
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
-            {[
-              {
-                title: "Product",
-                links: [
-                  { label: "Live Map", href: "/map" },
-                  { label: "Ops Dashboard", href: "/ops" },
-                  { label: "Rain Simulator", href: "/map" },
-                ],
-              },
-              {
-                title: "AWS Services",
-                links: [
-                  { label: "Lambda + API Gateway", href: "#" },
-                  { label: "DynamoDB", href: "#" },
-                  { label: "Amazon Bedrock", href: "#" },
-                ],
-              },
-              {
-                title: "Track",
-                links: [
-                  { label: "Environmental Hacks 2026", href: "#" },
-                  { label: "WeMakeDevs x AWS", href: "#" },
-                  { label: "Demo Video", href: "#" },
-                ],
-              },
-            ].map((col) => (
+            {cols.map((col) => (
               <div key={col.title}>
                 <h4 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-white/30">
                   {col.title}
@@ -75,7 +81,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/6 pt-8 sm:flex-row">
           <p className="text-xs text-white/25">
-            © 2026 AquaShield · Built for Delhi · WeMakeDevs x AWS Environmental Hacks
+            {translate(lang, "landing.footer.copy")}
           </p>
           <div className="flex items-center gap-4">
             {["AWS", "Lambda", "DynamoDB", "Bedrock", "SNS"].map((tech) => (

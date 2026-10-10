@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useApp } from "@/lib/store";
+import { translate } from "@/lib/i18n";
 
 const STATS = [
-  { value: "15", unit: " zones", label: "Monitored underpasses across Delhi" },
-  { value: "15", unit: " min", label: "Live data refresh interval" },
-  { value: "100", unit: "%", label: "AI-verified flood reports" },
-  { value: "0.0", unit: "s", label: "Detection to alert time" },
-];
+  { value: "15", unit: " zones", labelKey: "landing.stats.s1" },
+  { value: "15", unit: " min", labelKey: "landing.stats.s2" },
+  { value: "100", unit: "%", labelKey: "landing.stats.s3" },
+  { value: "0.0", unit: "s", labelKey: "landing.stats.s4" },
+] as const;
 
 function CountUp({ target }: { target: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -29,6 +31,8 @@ function CountUp({ target }: { target: number }) {
 }
 
 export function StatsTicker() {
+  const { lang } = useApp();
+
   return (
     <section
       className="relative overflow-hidden py-20"
@@ -52,7 +56,7 @@ export function StatsTicker() {
                     {s.unit}
                   </span>
                 </div>
-                <p className="text-sm leading-relaxed text-white/40">{s.label}</p>
+                <p className="text-sm leading-relaxed text-white/40">{translate(lang, s.labelKey)}</p>
               </div>
             );
           })}

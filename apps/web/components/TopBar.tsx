@@ -72,7 +72,7 @@ export function TopBar() {
       <div className="glass-strong pointer-events-auto flex w-full max-w-7xl items-center gap-4 rounded-3xl px-4 py-3">
 
         {/* Left: logo + wordmark */}
-        <div className="flex min-w-0 items-center gap-3">
+        <Link href="/" className="flex min-w-0 items-center gap-3">
           <div className="relative">
             <LogoMark />
             {critical > 0 && (
@@ -112,7 +112,7 @@ export function TopBar() {
               Delhi · Flood Risk System
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Centre: zone quick-summary */}
         <div className="hidden flex-1 justify-center lg:flex">
