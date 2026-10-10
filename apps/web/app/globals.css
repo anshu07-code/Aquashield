@@ -110,6 +110,7 @@ body {
     --skew: -8deg;
     border-radius: 0.7rem;
     transform: skewX(var(--skew)) translateZ(0);
+    overflow: hidden;
     box-shadow:
       0 2px 0 0 rgba(0,0,0,0.55),
       0 8px 18px -6px rgba(0,0,0,0.65),
