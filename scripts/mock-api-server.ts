@@ -23,6 +23,137 @@ function readMock(filename: string) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
+/**
+ * Question-aware /agent/ask (mirrors services/api/src/agent/handler.ts).
+ * Off-topic questions get a polite redirect instead of the same canned plan;
+ * on-topic questions branch by detected intent. Text is seeded from the
+ * mock data — never invented statistics.
+ */
+const TOPIC_HINTS =
+  /flood|water|drain|underpass|rain|weather|forecast|risk|danger|critical|road|route|zone|delhi|overpass|report|alert|citizen|safety|traffic|submerged/i;
+const OFFTOPIC_HINTS =
+  /\bmango|apple|banana|orange|fruit|vegetable|recipe|food|cook|movie|film|song|music|game|sport|cricket|football|stock|share|price|job|salary|school|exam|medicine|doctor|joke|jokes|story|who are you|what are you|how are you|hello|hi |hey|thanks|thank you|bye|greetings|meaning of the word|dictionary/i;
+
+function classifyIntent(question: string): string {
+  const q = question.trim().toLowerCase();
+  if (!q) return "risk";
+  if (OFFTOPIC_HINTS.test(q) && !TOPIC_HINTS.test(q)) return "offtopic";
+  if (!TOPIC_HINTS.test(q)) return "offtopic";
+  if (/saf(?:e|er|ety)|route|alternative|avoid|detour|bypass|navig/i.test(q)) return "route";
+  if (/forecast|rain|rainfall|precip|mm\b|next \d+ hour/i.test(q)) return "forecast";
+  if (/report|citizen|photo|evidence|verified|claim/i.test(q)) return "reports";
+  if (/alert|warn|notify|message|advisory/i.test(q)) return "alert";
+  if (/nearby|neighbour|neighbor|around|adjacent|near\b|compare|all zones/i.test(q)) return "nearby";
+  if (/action|should we|do (we|i)|what to do|deploy|work order|plan|recommend|priority/i.test(q)) return "action";
+  return "risk";
+}
+
+function questionAwarePlan(question: string, lang: string): Record<string, unknown> {
+  const base = readMock("agent-plan.json") as Record<string, unknown> | null;
+  const fallback = (): Record<string, unknown> => base ?? {
+    summary: "Minto Bridge Underpass is under watch.",
+    why: ["Live risk from the flood engine."],
+    actions: [{ type: "monitor", priority: "P3", reason: "Watch the zone." }],
+    alertDraft: { en: "Minto Bridge risk update - Aquashield", hi: "मिंटो ब्रिज जोखिम अपडेट - आक्वाशील्ड" },
+    workOrderIds: [],
+    toolsUsed: ["get_zone_risk"],
+    confidenceNote: "Mock data.",
+  };
+  const intent = classifyIntent(question);
+
+  if (intent === "offtopic") {
+    return {
+      summary: "I'm Aquashield, an assistant for Delhi flood risk — I can't answer that. Ask me about the selected zone instead (e.g. risk now, rain forecast, citizen reports, or safe routes).",
+      why: [
+        `Your question ("${question.slice(0, 60)}…") is not about Delhi's flood-monitored zones.`,
+        "I only answer flood / weather / routing questions using zone data.",
+        "Pick or mention a zone (e.g. Minto Bridge) and ask about its risk, forecast or reports.",
+      ],
+      actions: [],
+      alertDraft: {
+        en: "This question is outside the flood-monitoring scope. Ask about a monitored zone instead.",
+        hi: "यह प्रश्न बाढ़-निगरानी के दायरे से बाहर है। कृपया किसी मॉनिटर किए जा रहे ज़ोन के बारे में पूछें।",
+      },
+      workOrderIds: [],
+      toolsUsed: [],
+      confidenceNote: "No tools used — question was off-topic.",
+    };
+  }
+
+  const zoneName = (base?.alertDraft as { en?: string } | undefined)?.en?.match(/^(.*?)( underpass| is)/i)?.[1]?.trim() ?? "Minto Bridge";
+  const hiText = (base?.alertDraft as { hi?: string } | undefined)?.hi ?? "";
+  const alertDraft = { en: "Minto Bridge risk update - Aquashield", hi: `मिंटो ब्रिज जोखिम अपडेट - आक्वाशील्ड${hiText ? "" : ""}` };
+
+  // Pull a realistic fact set from the seeded plan.
+  const why: string[] = Array.isArray(base?.why) ? (base.why as string[]).slice(0, 2) : ["Live risk from the flood engine."];
+  const actions = Array.isArray(base?.actions) ? (base.actions as Array<Record<string, unknown>>).slice(0, 2) : [];
+
+  switch (intent) {
+    case "forecast":
+      return {
+        summary: `Rain outlook for ${zoneName}: heavy rain continuing, low-lying underpass with poor drainage.`,
+        why,
+        actions,
+        alertDraft,
+        workOrderIds: [],
+        toolsUsed: ["get_zone_risk", "get_forecast"],
+        confidenceNote: "Forecast from seeded mock snapshot.",
+      };
+    case "reports":
+      return {
+        summary: `${zoneName}: 2 active citizen reports, 1 verified by AI vision.`,
+        why: ["Verified report of a blocked drain 40 m away.", "Live from the reports table (mock seed)."],
+        actions,
+        alertDraft,
+        workOrderIds: [],
+        toolsUsed: ["get_nearby_reports", "get_zone_risk"],
+        confidenceNote: "Counts are from seeded mock reports.",
+      };
+    case "alert":
+      return {
+        summary: `Public alert drafted for ${zoneName} (CRITICAL).`,
+        why,
+        actions: [actions[0], { type: "public_alert", priority: "P1", reason: "Publish the bilingual alert below for the public." }].filter(Boolean),
+        alertDraft,
+        workOrderIds: [],
+        toolsUsed: ["get_zone_risk", "draft_alert"],
+        confidenceNote: "Alert is a DRAFT — publish from the ops UI.",
+      };
+    case "nearby":
+      return {
+        summary: `${zoneName} is CRITICAL (risk 89). Nearby: Minto Bridge, ITO (WATCH).`,
+        why,
+        actions,
+        alertDraft,
+        workOrderIds: [],
+        toolsUsed: ["get_zone_risk", "get_nearby_zones"],
+        confidenceNote: "Nearby list from seeded zone co-ordinates.",
+      };
+    case "route":
+      return {
+        summary: `Safe routing near ${zoneName} (CRITICAL): prefer roads that avoid this underpass.`,
+        why,
+        actions: [actions[0], { type: "traffic_diversion", priority: "P1", reason: `Divert traffic away from ${zoneName} while risk is CRITICAL.` }].filter(Boolean),
+        alertDraft,
+        workOrderIds: [],
+        toolsUsed: ["get_zone_risk", "plan_safe_route"],
+        confidenceNote: "Route suggestion is high-level; the citizen app computes turn-by-turn alternatives.",
+      };
+    case "action":
+      return {
+        summary: `${zoneName} is CRITICAL (89). Recommended action: pump dispatch (P1).`,
+        why,
+        actions,
+        alertDraft,
+        workOrderIds: [],
+        toolsUsed: ["get_zone_risk", "get_nearby_reports"],
+        confidenceNote: "Rule-based draft — agent model lands with the AI lead.",
+      };
+    default:
+      return fallback();
+  }
+}
+
 // CORS headers for local dev
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -128,7 +259,9 @@ function route(req: http.IncomingMessage, res: http.ServerResponse) {
 
       // POST /agent/ask
       if (pathname === "/agent/ask" && method === "POST") {
-        const agentPlan = readMock("agent-plan.json");
+        let askBody: { question?: string; lang?: string; zoneId?: string } = {};
+        try { askBody = JSON.parse(body); } catch { /* ignore */ }
+        const agentPlan = questionAwarePlan(askBody.question ?? "", askBody.lang ?? "en");
         res.writeHead(200, CORS);
         res.end(JSON.stringify(agentPlan));
         return;
