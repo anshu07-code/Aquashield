@@ -167,7 +167,7 @@ const en = {
   "ops.sub": "Delhi flood operations · JalRakshak",
   "ops.passcode": "Ops passcode",
   "ops.enter": "Enter dashboard",
-  "ops.passcode.hint": "Demo build: any passcode works (mock backend).",
+  
   "ops.wrong": "Wrong passcode",
   "ops.back": "Back to map",
   "ops.kpi.critical": "Critical zones",
@@ -506,7 +506,6 @@ const hi: Record<keyof typeof en, string> = {
   "ops.sub": "दिल्ली बाढ़ ऑपरेशन्स · जलरक्षक",
   "ops.passcode": "ऑप्स पासकोड",
   "ops.enter": "डैशबोर्ड खोलें",
-  "ops.passcode.hint": "डेमो बिल्ड: कोई भी पासकोड चलेगा (मॉक बैकएंड)।",
   "ops.wrong": "गलत पासकोड",
   "ops.back": "मैप पर वापस",
   "ops.kpi.critical": "गंभीर ज़ोन",
