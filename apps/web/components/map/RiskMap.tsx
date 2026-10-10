@@ -12,18 +12,24 @@ const STYLE: maplibregl.StyleSpecification = {
   version: 8,
   glyphs: "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
   sources: {
-    carto: {
+    esri: {
       type: "raster",
       tiles: [
-        "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        "https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        "https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       ],
       tileSize: 256,
-      maxzoom: 20,
+      maxzoom: 18,
       attribution:
-        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> © <a href="https://carto.com/attributions">CARTO</a>',
+        '© <a href="https://www.arcgis.com/home/item.html?id=358ec1e175ea41c3bf5c68f0da11ae2b">Esri Dark Gray Canvas</a> — Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS user community',
+    },
+    esriRef: {
+      type: "raster",
+      tiles: [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+      ],
+      tileSize: 256,
+      maxzoom: 18,
+      attribution: "",
     },
   },
   layers: [
@@ -32,7 +38,8 @@ const STYLE: maplibregl.StyleSpecification = {
       type: "background",
       paint: { "background-color": "#060a14" },
     },
-    { id: "carto", type: "raster", source: "carto", minzoom: 0, maxzoom: 22 },
+    { id: "esri", type: "raster", source: "esri", minzoom: 0, maxzoom: 22 },
+    { id: "esriRef", type: "raster", source: "esriRef", minzoom: 0, maxzoom: 22 },
   ],
 };
 

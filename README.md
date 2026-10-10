@@ -58,7 +58,7 @@ Frontend (`apps/web`) — already in use, all open source:
 | [Next.js](https://nextjs.org/) / React | MIT |
 | [Tailwind CSS](https://tailwindcss.com/) | MIT |
 | [zod](https://zod.dev/) | MIT |
-| CARTO dark basemap tiles | © [CARTO](https://carto.com/) © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL) — shown in the map attribution control |
+| [Esri Dark Gray Canvas basemap](https://www.arcgis.com/home/item.html?id=358ec1e175ea41c3bf5c68f0da11ae2b) (raster tiles, keyless) | © Esri — Esri, HERE, Garmin, © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, and the GIS user community — shown in the map attribution control |
 | Fonts: Inter, Space Grotesk, Noto Sans Devanagari (next/font) | SIL Open Font License 1.1 |
 | UI icons | hand-written inline SVG (no third-party icon set) |
 
