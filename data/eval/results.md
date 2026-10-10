@@ -1,19 +1,32 @@
 # Vision Evaluation Results
 
-## Status: Pending real Bedrock inference
+## Evaluation Results (real Bedrock inference)
+**Date:** 2026-10-10T23:20:51.937022
+**Model:** Bedrock multimodal via `C:\Users\BIT\Downloads\jalrakshak/services/api/src/vision/` (`BEDROCK_MODEL_ID`)
+**Dataset:** 32 labelled images (29 produced real inferences)
 
-**Date:** 2026-10-10T12:54:01.209157
-**Model:** Bedrock multimodal via `C:\Users\BIT\Desktop\Aquashield/services/api/src/vision/` (env `BEDROCK_MODEL_ID`)
+- Model: `amazon.nova-lite-v1:0` (region `ap-southeast-2`), real Bedrock Converse inference
+- 3 of 32 images produced no valid inference (fell back to `needs_review`) and
+  are excluded from the metrics below — a fallback is never counted as a correct answer.
 
-- **Dataset labels ready:** 32 images (see `data/eval/labels.json`)
-- **Real predictions completed:** 0 of 32
-- **Errors/fallbacks:** 32 (32/32) — the vision module fell back to `needs_review`
+### Metrics (floodedRoad binary classification)
 
-> No accuracy numbers are reported until at least one image produces a real inference.
-> Running the eval (from the repo **root**):
-> ```bash
-> python data/eval/run_eval.py
-> ```
-> Requires valid AWS credentials and a working Bedrock model access
-> (`BEDROCK_MODEL_ID`, `AWS_REGION` — see `.env.example`). Until that is available,
-> the pipeline is validated but numbers are intentionally NOT reported.
+| Metric    | Value  |
+|-----------|--------|
+| Accuracy  | 0.793 |
+| Precision | 0.812 |
+| Recall    | 0.812 |
+| F1        | 0.812 |
+
+### Confusion Matrix
+
+|            | Predicted Positive | Predicted Negative |
+|------------|-------------------|-------------------|
+| Actual Positive | TP: 13 | FN: 3 |
+| Actual Negative | FP: 3 | TN: 10 |
+
+### Notes
+
+- Evaluation set: 30+ images (see data/eval/labels.json)
+- This evaluation measures floodedRoad classification accuracy only
+- Trust score is NOT evaluated here (it's a separate function with its own tests)
