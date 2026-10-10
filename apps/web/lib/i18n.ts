@@ -315,8 +315,6 @@ const en = {
   "landing.live.sub": "Live data from AWS Lambda + DynamoDB · Refreshes every 15 min",
   "landing.live.status": "LIVE DATA",
   "landing.live.updated": "Updated just now",
-  "landing.live.cta.app": "Open Full App",
-  "landing.live.cta.ops": "Ops Dashboard",
 
   "landing.cta.eyebrow": "WeMakeDevs x AWS Environmental Hacks 2026",
   "landing.cta.title1": "Ready to protect",
@@ -653,8 +651,6 @@ const hi: Record<keyof typeof en, string> = {
   "landing.live.sub": "AWS Lambda + DynamoDB से लाइव डेटा · हर 15 मिनट रीफ़्रेश",
   "landing.live.status": "लाइव डेटा",
   "landing.live.updated": "अभी अपडेट हुआ",
-  "landing.live.cta.app": "पूरा ऐप खोलें",
-  "landing.live.cta.ops": "ऑप्स डैशबोर्ड",
 
   "landing.cta.eyebrow": "WeMakeDevs x AWS एनवायरनमेंटल हैक्स 2026",
   "landing.cta.title1": "क्या आप तैयार हैं",
