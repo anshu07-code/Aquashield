@@ -9,6 +9,8 @@
 import {
   AgentAskRequestSchema,
   AgentPlanSchema,
+  AlertSchema,
+  CreateAlertRequestSchema,
   CreateReportRequestSchema,
   CreateReportResponseSchema,
   PresignResponseSchema,
@@ -240,6 +242,25 @@ export async function publishAlert(
   });
   const obj = (data ?? {}) as { id?: string; publishedAt?: string };
   return { id: obj.id ?? alertId, publishedAt: obj.publishedAt ?? new Date().toISOString() };
+}
+
+/**
+ * Create a draft alert (POST /alerts). The backend only publishes alerts that exist as
+ * drafts, so UI must create the draft first and use the returned id to publish it.
+ */
+export async function createAlert(
+  body: { zoneId: string; lang?: "en" | "hi"; text: string },
+  passcode?: string,
+): Promise<z.infer<typeof AlertSchema>> {
+  const parsed = CreateAlertRequestSchema.parse(body);
+  return parse(
+    AlertSchema,
+    await getJson(`${API_URL}/alerts`, {
+      method: "POST",
+      body: JSON.stringify(parsed),
+      headers: passcode ? { "x-ops-passcode": passcode } : undefined,
+    }),
+  );
 }
 
 export const REPORT_TYPES: ReportType[] = ["flooding", "blocked_drain", "overflow", "leak"];
