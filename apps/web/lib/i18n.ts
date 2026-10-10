@@ -58,7 +58,7 @@ const en = {
   "zone.trust": "Trust",
   "zone.simulated": "Simulated",
   "zone.ask": "Ask JalRakshak",
-  "zone.report": "Report flooding",
+  "zone.report": "Report",
   "zone.route": "Safe route",
   "zone.close": "Close",
   "zone.liveData": "Live view",
