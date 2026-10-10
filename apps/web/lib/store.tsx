@@ -80,7 +80,7 @@ type AppState = {
 
   // geolocation
   userLocation: LatLng | null;
-  locate: () => void;
+  locate: (onDenied?: () => void) => void;
   locationDenied: boolean;
 
   // language
@@ -265,9 +265,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const closeReport = useCallback(() => setReportOpen(false), []);
 
   // ---- geolocation ----
-  const locate = useCallback(() => {
+  const locate = useCallback((onDenied?: () => void) => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setLocationDenied(true);
+      onDenied?.();
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -275,7 +276,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setLocationDenied(false);
       },
-      () => setLocationDenied(true),
+      () => {
+        setLocationDenied(true);
+        onDenied?.();
+      },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 },
     );
   }, []);

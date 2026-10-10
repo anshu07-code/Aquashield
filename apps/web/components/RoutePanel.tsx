@@ -24,8 +24,11 @@ export function RoutePanel() {
     routeDestination,
     findRoutes,
     userLocation,
+    locate,
     zones,
   } = useApp();
+
+  const toast = useToast();
 
   const [tab, setTab] = useState<"route" | "ask">("route");
   const [origin, setOrigin] = useState<LatLng>(userLocation ?? DEFAULT_ORIGIN);
@@ -70,11 +73,8 @@ export function RoutePanel() {
   };
 
   const useMyLocationOrigin = () => {
-    if (userLocation) {
-      setOrigin(userLocation);
-      setOriginText(translate(lang, "route.fromMe"));
-      setUsingMyLocation(true);
-    }
+    locate(() => toast.error(translate(lang, "map.locate.denied")));
+    setUsingMyLocation(true);
     setOriginDropdown(false);
   };
 
@@ -181,7 +181,7 @@ export function RoutePanel() {
                     </svg>
                   </button>
                   {originDropdown && (
-                    <div className="absolute left-0 right-0 z-50 mt-1 rounded-2xl border border-white/12 bg-[var(--surface)] py-1.5 shadow-glow max-h-52 overflow-y-auto">
+                    <div className="absolute left-0 right-0 z-50 mt-1 rounded-2xl border border-white/12 bg-[#030b1a] py-1.5 shadow-glow max-h-52 overflow-y-auto">
                       <button
                         onMouseDown={useMyLocationOrigin}
                         className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-sky-300 hover:bg-white/[0.07] transition"
