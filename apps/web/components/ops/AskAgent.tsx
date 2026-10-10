@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { AgentPlan, ZoneSummary } from "@aquashield/types";
-import { askAgent, publishAlert, ApiError } from "@/lib/api";
+import { askAgent, createAlert, publishAlert, ApiError } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 import { translate, type Lang } from "@/lib/i18n";
 import { TIER_META } from "@/lib/tiers";
@@ -85,9 +85,15 @@ export function AskAgent({
 
   const onPublish = async () => {
     if (!plan) return;
+    const zone = zoneId ?? zones[0]?.id ?? "unknown";
     try {
-      const id = `alert-${zoneId ?? "all"}-${Date.now()}`;
-      await publishAlert(id, passcode);
+      // Backend only publishes alerts that exist as drafts — create, then publish.
+      await Promise.all(
+        (["en", "hi"] as const).map(async (l) => {
+          const alert = await createAlert({ zoneId: zone, lang: l, text: plan.alertDraft[l] }, passcode);
+          await publishAlert(alert.id, passcode);
+        }),
+      );
       setPublished(true);
       toast.success(translate(lang, "ops.plan.published"));
     } catch (e) {
