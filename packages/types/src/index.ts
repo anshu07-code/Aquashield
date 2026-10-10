@@ -89,7 +89,7 @@ export const VisionAnalysisSchema = z.object({
 });
 export type VisionAnalysis = z.infer<typeof VisionAnalysisSchema>;
 
-export const ReportStatusSchema = z.enum(["verified", "unverified", "rejected", "needs_review"]);
+export const ReportStatusSchema = z.enum(["verified", "unverified", "rejected", "needs_review", "resolved"]);
 
 export const ReportSchema = z.object({
   id: z.string(),
@@ -101,6 +101,7 @@ export const ReportSchema = z.object({
   vision: VisionAnalysisSchema,
   trust: z.number().min(0).max(1),
   status: ReportStatusSchema,
+  resolvedAt: z.string().nullable().optional(), // when status became "resolved"
 });
 export type Report = z.infer<typeof ReportSchema>;
 
@@ -210,9 +211,14 @@ export const AlertSchema = z.object({
   zoneId: z.string(),
   lang: z.enum(["en", "hi"]),
   text: z.string(),
-  status: z.enum(["draft", "published"]),
+  status: z.enum(["draft", "published", "resolved"]),
   publishedAt: z.string().nullable(),
+  createdAt: z.string(),
+  resolvedAt: z.string().nullable().optional(),
 });
+export type Alert = z.infer<typeof AlertSchema>;
+export const AlertListResponseSchema = z.object({ alerts: z.array(AlertSchema) });
+export const AlertPatchSchema = z.object({ status: z.enum(["draft", "published", "resolved"]).optional() });
 
 // ---------- ops create endpoints (agent tools + ops UI: "Create work order" / "Draft alert") ----------
 export const CreateWorkOrderRequestSchema = z.object({

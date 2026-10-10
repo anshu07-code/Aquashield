@@ -183,6 +183,43 @@ function route(req: http.IncomingMessage, res: http.ServerResponse) {
         return;
       }
 
+      // GET /alerts — list all alerts, optionally filtered by zoneId or status
+      if (pathname === "/alerts" && method === "GET") {
+        const alerts = readMock("alerts.json")?.alerts ?? [];
+        const zoneId = url.searchParams.get("zoneId");
+        const status = url.searchParams.get("status");
+        const filtered = alerts.filter((a: Record<string, unknown>) =>
+          (!zoneId || a.zoneId === zoneId) && (!status || a.status === status),
+        );
+        res.writeHead(200, CORS);
+        res.end(JSON.stringify({ alerts: filtered }));
+        return;
+      }
+
+      // GET /alerts/:id — get a single alert
+      const alertGet = pathname.match(/^\/alerts\/(.+)$/);
+      if (alertGet && method === "GET") {
+        const alerts = readMock("alerts.json")?.alerts ?? [];
+        const found = alerts.find((a: Record<string, unknown>) => a.id === alertGet[1]);
+        if (!found) {
+          res.writeHead(404, CORS);
+          res.end(JSON.stringify({ error: { code: "NOT_FOUND", message: "Alert not found" } }));
+          return;
+        }
+        res.writeHead(200, CORS);
+        res.end(JSON.stringify(found));
+        return;
+      }
+
+      // PATCH /alerts/:id — update status (e.g. resolve an alert)
+      if (alertGet && method === "PATCH") {
+        let patched = { status: "resolved", resolvedAt: new Date().toISOString() };
+        try { patched = { ...patched, ...JSON.parse(body) }; } catch { /* ignore */ }
+        res.writeHead(200, CORS);
+        res.end(JSON.stringify({ id: alertGet[1], ...patched }));
+        return;
+      }
+
       // 404
       res.writeHead(404, CORS);
       res.end(JSON.stringify({ error: { code: "NOT_FOUND", message: `Route ${method} ${pathname} not found` } }));

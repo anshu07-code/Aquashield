@@ -102,6 +102,17 @@ export interface WorkOrderItem {
   createdAt: string;
 }
 
+export interface AlertItem {
+  id: string;
+  zoneId: string;
+  lang: "en" | "hi";
+  text: string;
+  status: "draft" | "published" | "resolved";
+  publishedAt: string | null;
+  createdAt: string;
+  resolvedAt?: string | null;
+}
+
 export async function getZone(zoneId: string): Promise<ZoneItem | undefined> {
   const res = await ddb.send(new GetCommand({ TableName: Tables.zones, Key: { zoneId } }));
   return res.Item as ZoneItem | undefined;
@@ -170,4 +181,47 @@ export async function putZoneRisk(
 
 export async function putWorkOrder(item: WorkOrderItem): Promise<void> {
   await ddb.send(new PutCommand({ TableName: Tables.workorders, Item: item }));
+}
+
+export async function putAlert(item: AlertItem): Promise<void> {
+  await ddb.send(new PutCommand({ TableName: Tables.alerts, Item: item }));
+}
+
+/** Normalize a raw alert item so legacy rows (missing createdAt) match the current AlertSchema contract. */
+export function normalizeAlert(item: AlertItem): AlertItem {
+  return {
+    ...item,
+    createdAt: item.createdAt ?? item.publishedAt ?? new Date().toISOString(),
+    resolvedAt: item.resolvedAt ?? null,
+  };
+}
+
+export async function getAlert(id: string): Promise<AlertItem | undefined> {
+  const res = await ddb.send(new GetCommand({ TableName: Tables.alerts, Key: { id } }));
+  const item = res.Item as AlertItem | undefined;
+  return item ? normalizeAlert(item) : undefined;
+}
+
+/** Scan alerts with optional zoneId and status filters (fine for small tables / MVP). */
+export async function scanAlerts(opts?: {
+  zoneId?: string;
+  status?: string;
+}): Promise<AlertItem[]> {
+  let ExclusiveStartKey: Record<string, unknown> | undefined;
+  const all: AlertItem[] = [];
+  do {
+    const res = await ddb.send(
+      new ScanCommand({ TableName: Tables.alerts, ExclusiveStartKey }),
+    );
+    const items = (res.Items ?? []) as AlertItem[];
+    const filtered = opts?.zoneId || opts?.status
+      ? items.filter((a) =>
+          (!opts.zoneId || a.zoneId === opts.zoneId) &&
+          (!opts.status || a.status === opts.status)
+        )
+      : items;
+    all.push(...filtered.map(normalizeAlert));
+    ExclusiveStartKey = res.LastEvaluatedKey;
+  } while (ExclusiveStartKey);
+  return all.sort((a, b) => b.createdAt.localeCompare(a.createdAt)); // newest first
 }
