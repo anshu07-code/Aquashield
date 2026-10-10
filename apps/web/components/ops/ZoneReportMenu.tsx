@@ -48,7 +48,7 @@ const STATUS_STYLE: Record<Report["status"], string> = {
   resolved: "border-emerald-400/35 bg-emerald-400/12 text-emerald-300",
 };
 
-function statusKey(s: Report["status"]) {
+function statusKey(s: Report["status"]): "zone.verified" | "zone.unverified" | "zone.rejected" | "zone.needsReview" | "zone.resolved" {
   switch (s) {
     case "verified":
       return "zone.verified";
