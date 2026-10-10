@@ -102,11 +102,63 @@ body {
     background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
   }
 
-  /* ---- Base button shell ---- */
+  /* ---- Base button shell (parallelogram, 3D, water) ---- */
   .btn {
     @apply relative inline-flex select-none items-center justify-center gap-2
-      rounded-2xl px-4 py-2.5 text-sm font-bold transition-all duration-200
-      active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40;
+      px-4 py-2.5 text-sm font-bold transition-all duration-200
+      disabled:cursor-not-allowed disabled:opacity-40;
+    --skew: -8deg;
+    border-radius: 0.7rem;
+    transform: skewX(var(--skew)) translateZ(0);
+    box-shadow:
+      0 2px 0 0 rgba(0,0,0,0.55),
+      0 8px 18px -6px rgba(0,0,0,0.65),
+      inset 0 1px 0 rgba(255,255,255,0.10);
+    will-change: transform;
+  }
+
+  /* keep inner text/icons upright relative to the skew */
+  .btn :where(span, svg) {
+    display: inline-flex;
+    transform: skewX(calc(-1 * var(--skew)));
+  }
+
+  /* water shimmer sweep on hover */
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,0.28) 50%, transparent 62%);
+    transform: translateX(-130%) skewX(calc(-1 * var(--skew)));
+    transition: transform 0.65s ease;
+    pointer-events: none;
+  }
+  .btn:hover::before { transform: translateX(130%) skewX(calc(-1 * var(--skew))); }
+
+  /* expanding splash ring on click */
+  .btn::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 150%;
+    height: 150%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: radial-gradient(circle, rgba(0,229,255,0.22) 0%, transparent 60%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .btn:active::after { animation: btn-splash 0.55s ease-out forwards; }
+
+  .btn:hover {
+    transform: skewX(var(--skew)) scale(1.05) translateY(-2px);
+    filter: brightness(1.07);
+  }
+  .btn:active {
+    transform: skewX(var(--skew)) scale(0.97) translateY(1px);
+    filter: brightness(0.98);
   }
 
   /* ---- Primary button ---- */
@@ -114,19 +166,24 @@ body {
     @apply btn text-slate-950;
     background: linear-gradient(135deg, #00e5ff 0%, var(--accent) 50%, #0077aa 100%);
     box-shadow:
-      0 6px 28px -6px var(--accent-glow),
+      0 3px 0 0 rgba(0,0,0,0.5),
+      0 12px 30px -8px var(--accent-glow),
       inset 0 1px 0 rgba(255,255,255,0.55),
       inset 0 -1px 0 rgba(0,0,0,0.15);
   }
   .btn-primary:hover {
     box-shadow:
-      0 10px 36px -4px var(--accent-glow),
+      0 4px 0 0 rgba(0,0,0,0.45),
+      0 20px 44px -10px var(--accent-glow),
       inset 0 1px 0 rgba(255,255,255,0.7),
       inset 0 -1px 0 rgba(0,0,0,0.1);
-    transform: translateY(-1px);
-    filter: brightness(1.06);
   }
-  .btn-primary:active { transform: translateY(0px); filter: brightness(0.97); }
+  .btn-primary:active {
+    box-shadow:
+      0 1px 0 0 rgba(0,0,0,0.5),
+      0 4px 12px -4px var(--accent-glow),
+      inset 0 1px 0 rgba(255,255,255,0.35);
+  }
 
   /* ---- Ghost button ---- */
   .btn-ghost {
@@ -138,6 +195,53 @@ body {
   .btn-outline {
     @apply btn border border-[var(--border)] bg-[var(--surface)] text-[var(--text-2)]
       hover:border-[var(--border-2)] hover:bg-[var(--surface-2)] hover:text-[var(--text)];
+  }
+
+  /* ---- Hero-scale primary CTA (big parallelogram) ---- */
+  .btn-hero {
+    @apply btn px-8 py-4 text-base;
+    --skew: -9deg;
+    border-radius: 0.85rem;
+    color: #04121d;
+    font-weight: 800;
+    background: linear-gradient(135deg, #00e5ff 0%, #0096c7 55%, #005577 100%);
+    box-shadow:
+      0 3px 0 0 rgba(0,0,0,0.55),
+      0 18px 40px -10px var(--accent-glow),
+      inset 0 1px 0 rgba(255,255,255,0.5),
+      inset 0 -1px 0 rgba(0,0,0,0.2);
+  }
+  .btn-hero:hover {
+    box-shadow:
+      0 5px 0 0 rgba(0,0,0,0.5),
+      0 28px 56px -12px var(--accent-glow),
+      inset 0 1px 0 rgba(255,255,255,0.7);
+  }
+  .btn-hero:active {
+    box-shadow:
+      0 1px 0 0 rgba(0,0,0,0.5),
+      0 6px 16px -6px var(--accent-glow),
+      inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+
+  /* ---- Hero-scale secondary CTA ---- */
+  .btn-hero-ghost {
+    @apply btn px-8 py-4 text-base;
+    --skew: -9deg;
+    border-radius: 0.85rem;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.22);
+    background: linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%);
+    box-shadow:
+      0 3px 0 0 rgba(0,0,0,0.5),
+      0 12px 30px -12px rgba(0,0,0,0.7);
+  }
+  .btn-hero-ghost:hover {
+    border-color: rgba(255,255,255,0.32);
+    background: linear-gradient(180deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.05) 100%);
+  }
+  .btn-hero-ghost:active {
+    box-shadow: 0 1px 0 0 rgba(0,0,0,0.5), 0 4px 12px -8px rgba(0,0,0,0.6);
   }
 
   /* ---- Chip ---- */
@@ -387,6 +491,11 @@ input[type="range"].sim-range::-moz-range-thumb {
 @keyframes count-up {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes btn-splash {
+  0%   { transform: translate(-50%, -50%) scale(0.1); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
 }
 
 /* ---- Animation utilities (apply with `animate-*` classes) ---- */
