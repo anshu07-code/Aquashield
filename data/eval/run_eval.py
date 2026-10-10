@@ -279,6 +279,8 @@ def write_results_md(result: dict[str, Any], synthetic: bool = False):
     total = result.get("total", 0)
     errors = result.get("errors", 0)
     attempted = total + errors  # labels evaluated (real predictions + failures)
+    model = os.environ.get("BEDROCK_MODEL_ID", "not set")
+    region = os.environ.get("AWS_REGION", os.environ.get("AWS_DEFAULT_REGION", "?"))
 
     if total == 0 and attempted > 0:
         # Every image fell back to needs_review — no real inference happened.
@@ -308,20 +310,26 @@ def write_results_md(result: dict[str, Any], synthetic: bool = False):
         print(f"\nNo real inference happened — wrote a pending report to {RESULTS_FILE}")
         return
 
-    label = "## Synthetic Test Results" if synthetic else "## Evaluation Results"
+    label = "## Synthetic Test Results" if synthetic else "## Evaluation Results (real Bedrock inference)"
     metrics = result.get("metrics", {})
     cm = result.get("confusion_matrix", {})
+
+    alt = f"""
+> ⚠️ **Synthetic test flag:** This run used mock responses, not real model inference.
+> These numbers are for testing the evaluation pipeline only, NOT real model performance.
+""" if synthetic else f"""
+- Model: `{model}` (region `{region}`), real Bedrock Converse inference
+- {errors} of {attempted} images produced no valid inference (fell back to `needs_review`) and
+  are excluded from the metrics below — a fallback is never counted as a correct answer.
+"""
 
     content = f"""# Vision Evaluation Results
 
 {label}
 **Date:** {now}
-**Model:** Bedrock multimodal (via {PROJECT_ROOT}/services/api/src/vision/)
-**Dataset:** {total} images
-
-> ⚠️ **Synthetic test flag:** This run used mock responses, not real model inference.
-> These numbers are for testing the evaluation pipeline only, NOT real model performance.
-
+**Model:** Bedrock multimodal via `{PROJECT_ROOT}/services/api/src/vision/` (`BEDROCK_MODEL_ID`)
+**Dataset:** {attempted} labelled images ({total} produced real inferences)
+{alt}
 ### Metrics (floodedRoad binary classification)
 
 | Metric    | Value  |
