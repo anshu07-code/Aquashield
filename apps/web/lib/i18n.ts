@@ -13,6 +13,7 @@ const en = {
   "nav.report": "Report",
   "nav.route": "Safe route",
   "nav.simulate": "Simulate",
+  "nav.back": "Back",
 
   "map.legend": "Risk legend",
   "map.legend.sub": "Flood Risk Index · 0–100",
@@ -131,6 +132,12 @@ const en = {
   "route.error": "Routing failed. Please try again.",
   "route.selectZone": "Set destination",
   "route.zoneDest": "Selected zone as destination",
+  "route.askTab": "Ask JalRakshak",
+  "route.askTabPh": "Ask about this zone or route…",
+  "route.askResult": "AI response ready — press Execute in /ops to act on it.",
+  "route.fromCentral": "Central Delhi",
+  "route.fromHint": "Tap to change starting point",
+  "route.originLabel": "Starting point",
 
   "ops.title": "Ops Command",
   "ops.sub": "Delhi flood operations · JalRakshak",
@@ -309,6 +316,7 @@ const hi: Record<keyof typeof en, string> = {
   "nav.report": "रिपोर्ट",
   "nav.route": "सुरक्षित मार्ग",
   "nav.simulate": "सिमुलेट",
+  "nav.back": "वापस",
 
   "map.legend": "रिस्क लेजेंड",
   "map.legend.sub": "बाढ़ रिस्क इंडेक्स · 0–100",
@@ -427,6 +435,12 @@ const hi: Record<keyof typeof en, string> = {
   "route.error": "रूटिंग विफल। पुनः प्रयास करें।",
   "route.selectZone": "मंज़िल चुनें",
   "route.zoneDest": "चुना गया ज़ोन मंज़िल",
+  "route.askTab": "जलरक्षक से पूछें",
+  "route.askTabPh": "इस ज़ोन या मार्ग के बारे में पूछें…",
+  "route.askResult": "AI जवाब तैयार — कार्य करने के लिए /ops में Execute करें।",
+  "route.fromCentral": "केंद्रीय दिल्ली",
+  "route.fromHint": "प्रारंभ बिंदु बदलने के लिए टैप करें",
+  "route.originLabel": "प्रारंभ बिंदु",
 
   "ops.title": "ऑप्स कमांड",
   "ops.sub": "दिल्ली बाढ़ ऑपरेशन्स · जलरक्षक",

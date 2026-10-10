@@ -245,7 +245,7 @@ export default function OpsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/" className="btn-ghost px-3.5 text-xs">
+            <Link href="/map" className="btn-ghost px-3.5 text-xs">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="h-4 w-4">
                 <path d="M9 20 3 12l6-8M15 4l6 8-6 8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
