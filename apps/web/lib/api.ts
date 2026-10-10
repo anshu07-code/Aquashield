@@ -12,11 +12,13 @@ import {
   CreateReportRequestSchema,
   CreateReportResponseSchema,
   PresignResponseSchema,
+  ReportsListSchema,
   ReportStatusSchema,
   RouteResponseSchema,
   WorkOrderListResponseSchema,
   ZoneDetailSchema,
   ZoneListResponseSchema,
+  type Report,
   type AgentPlan,
   type LatLng,
   type ReportType,
@@ -117,6 +119,15 @@ export async function fetchZoneDetail(id: string): Promise<ZoneDetail> {
     if (USE_MOCKS && !(err instanceof ApiError)) return parse(ZoneDetailSchema, zoneDetailMock);
     throw err;
   }
+}
+
+/** `GET /reports?zoneId=` — active citizen reports for one zone (real data). */
+export async function fetchZoneReports(zoneId: string): Promise<Report[]> {
+  const data = parse(
+    ReportsListSchema,
+    await getJson(`${API_URL}/reports?zoneId=${encodeURIComponent(zoneId)}`),
+  );
+  return data.reports;
 }
 
 // ---------- reports ----------
