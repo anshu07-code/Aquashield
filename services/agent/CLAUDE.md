@@ -66,7 +66,7 @@ This is the #1 hidden blocker for the whole team.
 4. **Bilingual alerts**: every plan includes `alertDraft.en` and `alertDraft.hi` (<160 chars)
 
 5. **Evaluation set** (data/eval/):
-   - 20-30 labelled images (your own or properly licensed, credits in data/eval/CREDITS.md)
+   - 20-30 labelled images (your own or properly licensed, credits omitted by team decision)
    - Script runs images through vision module → prints accuracy + confusion matrix
    - Honest numbers in README (not inflated)
 

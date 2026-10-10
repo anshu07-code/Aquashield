@@ -6,13 +6,13 @@ Run against labelled evaluation images to measure triage accuracy.
 
 Usage:
   MOCK_BEDROCK=1 python data/eval/run_eval.py           # Use mock Bedrock responses
-  MOCK_BEDROCK=1 python data/eval/run_eval.py --live   # Test images through mock only
+  MOCK_BEDROCK=0 python data/eval/run_eval.py --live   # Real Bedrock inference (requires AWS creds + BEDROCK_MODEL_ID)
 
 Requirements:
   - Images in data/eval/images/
   - Labels in data/eval/labels.json
+  - Node.js + tsx installed at the repo root (npm install)
   - Python 3.10+
-  - pydantic, python-dotenv
 
 Outputs:
   - Console: per-image results, accuracy, confusion matrix
@@ -27,13 +27,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 
-# Add services/api/src/vision to path for the vision module
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "services" / "api" / "src" / "vision"))
+VISION_CLI = PROJECT_ROOT / "data" / "eval" / "vision-cli.ts"
 
 LABELS_FILE = PROJECT_ROOT / "data" / "eval" / "labels.json"
 RESULTS_FILE = PROJECT_ROOT / "data" / "eval" / "results.md"
@@ -47,22 +47,15 @@ def load_labels() -> dict[str, Any]:
             f"labels.json not found at {LABELS_FILE}. "
             "See labels.json.example for the format."
         )
-    with open(LABELS_FILE) as f:
+    with open(LABELS_FILE, encoding="utf-8") as f:
         return json.load(f)
 
 
 def run_vision_on_image(image_path: Path) -> dict[str, Any]:
     """
-    Run the vision module on a single image.
-    Falls back to mock if MOCK_BEDROCK=1 or if image doesn't exist.
+    Run the vision module on a single image by invoking data/eval/vision-cli.ts
+    (TypeScript bridge -> services/api/src/vision/index.ts) in a subprocess.
     """
-    os.environ.setdefault("MOCK_BEDROCK", "1")
-
-    try:
-        from index import analyzeImage
-    except ImportError as e:
-        return {"error": f"Could not import vision module: {e}"}
-
     if not image_path.exists():
         return {
             "error": f"Image not found: {image_path}",
@@ -70,33 +63,69 @@ def run_vision_on_image(image_path: Path) -> dict[str, Any]:
             "floodedRoad": None,
         }
 
-    try:
-        with open(image_path, "rb") as f:
-            image_bytes = f.read()
-    except Exception as e:
-        return {"error": f"Could not read image: {e}"}
-
     content_type = "image/jpeg"
     if image_path.suffix.lower() in (".png",):
         content_type = "image/png"
     elif image_path.suffix.lower() in (".webp",):
         content_type = "image/webp"
 
+    env = os.environ.copy()
+    # The CLI inherits MOCK_BEDROCK / BEDROCK_MODEL_ID / AWS_* from this process.
+
+    # Windows: npx is npx.cmd — subprocess on Windows won't resolve bare "npx".
+    npx = "npx.cmd" if os.name == "nt" else "npx"
+
     try:
-        result = analyzeImage(image_bytes, content_type)
+        proc = subprocess.run(
+            [npx, "tsx", str(VISION_CLI), str(image_path), content_type],
+            capture_output=True,
+            text=True,
+            timeout=90,
+            cwd=str(PROJECT_ROOT),
+            env={**os.environ, "MOCK_BEDROCK": "0"},  # CLI runs the REAL module path
+        )
+    except subprocess.TimeoutExpired:
+        return {"error": "vision-cli timed out", "isRoadScene": None, "floodedRoad": None}
+    except FileNotFoundError as e:
+        return {"error": f"Could not run vision-cli (npx/tsx not found?): {e}", "isRoadScene": None, "floodedRoad": None}
+
+    if proc.returncode != 0:
         return {
-            "isRoadScene": result.get("isRoadScene"),
-            "floodedRoad": result.get("floodedRoad"),
-            "waterDepthTier": result.get("waterDepthTier"),
-            "blockedDrain": result.get("blockedDrain"),
-            "debrisOrWasteObstruction": result.get("debrisOrWasteObstruction"),
-            "vehiclesStranded": result.get("vehiclesStranded"),
-            "confidence": result.get("confidence"),
-            "explanation": result.get("explanation"),
-            "error": None,
+            "error": f"vision-cli failed ({proc.returncode}): {(proc.stderr or '').strip()[:300]}",
+            "isRoadScene": None,
+            "floodedRoad": None,
         }
-    except Exception as e:
-        return {"error": str(e), "isRoadScene": None, "floodedRoad": None}
+
+    try:
+        payload = json.loads(proc.stdout.strip())
+    except json.JSONDecodeError as e:
+        return {"error": f"vision-cli returned non-JSON: {e} | stdout: {proc.stdout[:200]}", "isRoadScene": None, "floodedRoad": None}
+
+    if payload.get("error"):
+        return {"error": payload["error"], "isRoadScene": None, "floodedRoad": None}
+
+    result = payload.get("vision") or {}
+
+    # Honesty guard: the needs_review / fallback output means the model did NOT
+    # actually infer. Count it as an error so it never inflates TN counts.
+    if result.get("confidence") == 0 or (result.get("explanation") or "").lower().startswith("vision unavailable"):
+        return {
+            "error": f"fallback output (no real inference): {(result.get('explanation') or '')[:120]}",
+            "isRoadScene": None,
+            "floodedRoad": None,
+        }
+
+    return {
+        "isRoadScene": result.get("isRoadScene"),
+        "floodedRoad": result.get("floodedRoad"),
+        "waterDepthTier": result.get("waterDepthTier"),
+        "blockedDrain": result.get("blockedDrain"),
+        "debrisOrWasteObstruction": result.get("debrisOrWasteObstruction"),
+        "vehiclesStranded": result.get("vehiclesStranded"),
+        "confidence": result.get("confidence"),
+        "explanation": result.get("explanation"),
+        "error": None,
+    }
 
 
 def evaluate_predictions(labels: list[dict], predictions: list[dict]) -> dict[str, Any]:
@@ -241,7 +270,44 @@ def print_results(result: dict[str, Any], synthetic: bool = False):
 
 
 def write_results_md(result: dict[str, Any], synthetic: bool = False):
-    """Write honest evaluation results to data/eval/results.md."""
+    """Write evaluation results to data/eval/results.md (honest: never fake numbers)."""
+    try:
+        import datetime
+    except ImportError:  # pragma: no cover
+        datetime = __import__("datetime")
+    now = datetime.datetime.now().isoformat()
+    total = result.get("total", 0)
+    errors = result.get("errors", 0)
+    attempted = total + errors  # labels evaluated (real predictions + failures)
+
+    if total == 0 and attempted > 0:
+        # Every image fell back to needs_review — no real inference happened.
+        # Write an honest "pending" report, NOT a zeroed metrics table.
+        content = f"""# Vision Evaluation Results
+
+## Status: Pending real Bedrock inference
+
+**Date:** {now}
+**Model:** Bedrock multimodal via `{PROJECT_ROOT}/services/api/src/vision/` (env `BEDROCK_MODEL_ID`)
+
+- **Dataset labels ready:** {attempted} images (see `data/eval/labels.json`)
+- **Real predictions completed:** 0 of {attempted}
+- **Errors/fallbacks:** {errors} ({errors}/{attempted}) — the vision module fell back to `needs_review`
+
+> No accuracy numbers are reported until at least one image produces a real inference.
+> Running the eval (from the repo **root**):
+> ```bash
+> python data/eval/run_eval.py
+> ```
+> Requires valid AWS credentials and a working Bedrock model access
+> (`BEDROCK_MODEL_ID`, `AWS_REGION` — see `.env.example`). Until that is available,
+> the pipeline is validated but numbers are intentionally NOT reported.
+"""
+        with open(RESULTS_FILE, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"\nNo real inference happened — wrote a pending report to {RESULTS_FILE}")
+        return
+
     label = "## Synthetic Test Results" if synthetic else "## Evaluation Results"
     metrics = result.get("metrics", {})
     cm = result.get("confusion_matrix", {})
@@ -249,9 +315,9 @@ def write_results_md(result: dict[str, Any], synthetic: bool = False):
     content = f"""# Vision Evaluation Results
 
 {label}
-**Date:** {__import__('datetime').datetime.now().isoformat()}
+**Date:** {now}
 **Model:** Bedrock multimodal (via {PROJECT_ROOT}/services/api/src/vision/)
-**Dataset:** {result.get('total', 0)} images
+**Dataset:** {total} images
 
 > ⚠️ **Synthetic test flag:** This run used mock responses, not real model inference.
 > These numbers are for testing the evaluation pipeline only, NOT real model performance.
@@ -274,13 +340,12 @@ def write_results_md(result: dict[str, Any], synthetic: bool = False):
 
 ### Notes
 
-- Evaluation set: 20-30 images (see data/eval/labels.json)
-- Images must be properly licensed with credits in data/eval/CREDITS.md
+- Evaluation set: 30+ images (see data/eval/labels.json)
 - This evaluation measures floodedRoad classification accuracy only
 - Trust score is NOT evaluated here (it's a separate function with its own tests)
 """
 
-    with open(RESULTS_FILE, "w") as f:
+    with open(RESULTS_FILE, "w", encoding="utf-8") as f:
         f.write(content)
 
     print(f"\nResults written to {RESULTS_FILE}")
@@ -322,11 +387,7 @@ def main():
         sys.exit(1)
 
     print(f"\nEvaluating {len(labels_list)} images...")
-
-    # Set mock mode
-    if not args.live:
-        os.environ["MOCK_BEDROCK"] = "1"
-        print("(Using MOCK_BEDROCK=1 — set MOCK_BEDROCK=0 for real inference)")
+    print("Real inference mode (requires AWS creds + BEDROCK_MODEL_ID); fallback outputs are reported as errors.")
 
     predictions = []
     for label in labels_list:
