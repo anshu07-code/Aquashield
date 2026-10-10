@@ -16,6 +16,7 @@ const STATUS_STYLE: Record<ReportStatus, string> = {
   unverified: "border-amber-400/35 bg-amber-400/12 text-amber-300",
   rejected: "border-rose-400/35 bg-rose-400/12 text-rose-300",
   needs_review: "border-sky-400/35 bg-sky-400/12 text-sky-300",
+  resolved: "border-white/20 bg-white/5 text-white/40",
 };
 
 function statusKey(s: ReportStatus) {
@@ -28,6 +29,8 @@ function statusKey(s: ReportStatus) {
       return "zone.rejected";
     case "needs_review":
       return "zone.needsReview";
+    case "resolved":
+      return "zone.resolved";
   }
 }
 
