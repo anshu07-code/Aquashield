@@ -72,6 +72,14 @@ export interface ZoneHazard {
   tier: "SAFE" | "WATCH" | "HIGH" | "CRITICAL";
 }
 
+export interface RouteStep {
+  instruction: string;
+  maneuver: string;
+  distance: number;
+  duration: number;
+  streetName: string | null;
+}
+
 export interface RouteResult {
   id: string;
   geometry: [number, number][]; // [lng, lat][] — GeoJSON order
@@ -82,6 +90,7 @@ export interface RouteResult {
   unsafe: boolean;
   recommended: boolean;
   summary: string;
+  steps: RouteStep[];
 }
 
 export interface ComputeRoutesInput {
@@ -100,11 +109,34 @@ export interface ComputeRoutesInput {
   }>;
 }
 
+export interface OsrmManeuver {
+  type: string;
+  modifier?: string;
+  location?: [number, number];
+  name?: string;
+}
+
+export interface OsrmStep {
+  maneuver: OsrmManeuver;
+  mode: string;
+  name?: string;
+  distance: number;  // meters
+  duration: number;  // seconds
+  instruction: string;
+}
+
+export interface OsrmLeg {
+  steps: OsrmStep[];
+  distance: number;
+  duration: number;
+  summary: string;
+}
+
 export interface OsrmRoute {
   geometry: { coordinates: [number, number][]; type: "LineString" };
   duration: number; // seconds
   distance: number;  // meters
-  legs: unknown[];
+  legs: OsrmLeg[];
 }
 
 export interface OsrmResponse {
@@ -126,7 +158,7 @@ export async function computeRoutes(input: ComputeRoutesInput): Promise<{ routes
   const osrmUrl =
     `${OSRM_BASE}/route/v1/driving/` +
     `${origin.lng},${origin.lat};${destination.lng},${destination.lat}` +
-    `?alternatives=3&overview=full&geometries=geojson&steps=false`;
+    `?alternatives=3&overview=full&geometries=geojson&steps=true`;
 
   let osrmData: OsrmResponse;
 
@@ -163,6 +195,16 @@ export async function computeRoutes(input: ComputeRoutesInput): Promise<{ routes
 
   for (let i = 0; i < osrmData.routes.length; i++) {
     const r = osrmData.routes[i];
+
+    // Extract turn-by-turn steps from OSRM legs
+    const steps = (r.legs[0]?.steps ?? []).map((step: OsrmStep) => ({
+      instruction: step.instruction || maneuverInstruction(step.maneuver.type, step.maneuver.modifier, step.maneuver.name),
+      maneuver: step.maneuver.type,
+      distance: Math.round(step.distance),
+      duration: Math.round(step.duration),
+      streetName: step.name ?? null,
+    }));
+
     const routeHazards = detectHazards(r.geometry.coordinates, zones);
 
     // Compute score
@@ -173,7 +215,7 @@ export async function computeRoutes(input: ComputeRoutesInput): Promise<{ routes
     const crossesCritical = routeHazards.some((h) => h.tier === "CRITICAL");
     const unsafe = crossesCritical;
 
-    const summary = buildSummary(routeHazards, r.duration / 60, r.distance / 1000);
+    const summary = buildSummary(routeHazards, r.duration / 60, r.distance / 1000, steps);
 
     results.push({
       id: `route_${i + 1}`,
@@ -185,6 +227,7 @@ export async function computeRoutes(input: ComputeRoutesInput): Promise<{ routes
       unsafe,
       recommended: false, // set below after ranking
       summary,
+      steps,
     });
   }
 
@@ -245,33 +288,42 @@ export function detectHazards(
 
 // ---------- Summary text ----------
 
-function buildSummary(hazards: ZoneHazard[], durationMin: number, distanceKm: number): string {
+function maneuverInstruction(type: string, modifier?: string, name?: string): string {
+  const mod = modifier ? `${modifier} ` : "";
+  if (!name) return `${mod}${type}`.trim();
+  return `Turn ${mod}onto ${name}`;
+}
+
+function buildSummary(
+  hazards: ZoneHazard[],
+  durationMin: number,
+  distanceKm: number,
+  steps: { instruction: string }[],
+): string {
+  const turnCount = steps.filter((s) =>
+    /^(turn|merge|depart|arrive| roundabout|rotary|passing)$/.test(s.instruction.toLowerCase()),
+  ).length;
+
   if (hazards.length === 0) {
-    return `Fastest route — ${Math.round(durationMin)} min, ${distanceKm.toFixed(1)} km`;
+    const turnStr = turnCount > 0 ? `, ${turnCount} turn${turnCount !== 1 ? "s" : ""}` : "";
+    return `${Math.round(durationMin)} min, ${distanceKm.toFixed(1)} km — fastest route${turnStr}`;
   }
 
   const counts = { SAFE: 0, WATCH: 0, HIGH: 0, CRITICAL: 0 };
   for (const h of hazards) counts[h.tier]++;
 
   const parts: string[] = [];
-
   if (counts.CRITICAL > 0) parts.push(`${counts.CRITICAL} CRITICAL`);
   if (counts.HIGH > 0) parts.push(`${counts.HIGH} HIGH`);
   if (counts.WATCH > 0) parts.push(`${counts.WATCH} WATCH`);
-
   const hazardStr = parts.join(", ");
 
   if (counts.CRITICAL > 0) {
-    return `Crosses ${hazardStr} ${counts.CRITICAL > 1 ? "zones" : "zone"} — unsafe, ${Math.round(durationMin)} min`;
+    return `Crosses ${hazardStr} — unsafe, ${Math.round(durationMin)} min${turnCount > 0 ? `, ${turnCount} turns` : ""}`;
   }
 
   const extraMin = Math.round(HAZARD_LAMBDA * hazards.reduce((s, h) => s + HAZARD_WEIGHT[h.tier], 0));
-
-  if (extraMin > 0) {
-    return `Avoids ${hazardStr} underpasses — +${extraMin} min, ${Math.round(durationMin)} min total`;
-  }
-
-  return `Route with ${hazardStr} — ${Math.round(durationMin)} min, ${distanceKm.toFixed(1)} km`;
+  return `Avoids ${hazardStr} — +${extraMin} min, ${Math.round(durationMin)} min total, ${distanceKm.toFixed(1)} km${turnCount > 0 ? `, ${turnCount} turns` : ""}`;
 }
 
 // ---------- Lambda handler ----------

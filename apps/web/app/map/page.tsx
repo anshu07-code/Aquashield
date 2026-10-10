@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useApp } from "@/lib/store";
 import { useToast } from "@/components/ui/Toast";
 import { translate } from "@/lib/i18n";
@@ -153,7 +154,26 @@ export default function MapPage() {
 
       <TopBar />
 
-      {/* Left column: Risk legend under the top bar (large screens) */}
+      {/* Back to home — full-screen map needs an escape hatch */}
+      <Link
+        href="/"
+        aria-label={translate(lang, "nav.back")}
+        title={translate(lang, "nav.back")}
+        className="glass fixed left-3 top-16 z-40 grid h-11 w-11 place-items-center rounded-2xl border transition-all duration-200 hover:scale-105 active:scale-95 lg:left-[300px]"
+        style={{ borderColor: "rgba(255,255,255,0.12)" }}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--accent, #00b4d8)"
+          strokeWidth="2.4"
+          className="h-5 w-5"
+        >
+          <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </Link>
+
+      {/* Left column: Risk legend + Rain simulator stacked under the top bar (large screens) */}
       <div
         className="fixed left-3 z-40 hidden flex-col gap-3 lg:flex"
         style={{ top: "calc(var(--topbar-h, 76px) + 6px)" }}
