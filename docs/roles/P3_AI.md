@@ -13,7 +13,7 @@ Prove one Bedrock multimodal call works from a Lambda in your chosen region with
 3. **Strands agent (Python Lambda):** tools `get_zone_risk`, `get_forecast`, `get_nearby_reports`, `get_nearby_zones`, `plan_safe_route`, `create_work_order`, `draft_alert`, `publish_alert`. Tools call our own API/DynamoDB. System prompt: use tools for every number, never guess, be concise, output only the schema. `execute=false` -> no side effects. `execute=true` -> may create work orders and alert drafts. Return `toolsUsed`.
 4. **Bilingual alerts:** every plan includes `alertDraft.en` and `alertDraft.hi` (simple, actionable, <160 chars each).
 5. **Latency:** target <8 s for vision, <20 s for agent (API Gateway ~30 s cap). Fast model, max 4 tool calls, concise prompts.
-6. **Evaluation set:** 20-30 labelled images (your own photos or properly licensed ones; keep credits in `data/eval/CREDITS.md`). Script prints accuracy + confusion matrix; paste into README. Honest numbers beat fake perfection.
+6. **Evaluation set:** 20-30 labelled images (your own photos or properly licensed ones; keep credits if available). Script prints accuracy + confusion matrix; paste into README. Honest numbers beat fake perfection.
 7. **Blog (AirPods prize):** after the app works, write the AWS Builder Center post: problem, architecture, what fought back, evaluation numbers, AI coding tools used. Publish and link it in the submission.
 
 ## Don'ts
