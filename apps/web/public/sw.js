@@ -40,7 +40,7 @@ self.addEventListener("fetch", (event) => {
 
   // navigation (HTML documents): ALWAYS network-first so the latest build is served
   if (request.mode === "navigate") {
-    event.respondWith(networkFirst(request));
+    event.respondWith(networkFirst(request, 3000, true /* bypassHttpCache */));
     return;
   }
 
@@ -69,7 +69,10 @@ function networkFirst(request: Request, timeoutMs = 4000): Promise<Response> {
   const timeout = new Promise<Response>((resolve) =>
     setTimeout(() => resolve(undefined as unknown as Response), timeoutMs),
   );
-  return Promise.race([fetch(request), timeout])
+  // cache:"no-store" forces a real network round-trip — the plain HTTP cache can
+  // otherwise hand a stale HTML page straight back (the old-UI-on-refresh bug).
+  const fetchOpts: RequestInit = { cache: "no-store" };
+  return Promise.race([fetch(request, fetchOpts), timeout])
     .catch(() => undefined)
     .then((response) => {
       if (response) return response;
