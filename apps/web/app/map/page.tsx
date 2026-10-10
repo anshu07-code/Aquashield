@@ -66,7 +66,6 @@ export default function MapPage() {
   const {
     lang,
     effectiveZones,
-    zonesLoading,
     zonesError,
     reloadZones,
     selectedId,
@@ -214,13 +213,13 @@ export default function MapPage() {
 
       {/* Zone quick-bar — bottom carousel bridging the rain simulator on the left; locate + report on the same row */}
       {effectiveZones.length > 0 && !selectedId ? (
-        <div className="fixed bottom-4 left-[4.75rem] right-4 z-40 flex sm:bottom-6 sm:right-6">
-          <div className="flex w-full items-center gap-2">
+        <div className="fixed bottom-4 left-[17.5rem] right-4 z-40 flex sm:bottom-6 sm:right-6">
+          <div className="flex w-full items-center justify-end gap-2">
             <button
               onClick={() => scrollCards(-1)}
               aria-label="Previous underpass risk card"
               title="Previous"
-              className="glass grid h-11 w-11 shrink-0 place-items-center rounded-full border text-white/70 transition-all duration-200 hover:scale-105 hover:text-white active:scale-95"
+              className="glass hidden lg:grid h-11 w-11 shrink-0 place-items-center rounded-full border text-white/70 transition-all duration-200 hover:scale-105 hover:text-white active:scale-95"
               style={{ borderColor: "rgba(255,255,255,0.12)" }}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-5 w-5">
@@ -230,7 +229,7 @@ export default function MapPage() {
 
             <div
               ref={carouselRef}
-              className="no-scrollbar flex min-w-0 flex-1 items-stretch gap-2.5 overflow-x-auto rounded-2xl py-1"
+              className="no-scrollbar hidden lg:flex min-w-0 flex-1 items-stretch gap-2.5 overflow-x-auto rounded-2xl py-1"
             >
             {effectiveZones.map((z) => {
               const meta = TIER_META[z.tier];
@@ -238,11 +237,11 @@ export default function MapPage() {
                 <button
                   key={z.id}
                   onClick={() => selectZone(z.id)}
-                  className="glass shrink-0 flex items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 text-left transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
+                  className="glass shrink-0 flex items-center gap-2 rounded-2xl border px-3.5 py-2 text-left transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
                   style={{ borderColor: `${meta.color}40` }}
                 >
                   <span
-                    className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border text-sm font-bold tabular-nums"
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border text-xs font-bold tabular-nums"
                     style={{
                       color: meta.color,
                       borderColor: `${meta.color}50`,
@@ -253,10 +252,10 @@ export default function MapPage() {
                     {z.risk}
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate text-[11.5px] font-bold text-white leading-tight">
+                    <p className="truncate text-[10.5px] font-bold text-white leading-tight">
                       {z.name}
                     </p>
-                    <p className="text-[10px] font-semibold" style={{ color: meta.color }}>
+                    <p className="text-[9px] font-semibold" style={{ color: meta.color }}>
                       {meta.label}
                     </p>
                   </div>
@@ -269,7 +268,7 @@ export default function MapPage() {
             onClick={() => scrollCards(1)}
             aria-label="Next underpass risk card"
             title="Next"
-            className="glass grid h-11 w-11 shrink-0 place-items-center rounded-full border text-white/70 transition-all duration-200 hover:scale-105 hover:text-white active:scale-95"
+            className="glass hidden lg:grid h-11 w-11 shrink-0 place-items-center rounded-full border text-white/70 transition-all duration-200 hover:scale-105 hover:text-white active:scale-95"
             style={{ borderColor: "rgba(255,255,255,0.12)" }}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-5 w-5">
@@ -319,27 +318,10 @@ export default function MapPage() {
         </div>
       ) : null}
 
-      {/* Rain simulator — bottom-left launcher; panel opens upward */}
-      <div className="fixed bottom-4 left-4 z-40 sm:bottom-6 sm:left-6">
+      {/* Rain simulator — bottom-left panel; left-aligned exactly with the legend column */}
+      <div className="fixed bottom-4 left-3 z-40 sm:bottom-6 sm:left-3">
         <RainSimulator />
       </div>
-
-      {/* Loading veil */}
-      {zonesLoading && effectiveZones.length === 0 ? (
-        <div
-          className="pointer-events-none absolute inset-0 z-30 grid place-items-center"
-          style={{ background: "rgba(3,11,26,0.5)" }}
-        >
-          <div className="glass flex items-center gap-3 rounded-2xl px-5 py-4">
-            <span
-              className="h-5 w-5 animate-spin rounded-full border-2 border-cyan-400/30 border-t-cyan-400"
-            />
-            <span className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.7)" }}>
-              {translate(lang, "map.loading")}
-            </span>
-          </div>
-        </div>
-      ) : null}
 
       {/* Error state */}
       {zonesError ? (

@@ -37,7 +37,6 @@ const en = {
   "sim.reset": "Reset to live",
   "sim.live": "Live data",
   "sim.start": "Simulate rainfall",
-  "sim.note": "Uses the same risk engine as the backend. Zone attributes are seeded for the demo.",
 
   "zone.underpass": "Underpass",
   "zone.intersection": "Intersection",
@@ -343,7 +342,6 @@ const hi: Record<keyof typeof en, string> = {
   "sim.reset": "लाइव पर रीसेट",
   "sim.live": "लाइव डेटा",
   "sim.start": "बारिश सिमुलेट करें",
-  "sim.note": "बैकएंड जैसा ही रिस्क इंजन। ज़ोन एट्रिब्यूट्स डेमो के लिए सीडेड हैं।",
 
   "zone.underpass": "अंडरपास",
   "zone.intersection": "चौराहा",

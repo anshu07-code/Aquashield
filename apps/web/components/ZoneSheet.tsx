@@ -55,8 +55,8 @@ export function ZoneSheet() {
 
   return (
     <div
-      className="glass-strong fixed inset-x-0 bottom-0 z-[60] flex max-h-[84vh] flex-col overflow-hidden rounded-t-[2rem] shadow-sheet animate-sheet-up
-                 md:inset-y-0 md:left-auto md:right-0 md:top-0 md:h-full md:max-h-none md:w-[430px] md:animate-fade-in md:rounded-l-3xl md:rounded-tr-none md:shadow-glow"
+      className="glass-strong fixed inset-x-0 bottom-0 z-[60] mt-5 mb-5 flex max-h-[82vh] flex-col overflow-hidden rounded-t-[2rem] shadow-sheet animate-sheet-up
+                 md:inset-y-0 md:left-auto md:right-0 md:bottom-0 md:top-auto md:h-[82vh] md:max-h-[82vh] md:w-[430px] md:animate-fade-in md:rounded-l-3xl md:rounded-tr-none md:shadow-glow"
       role="dialog"
       aria-modal="true"
       aria-label={zone?.name ?? "Zone detail"}
