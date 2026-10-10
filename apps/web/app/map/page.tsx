@@ -153,13 +153,21 @@ export default function MapPage() {
 
       <TopBar />
 
-      <div className="fixed left-3 top-[72px] z-40 hidden lg:block">
+      {/* Left column: Risk legend + Rain simulator stacked under the top bar (large screens) */}
+      <div
+        className="fixed left-3 z-40 hidden flex-col gap-3 lg:flex"
+        style={{ top: "calc(var(--topbar-h, 76px) + 6px)" }}
+      >
         <Legend />
+        <RainSimulator />
       </div>
 
       {/* Critical alert strip */}
       {hasCritical ? (
-        <div className="fixed left-1/2 top-[68px] z-40 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 lg:hidden">
+        <div
+          className="fixed left-1/2 z-40 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 lg:hidden"
+          style={{ top: "calc(var(--topbar-h, 76px) + 6px)" }}
+        >
           <div
             className="flex items-center gap-2.5 rounded-2xl border px-4 py-2.5 animate-fade-in"
             style={{
@@ -292,8 +300,8 @@ export default function MapPage() {
         </div>
       ) : null}
 
-      {/* Rain simulator */}
-      <div className="fixed bottom-4 left-4 z-40 sm:bottom-6 sm:left-6">
+      {/* Rain simulator (mobile only — large screens get it stacked under the legend) */}
+      <div className="fixed bottom-4 left-4 z-40 sm:bottom-6 sm:left-6 lg:hidden">
         <RainSimulator />
       </div>
 

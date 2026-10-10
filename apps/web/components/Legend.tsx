@@ -15,7 +15,7 @@ export function Legend() {
   }));
 
   return (
-    <div className="glass-strong w-56 overflow-hidden rounded-3xl shadow-glow">
+    <div className="glass-strong w-64 overflow-hidden rounded-3xl shadow-glow">
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center gap-2 px-4 py-3 text-left"

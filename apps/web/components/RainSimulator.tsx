@@ -39,7 +39,7 @@ export function RainSimulator() {
       </button>
     </div>
   ) : (
-    <div className="glass-strong w-72 overflow-hidden rounded-3xl shadow-glow">
+    <div className="glass-strong w-64 overflow-hidden rounded-3xl shadow-glow">
       <div className="flex items-center gap-2 border-b border-white/8 px-4 py-3">
         <span className="relative flex h-2.5 w-2.5">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-70" />
