@@ -105,7 +105,8 @@ export function WorkOrderBoard({
                   {translate(lang, "ops.board.empty")}
                 </p>
               ) : (
-                <div className="space-y-2">
+                /* ~3 cards visible by default; the rest scroll inside the column */
+                <div className="max-h-[27rem] space-y-2 overflow-y-auto overscroll-contain pr-1.5">
                   {items.map((o) => (
                     <div
                       key={o.id}
