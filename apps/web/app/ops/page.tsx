@@ -6,6 +6,7 @@ import { useApp } from "@/lib/store";
 import { translate } from "@/lib/i18n";
 import { TIER_META } from "@/lib/tiers";
 import { KpiStrip } from "@/components/ops/KpiStrip";
+import { AnalyticsBoard } from "@/components/ops/AnalyticsBoard";
 import { Hotspots } from "@/components/ops/Hotspots";
 import { AskAgent } from "@/components/ops/AskAgent";
 import { WorkOrderBoard } from "@/components/ops/WorkOrderBoard";
@@ -184,6 +185,8 @@ export default function OpsPage() {
 
         <div className="space-y-5">
           <KpiStrip zones={zones} workOrders={pending} lang={lang} />
+
+          <AnalyticsBoard zones={zones} zoneId={zoneId} lang={lang} />
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
             <Hotspots zones={zones} lang={lang} selectedId={zoneId} onSelect={setZoneId} />

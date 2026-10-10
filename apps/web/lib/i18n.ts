@@ -175,6 +175,129 @@ const en = {
   "ops.error": "Something went wrong. Please retry.",
   "ops.alerts": "Published alerts",
   "ops.logout": "Lock",
+  "ops.analytics.title": "Live network analytics",
+  "ops.analytics.sub": "Computed from live API responses — no fake numbers",
+  "ops.analytics.live": "Live from AWS",
+  "ops.analytics.avg": "Avg risk",
+  "ops.analytics.max": "Peak risk",
+  "ops.analytics.underpass": "Underpass zones",
+  "ops.analytics.stale": "Stale signals",
+  "ops.analytics.distribution": "Risk distribution",
+  "ops.analytics.gauge": "Network pulse",
+  "ops.analytics.gauge.sub": "Average Flood Risk Index across all monitored underpasses, weighted by the shared risk engine.",
+  "ops.analytics.bars": "Risk per zone",
+  "ops.analytics.bars.sub": "Flood Risk Index 0–100 per monitored zone",
+  "ops.analytics.forecast.title": "Rain forecast (selected zone)",
+  "ops.analytics.forecast.tag": "Next 3 hours · 15-min steps",
+  "ops.analytics.forecast.empty": "Select a zone from the hotspots to see its live 3-hour forecast.",
+  "ops.analytics.forecast.none": "No forecast available for this zone yet.",
+  "ops.analytics.forecast.next": "→ 3h",
+  "ops.analytics.forecast.now": "Rain now",
+  "ops.analytics.forecast.24": "last 24h",
+
+  /* ---- Landing page ---- */
+  "landing.brand.tag": "JALRAKSHAK",
+  "landing.nav.home": "Home",
+  "landing.nav.features": "Features",
+  "landing.nav.how": "How it Works",
+  "landing.nav.live": "Live Map",
+  "landing.nav.open": "Open Map",
+
+  "landing.hero.badge": "DELHI FLOOD RISK SYSTEM",
+  "landing.hero.title1": "Hyperlocal Flood",
+  "landing.hero.title2": "Early Warning System",
+  "landing.hero.sub":
+    "AI-powered real-time monitoring of Delhi's flood-prone underpasses. Predict. Verify. Protect.",
+  "landing.hero.cta.map": "Explore Live Map",
+  "landing.hero.cta.features": "View Features",
+  "landing.hero.scroll": "Scroll",
+
+  "landing.features.eyebrow": "What AquaShield Does",
+  "landing.features.title1": "Built for Delhi's",
+  "landing.features.title2": "Flood Vulnerabilities",
+  "landing.features.sub":
+    "From satellite weather feeds to citizen reports — every data point flows into a single explainable risk score you can trust.",
+  "landing.features.f1.title": "Real-Time Risk Index",
+  "landing.features.f1.desc":
+    "AI-computed Flood Risk Index (0–100) for every underpass, updated every 15 minutes from live weather + citizen reports.",
+  "landing.features.f2.title": "AI Vision Verification",
+  "landing.features.f2.desc":
+    "Submit a photo of flooding — Bedrock Claude analyses it, confirms water depth, flags drains & debris, updates zone risk instantly.",
+  "landing.features.f3.title": "Safe Route Planning",
+  "landing.features.f3.desc":
+    "Enter your destination — OSRM calculates multiple routes, colours each by flood risk, highlights unsafe zones, opens in Google Maps.",
+  "landing.features.f4.title": "Citizen Report Flow",
+  "landing.features.f4.desc":
+    "3-tap report: pick type → snap photo → submit. AI verifies in seconds. No account needed. Report from anywhere.",
+  "landing.features.f5.title": "Ops Command Dashboard",
+  "landing.features.f5.desc":
+    "City operations team sees ranked hotspots, AI-generated action plans, work order tracking, and one-click public alert publishing — all in one screen.",
+  "landing.features.f6.title": "What-If Simulator",
+  "landing.features.f6.desc":
+    "Slide the rainfall intensity — risk engine recomputes all zones in real-time in your browser. See what happens if rain doubles right now.",
+
+  "landing.how.eyebrow": "The Pipeline",
+  "landing.how.title": "From Rain to Recommendation",
+  "landing.how.sub":
+    "A complete detect → verify → predict → explain → act loop, running entirely on AWS managed infrastructure.",
+  "landing.how.s1.title": "Weather Data Ingest",
+  "landing.how.s1.desc":
+    "Open-Meteo pulls rain intensity, humidity, and forecast every 15 minutes. EventBridge triggers the ingest Lambda — no manual intervention needed.",
+  "landing.how.s1.tag": "Every 15 min",
+  "landing.how.s2.title": "Risk Engine Compute",
+  "landing.how.s2.desc":
+    "Each zone's risk score (0–100) is computed from: live rain, 24h saturation, depression depth, drainage deficit, and history score. Fully explainable.",
+  "landing.how.s2.tag": "Risk Core",
+  "landing.how.s3.title": "Citizen Reports",
+  "landing.how.s3.desc":
+    "3-tap flow: pick flood type → snap a photo → submit. Photo uploads to S3, Lambda calls Bedrock for vision analysis, updates zone risk in real-time.",
+  "landing.how.s3.tag": "AI Verified",
+  "landing.how.s4.title": "AI Ops Agent",
+  "landing.how.s4.desc":
+    "Ask questions in plain language — the Strands agent calls live tools (get_zone_risk, get_forecast, get_nearby_reports) and drafts action plans with work orders.",
+  "landing.how.s4.tag": "Bedrock Agent",
+  "landing.how.s5.title": "Public Alerts",
+  "landing.how.s5.desc":
+    "One-click publish sends SMS/WhatsApp alerts via AWS End User Messaging to subscribed citizens. Drafts are AI-generated in English and Hindi.",
+  "landing.how.s5.tag": "SNS + AWS SMS",
+
+  "landing.stats.s1": "Monitored underpasses across Delhi",
+  "landing.stats.s2": "Live data refresh interval",
+  "landing.stats.s3": "AI-verified flood reports",
+  "landing.stats.s4": "Detection to alert time",
+
+  "landing.live.eyebrow": "See it Live",
+  "landing.live.title": "Real Zones. Real Risk.",
+  "landing.live.sub": "Live data from AWS Lambda + DynamoDB · Refreshes every 15 min",
+  "landing.live.status": "LIVE DATA",
+  "landing.live.updated": "Updated just now",
+  "landing.live.cta.app": "Open Full App",
+  "landing.live.cta.ops": "Ops Dashboard",
+
+  "landing.cta.eyebrow": "WeMakeDevs x AWS Environmental Hacks 2026",
+  "landing.cta.title1": "Ready to protect",
+  "landing.cta.title2": "Delhi from floods?",
+  "landing.cta.sub":
+    "AquaShield is live and running on AWS. Open the citizen map, submit a report, or access the ops dashboard — all in one place.",
+  "landing.cta.map": "Open Citizen Map",
+  "landing.cta.ops": "Ops Dashboard",
+  "landing.cta.tech": "Built on AWS · Next.js PWA · Amazon Bedrock · DynamoDB · Lambda · SNS",
+
+  "landing.footer.tagline":
+    "Hyperlocal urban flood early-warning system for Delhi. Detect · Verify · Predict · Explain · Act.",
+  "landing.footer.col.product": "Product",
+  "landing.footer.live": "Live Map",
+  "landing.footer.ops": "Ops Dashboard",
+  "landing.footer.sim": "Rain Simulator",
+  "landing.footer.col.aws": "AWS Services",
+  "landing.footer.l1": "Lambda + API Gateway",
+  "landing.footer.l2": "DynamoDB",
+  "landing.footer.l3": "Amazon Bedrock",
+  "landing.footer.col.track": "Track",
+  "landing.footer.t1": "Environmental Hacks 2026",
+  "landing.footer.t2": "WeMakeDevs x AWS",
+  "landing.footer.t3": "Demo Video",
+  "landing.footer.copy": "© 2026 AquaShield · Built for Delhi · WeMakeDevs x AWS Environmental Hacks",
 } as const;
 
 const hi: Record<keyof typeof en, string> = {
@@ -347,6 +470,129 @@ const hi: Record<keyof typeof en, string> = {
   "ops.error": "कुछ गलत हुआ। पुनः प्रयास करें।",
   "ops.alerts": "पब्लिश किए गए अलर्ट",
   "ops.logout": "लॉक",
+  "ops.analytics.title": "लाइव नेटवर्क एनालिटिक्स",
+  "ops.analytics.sub": "सीधे लाइव API डेटा से — कोई फ़र्ज़ी आँकड़े नहीं",
+  "ops.analytics.live": "AWS से लाइव",
+  "ops.analytics.avg": "औसत जोखिम",
+  "ops.analytics.max": "सबसे ज़्यादा जोखिम",
+  "ops.analytics.underpass": "अंडरपास ज़ोन",
+  "ops.analytics.stale": "पुराने सिग्नल",
+  "ops.analytics.distribution": "जोखिम वितरण",
+  "ops.analytics.gauge": "नेटवर्क पल्स",
+  "ops.analytics.gauge.sub": "सभी मॉनिटर हो रहे अंडरपासों का औसत बाढ़ जोखिम इंडेक्स।",
+  "ops.analytics.bars": "हर ज़ोन का जोखिम",
+  "ops.analytics.bars.sub": "हर मॉनिटर ज़ोन का बाढ़ जोखिम इंडेक्स 0–100",
+  "ops.analytics.forecast.title": "बारिश का पूर्वानुमान (चुना हुआ ज़ोन)",
+  "ops.analytics.forecast.tag": "अगले 3 घंटे · 15-मिनट के अंतराल",
+  "ops.analytics.forecast.empty": "हॉटस्पॉट से ज़ोन चुनें ताकि उसका लाइव 3-घंटे का पूर्वानुमान दिखे।",
+  "ops.analytics.forecast.none": "इस ज़ोन के लिए अभी पूर्वानुमान उपलब्ध नहीं है।",
+  "ops.analytics.forecast.next": "→ 3घं",
+  "ops.analytics.forecast.now": "अभी बारिश",
+  "ops.analytics.forecast.24": "पिछले 24घं",
+
+  /* ---- लैंडिंग पेज ---- */
+  "landing.brand.tag": "जलरक्षक",
+  "landing.nav.home": "होम",
+  "landing.nav.features": "फ़ीचर्स",
+  "landing.nav.how": "यह कैसे काम करता है",
+  "landing.nav.live": "लाइव मैप",
+  "landing.nav.open": "मैप खोलें",
+
+  "landing.hero.badge": "दिल्ली फ्लड रिस्क सिस्टम",
+  "landing.hero.title1": "हाइपरलोकल बाढ़",
+  "landing.hero.title2": "चेतावनी प्रणाली",
+  "landing.hero.sub":
+    "दिल्ली के बाढ़-प्रवण अंडरपासों की AI-आधारित रीयल-टाइम निगरानी। पहचानें। सत्यापित करें। सुरक्षित करें।",
+  "landing.hero.cta.map": "लाइव मैप देखें",
+  "landing.hero.cta.features": "फ़ीचर्स देखें",
+  "landing.hero.scroll": "स्क्रॉल",
+
+  "landing.features.eyebrow": "एक्वाशील्ड क्या करता है",
+  "landing.features.title1": "दिल्ली के लिए बनाया गया",
+  "landing.features.title2": "बाढ़-भेद्यताओं से सुरक्षा",
+  "landing.features.sub":
+    "सैटेलाइट मौसम फ़ीड से लेकर नागरिक रिपोर्ट तक — हर डेटा पॉइंट एक भरोसेमंद, समझने योग्य रिस्क स्कोर में मिलता है।",
+  "landing.features.f1.title": "रीयल-टाइम रिस्क इंडेक्स",
+  "landing.features.f1.desc":
+    "हर अंडरपास के लिए AI-गणना किया गया फ्लड रिस्क इंडेक्स (0–100), लाइव मौसम और नागरिक रिपोर्ट से हर 15 मिनट में अपडेट।",
+  "landing.features.f2.title": "AI विज़न सत्यापन",
+  "landing.features.f2.desc":
+    "बाढ़ की फ़ोटो सबमिट करें — Bedrock Claude उसका विश्लेषण करता है, पानी की गहराई पुष्ट करता है, नाले-मलबा पहचानता है और ज़ोन रिस्क तुरंत अपडेट करता है।",
+  "landing.features.f3.title": "सुरक्षित मार्ग योजना",
+  "landing.features.f3.desc":
+    "मंज़िल डालें — OSRM कई मार्ग निकालता है, हर एक को फ्लड रिस्क से रंगता है, असुरक्षित ज़ोन उजागर करता है, Google Maps में खोलता है।",
+  "landing.features.f4.title": "नागरिक रिपोर्ट प्रवाह",
+  "landing.features.f4.desc":
+    "3-टैप रिपोर्ट: प्रकार चुनें → फ़ोटो लें → सबमिट करें। AI सेकंडों में सत्यापित करता है। खाते की ज़रूरत नहीं। कहीं से भी रिपोर्ट करें।",
+  "landing.features.f5.title": "ऑप्स कमांड डैशबोर्ड",
+  "landing.features.f5.desc":
+    "शहर की ऑपरेशन टीम को रैंक किए हॉटस्पॉट, AI-जनित एक्शन प्लान, वर्क ऑर्डर ट्रैकिंग और एक-क्लिक पब्लिक अलर्ट — एक ही स्क्रीन पर।",
+  "landing.features.f6.title": "What-If सिम्युलेटर",
+  "landing.features.f6.desc":
+    "बारिश की तीव्रता बदलें — रिस्क इंजन सभी ज़ोन आपके ब्राउज़र में रीयल-टाइम पुनर्गणना करता है। देखें अगर बारिश दुगुनी हो जाए तो क्या होगा।",
+
+  "landing.how.eyebrow": "पाइपलाइन",
+  "landing.how.title": "बारिश से सुझाव तक",
+  "landing.how.sub":
+    "पूरा detect → verify → predict → explain → act लूप, पूरी तरह AWS मैनेज्ड इंफ्रास्ट्रक्चर पर चलता है।",
+  "landing.how.s1.title": "मौसम डेटा इन्जेस्ट",
+  "landing.how.s1.desc":
+    "Open-Meteo हर 15 मिनट में बारिश, नमी और फ़ोरकास्ट लाता है। EventBridge इन्जेस्ट Lambda चालू करता है — कोई मैनुअल काम नहीं।",
+  "landing.how.s1.tag": "हर 15 मिनट",
+  "landing.how.s2.title": "रिस्क इंजन गणना",
+  "landing.how.s2.desc":
+    "हर ज़ोन का रिस्क स्कोर (0–100) इनसे बनता है: लाइव बारिश, 24 घंटे की संतृप्ति, गड्ढ़े की गहराई, निकासी की कमी और इतिहास स्कोर। पूरी तरह समझने योग्य।",
+  "landing.how.s2.tag": "रिस्क कोर",
+  "landing.how.s3.title": "नागरिक रिपोर्ट",
+  "landing.how.s3.desc":
+    "3-टैप प्रवाह: बाढ़ प्रकार चुनें → फ़ोटो लें → सबमिट करें। फ़ोटो S3 पर जाती है, Lambda Bedrock से विज़न विश्लेषण कराता है, ज़ोन रिस्क रीयल-टाइम अपडेट होता है।",
+  "landing.how.s3.tag": "AI सत्यापित",
+  "landing.how.s4.title": "AI ऑप्स एजेंट",
+  "landing.how.s4.desc":
+    "सादी भाषा में सवाल पूछें — Strands एजेंट लाइव टूल (get_zone_risk, get_forecast, get_nearby_reports) चलाकर वर्क ऑर्डर के साथ एक्शन प्लान बनाता है।",
+  "landing.how.s4.tag": "Bedrock एजेंट",
+  "landing.how.s5.title": "पब्लिक अलर्ट",
+  "landing.how.s5.desc":
+    "एक-क्लिक प्रकाशन AWS एंड यूज़र मैसेजिंग से SMS/WhatsApp अलर्ट भेजता है। ड्राफ़्ट AI से अंग्रेज़ी और हिंदी में बनते हैं।",
+  "landing.how.s5.tag": "SNS + AWS SMS",
+
+  "landing.stats.s1": "दिल्ली भर के मॉनिटर किए अंडरपास",
+  "landing.stats.s2": "लाइव डेटा रीफ़्रेश अंतराल",
+  "landing.stats.s3": "AI-सत्यापित बाढ़ रिपोर्ट",
+  "landing.stats.s4": "पहचान से अलर्ट तक का समय",
+
+  "landing.live.eyebrow": "लाइव देखें",
+  "landing.live.title": "असली ज़ोन। असली रिस्क।",
+  "landing.live.sub": "AWS Lambda + DynamoDB से लाइव डेटा · हर 15 मिनट रीफ़्रेश",
+  "landing.live.status": "लाइव डेटा",
+  "landing.live.updated": "अभी अपडेट हुआ",
+  "landing.live.cta.app": "पूरा ऐप खोलें",
+  "landing.live.cta.ops": "ऑप्स डैशबोर्ड",
+
+  "landing.cta.eyebrow": "WeMakeDevs x AWS एनवायरनमेंटल हैक्स 2026",
+  "landing.cta.title1": "क्या आप तैयार हैं",
+  "landing.cta.title2": "दिल्ली को बाढ़ से बचाने के लिए?",
+  "landing.cta.sub":
+    "एक्वाशील्ड लाइव है और AWS पर चल रहा है। नागरिक मैप खोलें, रिपोर्ट सबमिट करें, या ऑप्स डैशबोर्ड देखें — सब एक जगह।",
+  "landing.cta.map": "नागरिक मैप खोलें",
+  "landing.cta.ops": "ऑप्स डैशबोर्ड",
+  "landing.cta.tech": "AWS पर बना · Next.js PWA · Amazon Bedrock · DynamoDB · Lambda · SNS",
+
+  "landing.footer.tagline":
+    "दिल्ली के लिए हाइपरलोकल शहरी बाढ़ चेतावनी प्रणाली। पहचानें · सत्यापित करें · भविष्यवाणी करें · समझाएँ · कार्रवाई करें।",
+  "landing.footer.col.product": "उत्पाद",
+  "landing.footer.live": "लाइव मैप",
+  "landing.footer.ops": "ऑप्स डैशबोर्ड",
+  "landing.footer.sim": "बारिश सिम्युलेटर",
+  "landing.footer.col.aws": "AWS सेवाएँ",
+  "landing.footer.l1": "Lambda + API Gateway",
+  "landing.footer.l2": "DynamoDB",
+  "landing.footer.l3": "Amazon Bedrock",
+  "landing.footer.col.track": "ट्रैक",
+  "landing.footer.t1": "एनवायरनमेंटल हैक्स 2026",
+  "landing.footer.t2": "WeMakeDevs x AWS",
+  "landing.footer.t3": "डेमो वीडियो",
+  "landing.footer.copy": "© 2026 एक्वाशील्ड · दिल्ली के लिए बना · WeMakeDevs x AWS एनवायरनमेंटल हैक्स",
 };
 
 export type TKey = keyof typeof en;
