@@ -125,7 +125,7 @@ async function createReport(event: ReqEvent): Promise<Res> {
 
   // --- vision (P3 module) + trust (P3 module)
   const vision = await analyzeImage(bytes, ct);
-  const status = statusFrom(vision);
+  const status = statusFrom(vision, req.type);
 
   const [nearby, snap, zoneReports] = await Promise.all([
     countNearbyReports(req.lat, req.lng),

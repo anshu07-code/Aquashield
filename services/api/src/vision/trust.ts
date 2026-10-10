@@ -7,7 +7,7 @@
  * - rainConsistency: a flood report while it is dry outside is down-weighted
  * - ageDecay: linear decay to 0 over the 6 h TTL
  */
-import type { VisionAnalysis } from "@aquashield/types";
+import type { ReportType, VisionAnalysis } from "@aquashield/types";
 
 const REPORT_TTL_MS = 6 * 60 * 60 * 1000; // 6 h
 /** Public alias so tests + callers reference the TTL directly. */
@@ -40,10 +40,29 @@ export function computeTrust(i: TrustInputs): number {
   return Math.round(Math.max(0, Math.min(1, trust)) * 1000) / 1000;
 }
 
-/** Derive report status from the vision output (contract: rejected / needs_review / verified / unverified). */
-export function statusFrom(vision: VisionAnalysis): "verified" | "unverified" | "rejected" | "needs_review" {
+/**
+ * Derive report status from the vision output (contract: rejected / needs_review / verified / unverified).
+ *
+ * Flood claims (flooding / overflow / leak) are REJECTED when the vision did NOT detect
+ * standing water (floodedRoad false and waterDepthTier "none") — a dry road scene is not
+ * evidence of flooding, so the report must not raise the zone risk score.
+ * Blocked-drain reports are judged on the drain signal instead.
+ */
+export function statusFrom(
+  vision: VisionAnalysis,
+  type: ReportType = "flooding",
+): "verified" | "unverified" | "rejected" | "needs_review" {
   if (vision.confidence === 0 && vision.explanation.includes("Vision unavailable")) return "needs_review";
   if (!vision.isRoadScene) return "rejected";
+
+  // A flood/drain claim needs matching vision evidence, else it cannot raise zone risk.
+  if (type === "blocked_drain") {
+    if (!vision.floodedRoad && vision.waterDepthTier === "none" && !vision.blockedDrain) return "rejected";
+  } else if (!vision.floodedRoad && vision.waterDepthTier === "none") {
+    // flooding / overflow / leak all rely on standing water having been detected
+    return "rejected";
+  }
+
   if (vision.confidence >= 0.7) return "verified";
   return "unverified";
 }
