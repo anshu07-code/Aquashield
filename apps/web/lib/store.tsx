@@ -105,6 +105,9 @@ function errMsg(e: unknown): string {
   return "Network request failed";
 }
 
+/** How often the app re-pulls `/zones` so the map + ops dashboard stay live. */
+const ZONES_POLL_MS = 60_000;
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [zones, setZones] = useState<ZoneSummary[]>([]);
   const [zonesLoading, setZonesLoading] = useState(true);
@@ -132,21 +135,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [lang, setLang] = useState<Lang>("en");
 
-  const reloadZones = useCallback(async () => {
-    setZonesLoading(true);
-    setZonesError(null);
-    try {
-      setZones(await fetchZones());
-    } catch (e) {
-      setZonesError(errMsg(e));
-    } finally {
-      setZonesLoading(false);
-    }
-  }, []);
+  const reloadZones = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      if (!opts?.silent) {
+        setZonesLoading(true);
+        setZonesError(null);
+      }
+      try {
+        setZones(await fetchZones());
+        setZonesError(null);
+      } catch (e) {
+        setZonesError(errMsg(e));
+      } finally {
+        setZonesLoading(false);
+      }
+    },
+    [],
+  );
 
   // initial load
   useEffect(() => {
     reloadZones();
+  }, [reloadZones]);
+
+  // background polling — keeps the map + ops dashboard live without a manual refresh
+  useEffect(() => {
+    const id = setInterval(() => reloadZones({ silent: true }), ZONES_POLL_MS);
+    return () => clearInterval(id);
   }, [reloadZones]);
 
   const selectZone = useCallback(

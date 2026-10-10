@@ -157,20 +157,25 @@ function ForecastChart({ zoneId, lang }: { zoneId: string | null; lang: Lang }) 
       return;
     }
     let cancelled = false;
-    setLoading(true);
-    setError(null);
-    fetchZoneDetail(zoneId)
-      .then((d) => {
-        if (!cancelled) setData(d);
-      })
-      .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Network request failed");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    const load = () => {
+      setLoading(true);
+      setError(null);
+      return fetchZoneDetail(zoneId)
+        .then((d) => {
+          if (!cancelled) setData(d);
+        })
+        .catch((e) => {
+          if (!cancelled) setError(e instanceof Error ? e.message : "Network request failed");
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    };
+    load();
+    const id = setInterval(load, 30_000);
     return () => {
       cancelled = true;
+      clearInterval(id);
     };
   }, [zoneId]);
 

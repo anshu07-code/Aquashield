@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useApp } from "@/lib/store";
 import { translate } from "@/lib/i18n";
@@ -10,29 +10,73 @@ import { AnalyticsBoard } from "@/components/ops/AnalyticsBoard";
 import { Hotspots } from "@/components/ops/Hotspots";
 import { AskAgent } from "@/components/ops/AskAgent";
 import { WorkOrderBoard } from "@/components/ops/WorkOrderBoard";
-import type { AgentPlan, WorkOrder } from "@aquashield/types";
+import { ApiError, fetchWorkOrders, fetchZoneReports, patchWorkOrder } from "@/lib/api";
+import { useToast } from "@/components/ui/Toast";
+import type { AgentPlan, Report, WorkOrder } from "@aquashield/types";
+
+/** Real-time polling cadence for the ops dashboard (work orders + reports). */
+const OPS_POLL_MS = 30_000;
+
+type WorkOrderStatus = WorkOrder["status"];
 
 export default function OpsPage() {
   const { zones, lang } = useApp();
+  const toast = useToast();
   const [passcode, setPasscode] = useState("");
   const [authed, setAuthed] = useState(false);
   const [zoneId, setZoneId] = useState<string | null>(null);
   const [pending, setPending] = useState<WorkOrder[]>([]);
   const [clock, setClock] = useState("");
 
-  // pick up ?zone= from the URL (set by the "Ask JalRakshak" link in the zone sheet)
-  useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get("zone");
-    if (q) setZoneId(q);
-  }, []);
+  // real server state, polled
+  const [orders, setOrders] = useState<WorkOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [reportsError, setReportsError] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<number | null>(null);
+  const syncInFlight = useRef(false);
 
-  useEffect(() => {
-    const tick = () =>
-      setClock(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
-    tick();
-    const i = setInterval(tick, 30_000);
-    return () => clearInterval(i);
-  }, []);
+  const loadOrders = useCallback(async () => {
+    try {
+      const list = await fetchWorkOrders(passcode);
+      setOrders(list);
+      setOrdersError(null);
+    } catch (e) {
+      setOrdersError(e instanceof ApiError ? e.message : "Failed to load work orders");
+    } finally {
+      setOrdersLoading(false);
+    }
+  }, [passcode]);
+
+  const loadReports = useCallback(async () => {
+    try {
+      const lists = await Promise.all(
+        zones.map((z) => fetchZoneReports(z.id).catch(() => [] as Report[])),
+      );
+      setReports(lists.flat());
+      setReportsError(null);
+    } catch (e) {
+      setReportsError(e instanceof ApiError ? e.message : "Failed to load reports");
+    } finally {
+      setReportsLoading(false);
+    }
+  }, [zones]);
+
+  const syncAll = useCallback(async () => {
+    if (syncInFlight.current) return;
+    syncInFlight.current = true;
+    try {
+      await Promise.all([loadOrders(), loadReports()]);
+      setLastSyncedAt(Date.now());
+    } finally {
+      syncInFlight.current = false;
+    }
+  }, [loadOrders, loadReports]);
+
+  const syncRef = useRef(syncAll);
+  syncRef.current = syncAll;
 
   const onCreateWorkOrders = (plan: AgentPlan, focusZone: string | null) => {
     const base: WorkOrder[] =
@@ -57,6 +101,46 @@ export default function OpsPage() {
           }));
     setPending((prev) => [...base, ...prev]);
   };
+
+  // pick up ?zone= from the URL (set by the "Ask JalRakshak" link in the zone sheet)
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("zone");
+    if (q) setZoneId(q);
+  }, []);
+
+  useEffect(() => {
+    const tick = () =>
+      setClock(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    tick();
+    const i = setInterval(tick, 30_000);
+    return () => clearInterval(i);
+  }, []);
+
+  // kick off a sync as soon as the passcode gate is passed, then poll in the background
+  useEffect(() => {
+    if (!authed) return;
+    syncRef.current();
+    const id = setInterval(() => syncRef.current(), OPS_POLL_MS);
+    return () => clearInterval(id);
+  }, [authed]);
+
+  const advanceOrder = async (o: WorkOrder) => {
+    const next: WorkOrderStatus = o.status === "open" ? "dispatched" : o.status === "dispatched" ? "resolved" : "resolved";
+    // optimistic update
+    setOrders((prev) => prev.map((w) => (w.id === o.id ? { ...w, status: next } : w)));
+    try {
+      await patchWorkOrder(o.id, next, passcode);
+      toast.success(translate(lang, "ops.board.updated"));
+    } catch (e) {
+      // revert on failure
+      setOrders((prev) => prev.map((w) => (w.id === o.id ? { ...w, status: o.status } : w)));
+      const msg = e instanceof ApiError ? e.message : "Update failed";
+      toast.error(translate(lang, "ops.error"), msg);
+    }
+  };
+
+  // merged list: server orders first, then anything the agent created this session
+  const allOrders = [...orders, ...pending.filter((p) => !orders.some((o) => o.id === p.id))];
 
   if (!authed) {
     return (
@@ -91,6 +175,7 @@ export default function OpsPage() {
                   id="passcode"
                   type="password"
                   autoFocus
+                  suppressHydrationWarning
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
                   placeholder="••••••••"
@@ -184,7 +269,7 @@ export default function OpsPage() {
         </header>
 
         <div className="space-y-5">
-          <KpiStrip zones={zones} workOrders={pending} lang={lang} />
+          <KpiStrip zones={zones} workOrders={allOrders} reports={reports} reportsLoading={reportsLoading} lang={lang} lastSyncedAt={lastSyncedAt} />
 
           <AnalyticsBoard zones={zones} zoneId={zoneId} lang={lang} />
 
@@ -200,7 +285,14 @@ export default function OpsPage() {
             />
           </div>
 
-          <WorkOrderBoard passcode={passcode} lang={lang} pending={pending} />
+          <WorkOrderBoard
+            lang={lang}
+            pending={pending}
+            orders={orders}
+            loading={ordersLoading}
+            error={ordersError}
+            onAdvance={advanceOrder}
+          />
         </div>
 
         <footer className="mt-8 border-t border-white/8 pt-5 text-center text-[10.5px] text-white/30">
