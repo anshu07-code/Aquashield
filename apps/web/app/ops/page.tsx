@@ -44,19 +44,23 @@ export default function OpsPage() {
   // on every ops endpoint; GET /workorders → 200 on success, 401 on wrong).
   const OPS_SESSION_KEY = "aquashield.ops.passcode";
 
-  // Validate a passcode against the backend and unlock only on success. Shared by the
-  // submit handler (typing) and the auto-restore-on-refresh path.
-  const verifyPasscode = useCallback(async (candidate: string): Promise<boolean> => {
-    try {
-      await fetchWorkOrders(candidate);
-      return true;
-    } catch (e) {
-      if (e instanceof ApiError && e.status === 401) return false;
-      // network / backend down — don't hard-block, but don't pretend success either
-      setAuthError(e instanceof Error ? e.message : "Could not reach the backend");
-      return false;
-    }
-  }, []);
+  // Validate a passcode against the backend and unlock only on success ("ok").
+  // "wrong" = 401 (definitely a bad passcode), "error" = couldn't reach backend.
+  // Shared by the submit handler (typing) and the auto-restore-on-refresh path.
+  const verifyPasscode = useCallback(
+    async (candidate: string): Promise<"ok" | "wrong" | "error"> => {
+      try {
+        await fetchWorkOrders(candidate);
+        return "ok";
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 401) return "wrong";
+        // network / backend down — don't hard-block, don't pretend success either
+        setAuthError(e instanceof Error ? e.message : "Could not reach the backend");
+        return "error";
+      }
+    },
+    [],
+  );
 
   // restore session on mount: if a stored passcode validates, skip the gate
   useEffect(() => {
@@ -67,15 +71,18 @@ export default function OpsPage() {
     if (!stored) return;
     (async () => {
       setGateLoading(true);
-      const ok = await verifyPasscode(stored);
+      const result = await verifyPasscode(stored);
       if (cancelled) return;
       setGateLoading(false);
-      if (ok) {
+      if (result === "ok") {
         setPasscode(stored);
         setAuthed(true);
-      } else {
+      } else if (result === "wrong") {
+        // passcode was revoked/rotated → drop it
         sessionStorage.removeItem(OPS_SESSION_KEY);
       }
+      // "error" (backend unreachable): keep the stored passcode for the next
+      // refresh, just show the gate now (fail open to the safe default).
     })();
     return () => { cancelled = true; };
   }, [verifyPasscode]);
@@ -231,10 +238,11 @@ export default function OpsPage() {
                 if (!passcode.trim() || gateLoading) return;
                 setGateLoading(true);
                 setAuthError(null);
-                const ok = await verifyPasscode(passcode.trim());
+                const result = await verifyPasscode(passcode.trim());
                 setGateLoading(false);
-                if (!ok) {
-                  setAuthError(translate(lang, "ops.wrong"));
+                if (result !== "ok") {
+                  if (result === "wrong") setAuthError(translate(lang, "ops.wrong"));
+                  // "error": verifyPasscode already surfaced the backend message
                   setPasscode("");
                   return;
                 }
