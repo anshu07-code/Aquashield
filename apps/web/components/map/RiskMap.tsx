@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { LatLng, RouteOption, ZoneSummary } from "@aquashield/types";
@@ -77,7 +77,9 @@ function buildMarker(zone: ZoneSummary, selected: boolean): HTMLButtonElement {
   return el;
 }
 
-export default function RiskMap({
+const MAPLIB_ZOOM = 12.8;
+
+const RiskMap = forwardRef<{ panToUser: () => void }, Props>(function RiskMap({
   zones,
   selectedId,
   onSelect,
@@ -85,7 +87,7 @@ export default function RiskMap({
   selectedRouteId,
   userLocation,
   simActive = false,
-}: Props) {
+}: Props, ref) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
@@ -255,13 +257,21 @@ export default function RiskMap({
     userMarkerRef.current = new maplibregl.Marker({ element: el, anchor: "center" })
       .setLngLat([userLocation.lng, userLocation.lat])
       .addTo(map);
-    map.flyTo({
-      center: [userLocation.lng, userLocation.lat],
-      zoom: Math.max(map.getZoom(), 12.8),
-      duration: 900,
-      essential: true,
-    });
   }, [userLocation]);
+
+  // ---- exposed: pan to user location (called explicitly by the locate button) ----
+  useImperativeHandle(ref, () => ({
+    panToUser() {
+      const map = mapRef.current;
+      if (!map || !userLocation) return;
+      map.flyTo({
+        center: [userLocation.lng, userLocation.lat],
+        zoom: Math.max(map.getZoom(), MAPLIB_ZOOM),
+        duration: 900,
+        essential: true,
+      });
+    },
+  }));
 
   return (
     <div className="absolute inset-0">
@@ -271,4 +281,6 @@ export default function RiskMap({
       ) : null}
     </div>
   );
-}
+});
+
+export default RiskMap;
