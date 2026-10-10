@@ -1,0 +1,34 @@
+{
+  "alerts": [
+    {
+      "id": "al_a62cf8c8",
+      "zoneId": "z_minto",
+      "lang": "en",
+      "text": "Minto Bridge Underpass water level rising — avoid if possible",
+      "status": "published",
+      "publishedAt": "2026-10-10T17:59:00.000Z",
+      "createdAt": "2026-10-10T17:55:00.000Z",
+      "resolvedAt": null
+    },
+    {
+      "id": "al_demo_001",
+      "zoneId": "z_ito",
+      "lang": "en",
+      "text": "ITO Intersection clear — all lanes open",
+      "status": "resolved",
+      "publishedAt": "2026-10-09T08:00:00.000Z",
+      "createdAt": "2026-10-09T07:55:00.000Z",
+      "resolvedAt": "2026-10-09T10:30:00.000Z"
+    },
+    {
+      "id": "al_demo_002",
+      "zoneId": "z_azad_market",
+      "lang": "hi",
+      "text": "आजाद मार्केट अंडरपास पानी जमा — सावधानी बरतें",
+      "status": "draft",
+      "publishedAt": null,
+      "createdAt": "2026-10-10T20:00:00.000Z",
+      "resolvedAt": null
+    }
+  ]
+}

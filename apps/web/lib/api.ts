@@ -10,6 +10,8 @@ import {
   AgentAskRequestSchema,
   AgentPlanSchema,
   AlertSchema,
+  AlertListResponseSchema,
+  AlertPatchSchema,
   CreateAlertRequestSchema,
   CreateReportRequestSchema,
   CreateReportResponseSchema,
@@ -268,6 +270,50 @@ export async function createAlert(
     AlertSchema,
     await getJson(`${API_URL}/alerts`, {
       method: "POST",
+      body: JSON.stringify(parsed),
+      headers: passcode ? { "x-ops-passcode": passcode } : undefined,
+    }),
+  );
+}
+
+/** List all alerts, optionally filtered by zoneId and/or status. */
+export async function fetchAlerts(opts?: {
+  zoneId?: string;
+  status?: string;
+}, passcode?: string): Promise<z.infer<typeof AlertSchema>[]> {
+  const params = new URLSearchParams();
+  if (opts?.zoneId) params.set("zoneId", opts.zoneId);
+  if (opts?.status) params.set("status", opts.status);
+  const qs = params.toString();
+  const url = `${API_URL}/alerts${qs ? `?${qs}` : ""}`;
+  const data = parse(
+    AlertListResponseSchema,
+    await getJson(url, { headers: passcode ? { "x-ops-passcode": passcode } : undefined }),
+  );
+  return data.alerts;
+}
+
+/** Get a single alert by id. */
+export async function fetchAlert(id: string, passcode?: string): Promise<z.infer<typeof AlertSchema>> {
+  return parse(
+    AlertSchema,
+    await getJson(`${API_URL}/alerts/${encodeURIComponent(id)}`, {
+      headers: passcode ? { "x-ops-passcode": passcode } : undefined,
+    }),
+  );
+}
+
+/** Update alert status (e.g. resolve it). PATCH /alerts/{id} */
+export async function updateAlert(
+  id: string,
+  patch: { status?: "draft" | "published" | "resolved" },
+  passcode?: string,
+): Promise<z.infer<typeof AlertSchema>> {
+  const parsed = AlertPatchSchema.parse(patch);
+  return parse(
+    AlertSchema,
+    await getJson(`${API_URL}/alerts/${encodeURIComponent(id)}`, {
+      method: "PATCH",
       body: JSON.stringify(parsed),
       headers: passcode ? { "x-ops-passcode": passcode } : undefined,
     }),
