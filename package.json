@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.base.json",
     "verify:backend": "tsx scripts/verify-live-api.ts",
     "verify:zones": "tsx scripts/validate-zones-geojson.ts",
-    "clips:aws": "tsx scripts/aws-demo-clips.ts",
+    "backtest:rain": "tsx data/scripts/backtest-rainfall.ts",    "clips:aws": "tsx scripts/aws-demo-clips.ts",
     "verify:p1": "npm run typecheck && echo 'P1: type-check passed'",
     "verify:p2": "npm run validate:mocks && sam validate -t infra/template.yaml && echo 'P2: mocks + SAM template OK'",
     "verify:p3": "npm run typecheck && echo 'P3: type-check passed'",

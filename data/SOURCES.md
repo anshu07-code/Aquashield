@@ -52,6 +52,7 @@
 5. IMD Rainfall Data — `https://mausam.imd.gov.in/`
 6. East Delhi Municipal Corporation — `https://edmc.gov.in/` (insufficient verification: domain did not resolve during audit — EDMC was unified into MCD in 2022; use `MCD` attribution only)
 7. North DMC — `https://ndmc.gov.in/`
+8. Open-Meteo Historical Weather API — `https://open-meteo.com/en/docs/historical-weather-api` (reanalysis rainfall; see "Real Rainfall Backtest" below)
 
 ## Specific Source Citations by Zone
 
@@ -72,6 +73,17 @@
 | z_pitampura | https://www.hindustantimes.com/cities/delhi-news/imd-delhi-rainfall-waterlogging-rekha-gupta-ncr-saurabh-bhardwaj-aap-bjp-commuters-metro-rain-mcd-pwd-parvesh-verma-101785262082269.html | Jul 2026 | PWD officially confirms waterlogging at Pitampura alongside ITO, Mundka, Punjabi Bagh |
 | z_pratap_nagar → z_pandav_nagar (Pandav Nagar Underpass; ID RENAMED 2026) | https://timesofindia.indiatimes.com/city/delhi/delhi-fails-first-real-monsoon-test/articleshow/132295208.cms | Jul 2026 | Delhi Traffic Police flagged waterlogging at Pandav Nagar underpass (East Delhi). CORRECTION: name changed to Pandav Nagar, coordinates moved from Pratap Nagar (NW Delhi) to Pandav Nagar (E Delhi) — these are ~8 km apart, NOT adjacent |
 | z_seelampur | https://timesofindia.indiatimes.com/city/delhi/delhi-fails-first-real-monsoon-test/articleshow/132295208.cms | Jul 2026 | VERIFIED corridor-level: PWD deluge complaints named Seelampur (also GT Road, Babarpur, Loni Road) |
+
+## Real Rainfall Backtest (added 2026-10-10)
+
+- **Source**: Open-Meteo Historical Weather API — `https://archive-api.open-meteo.com/v1/archive` (reanalysis, a single 0.25° grid cell centred on Delhi `28.6122, 77.2287`). Real hourly precipitation is **NOT a simulation**. Raw response cached under `data/cache/open-meteo-archive-delhi-2023-01-01-2026-09-30.json` (gitignored).
+- **Script**: `data/scripts/backtest-rainfall.ts` (imports risk formula from `@aquashield/risk-core`; no formula re-implemented). Run: `npm run backtest:rain` (add `--list-days` to rank days only, or `--featured YYYY-MM-DD` to force a day).
+- **Output**: `data/backtest/delhi-heavy-rain.json` (committed) — per-hour risk timeline for every zone on the featured day, plus the ranked list of the 15 heaviest days in the window.
+- **Featured day (auto-selected)**: `2024-07-31` — 116 mm/day, peak 30.4 mm/h at 23:00 — the heaviest real day in the window **and** corroborated by our existing citation for `z_rajinder_nagar` (India Today, 2024-07-31).
+- **Backtest result (2024-07-31, REAL rainfall, no citizen reports — hazard from rainfall + geometry/history only)**:
+  - `z_isbt_kashmere_gate` → **CRITICAL 77** at 23:00 — consistent with its history (Ring Road/ISBT flooding Sept'25, Yamuna swell; also the 2026 monsoon reports).
+  - `z_minto` → HIGH 72 · `z_seelampur` 67 · `z_azad_market` 64 · `z_prahladpur` 63 · `z_mayur_vihar` 62 · `z_pandav_nagar` 59 · `z_zakhira` 57 · `z_rajinder_nagar` 56 · `z_pitampura` WATCH 46.
+  - In the demo these numbers multiply: reports raise `liveEvidence` which pushes several WATCH/HIGH into CRITICAL — that interaction is intentional and currently simulated on top of real rainfall.
 
 ## Known Data Gaps
 
