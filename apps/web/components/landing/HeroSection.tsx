@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { WaterWave } from "./WaterWave";
+import { useApp } from "@/lib/store";
+import { translate } from "@/lib/i18n";
 
 function WaterParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -106,9 +109,7 @@ function WaterParticles() {
 }
 
 export function HeroSection() {
-  const scrollToDemo = () => {
-    document.getElementById("live-demo")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const { lang } = useApp();
   const scrollToFeatures = () => {
     document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -144,7 +145,9 @@ export function HeroSection() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-60" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
           </span>
-          <span className="text-xs font-bold tracking-widest text-cyan-300">DELHI FLOOD RISK SYSTEM</span>
+          <span className="text-xs font-bold tracking-widest text-cyan-300">
+            {translate(lang, "landing.hero.badge")}
+          </span>
         </div>
 
         {/* Main headline */}
@@ -152,10 +155,10 @@ export function HeroSection() {
           className="mx-auto mb-6 max-w-4xl font-display text-5xl font-bold leading-[1.08] tracking-tight text-white sm:text-6xl lg:text-7xl"
           style={{ animationDelay: "0.2s" }}
         >
-          Hyperlocal Flood
+          {translate(lang, "landing.hero.title1")}
           <br />
           <span className="bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
-            Early Warning System
+            {translate(lang, "landing.hero.title2")}
           </span>
         </h1>
 
@@ -164,8 +167,7 @@ export function HeroSection() {
           className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-white/50 sm:text-xl"
           style={{ animationDelay: "0.3s" }}
         >
-          AI-powered real-time monitoring of Delhi&apos;s flood-prone underpasses.
-          Predict. Verify. Protect.
+          {translate(lang, "landing.hero.sub")}
         </p>
 
         {/* CTA buttons */}
@@ -173,8 +175,8 @@ export function HeroSection() {
           className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
           style={{ animationDelay: "0.4s" }}
         >
-          <button
-            onClick={scrollToDemo}
+          <Link
+            href="/map"
             className="group flex items-center gap-3 rounded-2xl px-8 py-4 text-base font-bold text-slate-950 transition-all hover:scale-105 active:scale-95"
             style={{
               background: "linear-gradient(135deg, #00e5ff 0%, #0096c7 50%, #005577 100%)",
@@ -185,11 +187,11 @@ export function HeroSection() {
               <path d="M3 15c3.5 0 3.5-3 7-3s3.5 3 7 3 3.5-3 4-3" strokeLinecap="round" />
               <path d="M3 20c3.5 0 3.5-3 7-3s3.5 3 7 3 3.5-3 4-3" strokeLinecap="round" opacity=".5" />
             </svg>
-            Explore Live Map
+            {translate(lang, "landing.hero.cta.map")}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 transition-transform group-hover:translate-x-1">
               <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </button>
+          </Link>
 
           <button
             onClick={scrollToFeatures}
@@ -199,7 +201,7 @@ export function HeroSection() {
               <path d="M12 3a5 5 0 0 0-3.2 8.8c.5.5.8 1.1.9 1.7h4.6c.1-.6.4-1.2.9-1.7A5 5 0 0 0 12 3Z" strokeLinejoin="round" />
               <path d="M10 18h4M10.5 21h3" strokeLinecap="round" />
             </svg>
-            View Features
+            {translate(lang, "landing.hero.cta.features")}
           </button>
         </div>
 
@@ -232,7 +234,9 @@ export function HeroSection() {
         className="absolute bottom-32 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         style={{ animationDelay: "0.6s" }}
       >
-        <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">Scroll</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">
+          {translate(lang, "landing.hero.scroll")}
+        </span>
         <div className="relative h-10 w-6 rounded-full border border-white/20">
           <div
             className="absolute left-1/2 top-1.5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-cyan-400"

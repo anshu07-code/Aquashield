@@ -1,4 +1,16 @@
-const STEPS = [
+"use client";
+
+import { useApp } from "@/lib/store";
+import { translate, type TKey } from "@/lib/i18n";
+
+const STEPS: {
+  num: string;
+  color: string;
+  icon: React.ReactNode;
+  titleKey: TKey;
+  descKey: TKey;
+  tagKey: TKey;
+}[] = [
   {
     num: "01",
     color: "#00b4d8",
@@ -10,9 +22,9 @@ const STEPS = [
         <circle cx="7" cy="12" r="1.5" fill="currentColor" opacity=".6" />
       </svg>
     ),
-    title: "Weather Data Ingest",
-    desc: "Open-Meteo pulls rain intensity, humidity, and forecast every 15 minutes. EventBridge triggers the ingest Lambda — no manual intervention needed.",
-    tag: "Every 15 min",
+    titleKey: "landing.how.s1.title",
+    descKey: "landing.how.s1.desc",
+    tagKey: "landing.how.s1.tag",
   },
   {
     num: "02",
@@ -23,9 +35,9 @@ const STEPS = [
         <path d="m2 17 10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    title: "Risk Engine Compute",
-    desc: "Each zone's risk score (0–100) is computed from: live rain, 24h saturation, depression depth, drainage deficit, and history score. Fully explainable.",
-    tag: "Risk Core",
+    titleKey: "landing.how.s2.title",
+    descKey: "landing.how.s2.desc",
+    tagKey: "landing.how.s2.tag",
   },
   {
     num: "03",
@@ -38,9 +50,9 @@ const STEPS = [
         <rect x="14" y="14" width="7" height="7" rx="1.6" />
       </svg>
     ),
-    title: "Citizen Reports",
-    desc: "3-tap flow: pick flood type → snap a photo → submit. Photo uploads to S3, Lambda calls Bedrock Claude for vision analysis, updates zone risk in real-time.",
-    tag: "AI Verified",
+    titleKey: "landing.how.s3.title",
+    descKey: "landing.how.s3.desc",
+    tagKey: "landing.how.s3.tag",
   },
   {
     num: "04",
@@ -52,9 +64,9 @@ const STEPS = [
         <path d="M9 9h6" strokeLinecap="round" opacity=".5" />
       </svg>
     ),
-    title: "AI Ops Agent",
-    desc: "Ask questions in plain language — the Strands agent calls live tools (get_zone_risk, get_forecast, get_nearby_reports) and drafts action plans with work orders.",
-    tag: "Bedrock Agent",
+    titleKey: "landing.how.s4.title",
+    descKey: "landing.how.s4.desc",
+    tagKey: "landing.how.s4.tag",
   },
   {
     num: "05",
@@ -65,13 +77,15 @@ const STEPS = [
         <path d="M3 12h18" strokeLinecap="round" opacity=".4" />
       </svg>
     ),
-    title: "Public Alerts",
-    desc: "One-click publish sends SMS/WhatsApp alerts via AWS End User Messaging to subscribed citizens. Drafts are AI-generated in English and Hindi.",
-    tag: "SNS + AWS SMS",
+    titleKey: "landing.how.s5.title",
+    descKey: "landing.how.s5.desc",
+    tagKey: "landing.how.s5.tag",
   },
 ];
 
 export function HowItWorks() {
+  const { lang } = useApp();
+
   return (
     <section
       id="how-it-works"
@@ -88,14 +102,13 @@ export function HowItWorks() {
         {/* Header */}
         <div className="mb-20 text-center">
           <span className="mb-4 inline-block text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
-            The Pipeline
+            {translate(lang, "landing.how.eyebrow")}
           </span>
           <h2 className="mb-5 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            From Rain to Recommendation
+            {translate(lang, "landing.how.title")}
           </h2>
           <p className="mx-auto max-w-xl text-lg text-white/45">
-            A complete detect → verify → predict → explain → act loop,
-            running entirely on AWS managed infrastructure.
+            {translate(lang, "landing.how.sub")}
           </p>
         </div>
 
@@ -138,7 +151,7 @@ export function HowItWorks() {
                 {/* Right: content */}
                 <div className="flex-1 pt-1 md:pt-3">
                   <div className="flex flex-wrap items-center gap-3">
-                    <h3 className="text-xl font-bold text-white">{step.title}</h3>
+                    <h3 className="text-xl font-bold text-white">{translate(lang, step.titleKey)}</h3>
                     <span
                       className="rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
                       style={{
@@ -147,10 +160,10 @@ export function HowItWorks() {
                         background: `${step.color}10`,
                       }}
                     >
-                      {step.tag}
+                      {translate(lang, step.tagKey)}
                     </span>
                   </div>
-                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/45">{step.desc}</p>
+                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/45">{translate(lang, step.descKey)}</p>
                 </div>
               </div>
             ))}

@@ -1,7 +1,11 @@
 "use client";
 import { WaterWave } from "./WaterWave";
+import { useApp } from "@/lib/store";
+import { translate } from "@/lib/i18n";
 
 export function CTASection() {
+  const { lang } = useApp();
+
   return (
     <section
       className="relative flex min-h-[60vh] flex-col items-center justify-center overflow-hidden py-28"
@@ -10,21 +14,20 @@ export function CTASection() {
       <div className="relative z-10 mx-auto max-w-3xl px-5 text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1.5">
           <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-300">
-            WeMakeDevs x AWS Environmental Hacks 2026
+            {translate(lang, "landing.cta.eyebrow")}
           </span>
         </div>
 
         <h2 className="mb-6 font-display text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-          Ready to protect
+          {translate(lang, "landing.cta.title1")}
           <br />
           <span className="bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
-            Delhi from floods?
+            {translate(lang, "landing.cta.title2")}
           </span>
         </h2>
 
         <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-white/50">
-          AquaShield is live and running on AWS. Open the citizen map,
-          submit a report, or access the ops dashboard — all in one place.
+          {translate(lang, "landing.cta.sub")}
         </p>
 
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -40,7 +43,7 @@ export function CTASection() {
               <path d="M3 15c3.5 0 3.5-3 7-3s3.5 3 7-3 3.5-3 4-3" strokeLinecap="round" />
               <path d="M3 20c3.5 0 3.5-3 7-3s3.5 3 7-3 3.5-3 4-3" strokeLinecap="round" opacity=".5" />
             </svg>
-            Open Citizen Map
+            {translate(lang, "landing.cta.map")}
           </a>
           <a
             href="/ops"
@@ -52,12 +55,12 @@ export function CTASection() {
               <rect x="3" y="14" width="7" height="7" rx="1.6" />
               <rect x="14" y="14" width="7" height="7" rx="1.6" />
             </svg>
-            Ops Dashboard
+            {translate(lang, "landing.cta.ops")}
           </a>
         </div>
 
         <p className="mt-8 text-xs text-white/25">
-          Built on AWS · Next.js PWA · Amazon Bedrock · DynamoDB · Lambda · SNS
+          {translate(lang, "landing.cta.tech")}
         </p>
       </div>
 
