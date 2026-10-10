@@ -10,6 +10,7 @@ import type { ZoneDetail, ZoneSummary } from "@aquashield/types";
 import { fetchZoneDetail } from "@/lib/api";
 import { TIER_META } from "@/lib/tiers";
 import { translate, type Lang, type TKey } from "@/lib/i18n";
+import { ZoneReportMenu } from "@/components/ops/ZoneReportMenu";
 
 const TIERS: ("SAFE" | "WATCH" | "HIGH" | "CRITICAL")[] = ["SAFE", "WATCH", "HIGH", "CRITICAL"];
 
@@ -56,7 +57,8 @@ function Donut({ counts, total }: { counts: Record<string, number>; total: numbe
   );
 }
 
-function RiskBars({ zones }: { zones: ZoneSummary[] }) {
+function RiskBars({ zones, lang }: { zones: ZoneSummary[]; lang: Lang }) {
+  const [openId, setOpenId] = useState<string | null>(null);
   const ranked = [...zones].sort((a, b) => b.risk - a.risk);
   return (
     <div className="space-y-3">
@@ -70,27 +72,58 @@ function RiskBars({ zones }: { zones: ZoneSummary[] }) {
           ))
         : ranked.map((z) => {
             const meta = TIER_META[z.tier];
+            const isOpen = openId === z.id;
             return (
-              <div key={z.id} className="flex items-center gap-3">
-                <span className="w-32 truncate text-[11px] font-semibold text-white/70" title={z.name}>
-                  {z.name}
-                </span>
-                <div className="relative h-4 flex-1 overflow-hidden rounded-full bg-white/5">
-                  <span
-                    className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-700 ease-out"
-                    style={{
-                      width: `${z.risk}%`,
-                      background: `linear-gradient(90deg, ${meta.color}55, ${meta.color})`,
-                      boxShadow: z.risk >= 75 ? `0 0 12px ${meta.color}66` : undefined,
-                    }}
-                  />
-                </div>
-                <span
-                  className="w-8 text-right font-display text-xs font-bold tabular-nums"
-                  style={{ color: meta.color }}
+              <div key={z.id}>
+                <button
+                  type="button"
+                  onClick={() => setOpenId(isOpen ? null : z.id)}
+                  className={`group flex w-full items-center gap-3 rounded-xl px-1.5 py-1 text-left transition ${
+                    isOpen ? "bg-white/[0.04] ring-1 ring-white/10" : "hover:bg-white/[0.03]"
+                  }`}
+                  aria-expanded={isOpen}
+                  title={z.name}
                 >
-                  {z.risk}
-                </span>
+                  <span className="w-32 truncate text-[11px] font-semibold text-white/70" title={z.name}>
+                    {z.name}
+                  </span>
+                  <div className="relative h-4 flex-1 overflow-hidden rounded-full bg-white/5">
+                    <span
+                      className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-700 ease-out"
+                      style={{
+                        width: `${z.risk}%`,
+                        background: `linear-gradient(90deg, ${meta.color}55, ${meta.color})`,
+                        boxShadow: z.risk >= 75 ? `0 0 12px ${meta.color}66` : undefined,
+                      }}
+                    />
+                  </div>
+                  <span
+                    className="w-8 text-right font-display text-xs font-bold tabular-nums"
+                    style={{ color: meta.color }}
+                  >
+                    {z.risk}
+                  </span>
+                  <span
+                    className={`grid h-5 w-5 place-items-center rounded-md border transition ${
+                      isOpen
+                        ? "border-aqua-400/40 bg-aqua-400/10 text-aqua-300"
+                        : "border-white/10 bg-white/[0.03] text-white/35 group-hover:text-white/70"
+                    }`}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2.2}
+                      className={`h-3 w-3 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    >
+                      <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                </button>
+                {isOpen ? (
+                  <ZoneReportMenu zone={z} lang={lang} />
+                ) : null}
               </div>
             );
           })}
@@ -404,7 +437,7 @@ export function AnalyticsBoard({
           </span>
         </div>
         <div className="mt-4">
-          <RiskBars zones={zones} />
+          <RiskBars zones={zones} lang={lang} />
         </div>
       </div>
 
