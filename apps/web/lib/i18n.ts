@@ -168,7 +168,7 @@ const en = {
   "ops.passcode": "Ops passcode",
   "ops.enter": "Enter dashboard",
   "ops.checking": "Checking…",
-  "ops.demo": "DEMO: Use password Aquashield2026! to enter.",
+  "ops.demo": "DEMO : Use password Aquashield2026! to enter.",
   
   "ops.wrong": "Wrong passcode",
   "ops.back": "Back to map",
