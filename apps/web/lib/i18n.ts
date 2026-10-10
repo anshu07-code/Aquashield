@@ -167,7 +167,7 @@ const en = {
   "ops.sub": "Delhi flood operations · JalRakshak",
   "ops.passcode": "Ops passcode",
   "ops.enter": "Enter dashboard",
-  "ops.passcode.hint": "Demo build: any passcode works (mock backend).",
+  
   "ops.wrong": "Wrong passcode",
   "ops.back": "Back to map",
   "ops.kpi.critical": "Critical zones",
@@ -315,8 +315,6 @@ const en = {
   "landing.live.sub": "Live data from AWS Lambda + DynamoDB · Refreshes every 15 min",
   "landing.live.status": "LIVE DATA",
   "landing.live.updated": "Updated just now",
-  "landing.live.cta.app": "Open Full App",
-  "landing.live.cta.ops": "Ops Dashboard",
 
   "landing.cta.eyebrow": "WeMakeDevs x AWS Environmental Hacks 2026",
   "landing.cta.title1": "Ready to protect",
@@ -506,7 +504,6 @@ const hi: Record<keyof typeof en, string> = {
   "ops.sub": "दिल्ली बाढ़ ऑपरेशन्स · जलरक्षक",
   "ops.passcode": "ऑप्स पासकोड",
   "ops.enter": "डैशबोर्ड खोलें",
-  "ops.passcode.hint": "डेमो बिल्ड: कोई भी पासकोड चलेगा (मॉक बैकएंड)।",
   "ops.wrong": "गलत पासकोड",
   "ops.back": "मैप पर वापस",
   "ops.kpi.critical": "गंभीर ज़ोन",
@@ -654,8 +651,6 @@ const hi: Record<keyof typeof en, string> = {
   "landing.live.sub": "AWS Lambda + DynamoDB से लाइव डेटा · हर 15 मिनट रीफ़्रेश",
   "landing.live.status": "लाइव डेटा",
   "landing.live.updated": "अभी अपडेट हुआ",
-  "landing.live.cta.app": "पूरा ऐप खोलें",
-  "landing.live.cta.ops": "ऑप्स डैशबोर्ड",
 
   "landing.cta.eyebrow": "WeMakeDevs x AWS एनवायरनमेंटल हैक्स 2026",
   "landing.cta.title1": "क्या आप तैयार हैं",
