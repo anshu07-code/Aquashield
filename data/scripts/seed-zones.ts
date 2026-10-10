@@ -166,9 +166,14 @@ if (dryRun) {
 }
 
 async function main(): Promise<void> {
-  // Dynamically import AWS SDK v3 (only if we need to write)
-  const { DynamoDBClient } = await import("@aws-sdk/client-dynamodb");
-  const { PutItemCommand, DynamoDBDocumentClient } = await import("@aws-sdk/lib-dynamodb");
+  // Load AWS SDK v3 via createRequire: @aws-sdk/lib-dynamodb's named exports are NOT
+  // visible to ESM dynamic import under tsx (CJS interop), which made PutItemCommand
+  // undefined at runtime ("not a constructor"). createRequire is deterministic for CJS.
+  // Fixed 2026-10-10 while seeding the live table (P4: keep on next regen).
+  const { createRequire } = await import("node:module");
+  const require = createRequire(import.meta.url);
+  const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb") as typeof import("@aws-sdk/client-dynamodb");
+  const { marshall } = require("@aws-sdk/util-dynamodb") as typeof import("@aws-sdk/util-dynamodb");
 
   const region = process.env.AWS_REGION || "ap-south-1";
 
@@ -181,7 +186,6 @@ async function main(): Promise<void> {
   }
 
   const client = new DynamoDBClient(clientConfig);
-  const doc = DynamoDBDocumentClient.from(client, { marshallOptions: { removeUndefinedValues: true } });
 
   console.log(`\nSeeding to table: ${tableName}`);
   console.log(`Region: ${region}`);
@@ -213,10 +217,10 @@ async function main(): Promise<void> {
     };
 
     try {
-      await doc.send(
+      await client.send(
         new PutItemCommand({
           TableName: tableName,
-          Item: item,
+          Item: marshall(item, { removeUndefinedValues: true }),
           ConditionExpression: "attribute_not_exists(zoneId)",
         })
       );
