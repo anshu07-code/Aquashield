@@ -132,3 +132,47 @@ test("statusFrom: verified at high confidence", () => {
 test("statusFrom: unverified at low confidence", () => {
   assert.equal(statusFrom(makeVision({ confidence: 0.3 })), "unverified");
 });
+
+test("statusFrom: rejected when road detected but no flood (flooding report)", () => {
+  const dry = makeVision({
+    isRoadScene: true,
+    floodedRoad: false,
+    waterDepthTier: "none",
+    blockedDrain: false,
+    confidence: 0.9,
+  });
+  assert.equal(statusFrom(dry, "flooding"), "rejected");
+});
+
+test("statusFrom: rejected when road detected but no flood (overflow/leak)", () => {
+  const dry = makeVision({ isRoadScene: true, floodedRoad: false, waterDepthTier: "none", confidence: 0.9 });
+  assert.equal(statusFrom(dry, "overflow"), "rejected");
+  assert.equal(statusFrom(dry, "leak"), "rejected");
+});
+
+test("statusFrom: accepted when flood IS detected (verified)", () => {
+  const wet = makeVision({ isRoadScene: true, floodedRoad: true, waterDepthTier: "ankle", confidence: 0.9 });
+  assert.equal(statusFrom(wet, "flooding"), "verified");
+});
+
+test("statusFrom: blocked_drain rejected when no drain/flood signal", () => {
+  const dry = makeVision({
+    isRoadScene: true,
+    floodedRoad: false,
+    waterDepthTier: "none",
+    blockedDrain: false,
+    confidence: 0.9,
+  });
+  assert.equal(statusFrom(dry, "blocked_drain"), "rejected");
+});
+
+test("statusFrom: blocked_drain accepted when drain detected (blockedDrain)", () => {
+  const drain = makeVision({
+    isRoadScene: true,
+    floodedRoad: false,
+    waterDepthTier: "none",
+    blockedDrain: true,
+    confidence: 0.8,
+  });
+  assert.equal(statusFrom(drain, "blocked_drain"), "verified");
+});
