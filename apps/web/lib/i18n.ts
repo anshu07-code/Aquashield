@@ -6,7 +6,7 @@ export const LANGS: { code: Lang; label: string }[] = [
 ];
 
 const en = {
-  "app.name": "JalRakshak",
+  "app.name": "AquaShield",
   "app.tagline": "Flood guard",
   "app.city": "Delhi · Underpass watch",
   "nav.ops": "Ops",
@@ -156,7 +156,7 @@ const en = {
   "route.error": "Routing failed. Please try again.",
   "route.selectZone": "Set destination",
   "route.zoneDest": "Selected zone as destination",
-  "route.askTab": "Ask JalRakshak",
+  "route.askTab": "Ask AquaShield",
   "route.askTabPh": "Ask about this zone or route…",
   "route.askResult": "AI response ready — press Execute in /ops to act on it.",
   "route.fromCentral": "Central Delhi",
@@ -177,7 +177,7 @@ const en = {
   "ops.kpi.live": "Live · auto-sync",
   "ops.hotspots": "Ranked hotspots",
   "ops.hotspots.sub": "Sorted by Flood Risk Index",
-  "ops.ask": "Ask JalRakshak",
+  "ops.ask": "Ask AquaShield",
   "ops.ask.ph": "Ask about a zone… e.g. “What should we do at Minto Bridge?”",
   "ops.ask.button": "Ask AI",
   "ops.ask.thinking": "Agent is thinking…",
