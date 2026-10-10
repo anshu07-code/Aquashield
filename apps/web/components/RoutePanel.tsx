@@ -397,6 +397,37 @@ function RouteCard({
         </div>
       )}
 
+      {selected && route.steps && route.steps.length > 0 ? (
+        <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-2.5 text-left">
+          <p className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-white/45">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="h-3 w-3">
+              <path d="M4 5h11m0 0-3-3m3 3-3 3M4 12h7m0 0-3-3m3 3-3 3M4 19h11" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {translate(lang, "route.directions")}
+          </p>
+          <ol className="space-y-2">
+            {route.steps.map((s, i) => (
+              <li key={i} className="flex items-start gap-2.5">
+                <StepIcon maneuver={s.maneuver} modifier={s.instruction} />
+                <div className="min-w-0 flex-1">
+                  <p className="whitespace-pre-line text-[12px] leading-snug text-white/85">{s.instruction}</p>
+                  <p className="mt-0.5 text-[10px] tabular-nums text-white/35">
+                    {s.distance >= 1000
+                      ? `${(s.distance / 1000).toFixed(1)} ${translate(lang, "route.km")}`
+                      : `${s.distance} ${translate(lang, "route.metres")}`}
+                  </p>
+                </div>
+                {i === 0 ? (
+                  <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider text-emerald-300/80">
+                    {translate(lang, "route.start")}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
+
       {selected ? (
         <div
           onClick={openInMaps}
@@ -414,6 +445,75 @@ function RouteCard({
         </div>
       ) : null}
     </button>
+  );
+}
+
+function StepIcon({ maneuver, modifier }: { maneuver: string; modifier: string }) {
+  const m = maneuver.toLowerCase();
+  const mod = modifier.toLowerCase();
+  const common = { fill: "none", stroke: "currentColor", strokeWidth: 2.3, className: "mt-0.5 h-4 w-4 shrink-0 text-white/55" } as const;
+
+  if (m === "depart") {
+    return (
+      <svg viewBox="0 0 24 24" {...common}>
+        <path d="M6 5h12M6 5l4-3m-4 3 4 3" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 12v7M12 19l-2.5-2.5M12 19l2.5-2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (m === "arrive") return (
+    <svg viewBox="0 0 24 24" {...common}>
+      <path d="M19 17a8 8 0 0 0-8-8c-1 0-2 .2-2.8.5L4 6l-1 6 5 1.5-.2.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 21a3 3 0 1 0-6 0 3 3 0 0 0 6 0Z" strokeLinejoin="round" />
+    </svg>
+  );
+  if (m === "roundabout" || m === "rotary") return (
+    <svg viewBox="0 0 24 24" {...common}>
+      <path d="M12 3a5 5 0 1 0 5 5" strokeLinecap="round" />
+      <path d="M22 8h-5m5 0-5-4m5 4-5 4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+  if (m === "continue" || m === "end of road") return (
+    <svg viewBox="0 0 24 24" {...common}>
+      <path d="M12 3v18M12 3l-4 4M12 3l4 4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+
+  if (mod.includes("left") && mod.includes("slight")) return (
+    <svg viewBox="0 0 24 24" {...common}>
+      <path d="M20 18c0-4-3-6-7-6H4" strokeLinecap="round" />
+      <path d="M4 12l4-3m-4 3 4 3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+  if (mod.includes("right") && mod.includes("slight")) return (
+    <svg viewBox="0 0 24 24" {...common}>
+      <path d="M4 18c0-4 3-6 7-6h9" strokeLinecap="round" />
+      <path d="M20 12l-4-3m4 3-4 3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+  if (mod.includes("left")) return (
+    <svg viewBox="0 0 24 24" {...common}>
+      <path d="M20 19c0-6-4-9-9-9H4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 10l4-4M4 10l4 4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+  if (mod.includes("right")) return (
+    <svg viewBox="0 0 24 24" {...common}>
+      <path d="M4 19c0-6 4-9 9-9h7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20 10l-4-4m4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+  if (m === "merge") return (
+    <svg viewBox="0 0 24 24" {...common}>
+      <path d="M4 19c0-4 5-5 6-8M4 19c11 0 7-7 8-11" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M16 3v5" strokeLinecap="round" />
+    </svg>
+  );
+
+  return (
+    <svg viewBox="0 0 24 24" {...common}>
+      <path d="M12 3v18M12 3l-3 3M12 3l3 3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 

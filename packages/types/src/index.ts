@@ -139,6 +139,15 @@ export const RouteRequestSchema = z.object({
   origin: LatLngSchema,
   destination: LatLngSchema,
 });
+export const RouteStepSchema = z.object({
+  instruction: z.string(), // e.g. "Turn left onto Ring Road"
+  maneuver: z.string(),   // e.g. "turn-left"
+  distance: z.number(),    // meters
+  duration: z.number(),   // seconds
+  streetName: z.string().nullable().optional(),
+});
+export type RouteStep = z.infer<typeof RouteStepSchema>;
+
 export const RouteOptionSchema = z.object({
   id: z.string(),
   geometry: z.array(z.tuple([z.number(), z.number()])), // [lng, lat] pairs
@@ -149,6 +158,7 @@ export const RouteOptionSchema = z.object({
   unsafe: z.boolean(), // crosses a CRITICAL zone
   recommended: z.boolean(),
   summary: z.string(), // e.g. "Avoids 2 flooded underpasses - +6 min"
+  steps: z.array(RouteStepSchema).optional(), // turn-by-turn directions (OSRM steps=true)
 });
 export const RouteResponseSchema = z.object({ routes: z.array(RouteOptionSchema).min(1) });
 export type RouteOption = z.infer<typeof RouteOptionSchema>;

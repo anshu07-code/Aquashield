@@ -2,9 +2,20 @@
   "routes": [
     { "id": "route_fast", "geometry": [[77.2, 28.62], [77.2197, 28.6328], [77.25, 28.64]], "durationMin": 18, "distanceKm": 7.2,
       "hazards": [{ "zoneId": "z_minto", "name": "Minto Bridge Underpass", "tier": "CRITICAL" }],
-      "score": 78, "unsafe": true, "recommended": false, "summary": "Fastest, but crosses 1 flooded underpass" },
+      "score": 78, "unsafe": true, "recommended": false, "summary": "Fastest, but crosses 1 flooded underpass",
+      "steps": [
+        { "instruction": "Head north on Barakhamba Road", "maneuver": "depart", "distance": 300, "duration": 30, "streetName": "Barakhamba Road" },
+        { "instruction": "Turn left onto Minto Road", "maneuver": "turn", "distance": 1200, "duration": 180, "streetName": "Minto Road" },
+        { "instruction": "Turn right onto Netaji Subhash Marg", "maneuver": "turn", "distance": 1500, "duration": 240, "streetName": "Netaji Subhash Marg" }
+      ] },
     { "id": "route_safe", "geometry": [[77.2, 28.62], [77.21, 28.65], [77.25, 28.64]], "durationMin": 24, "distanceKm": 9.1,
       "hazards": [],
-      "score": 24, "unsafe": false, "recommended": true, "summary": "Avoids 1 flooded underpass - +6 min" }
+      "score": 24, "unsafe": false, "recommended": true, "summary": "Avoids 1 flooded underpass - +6 min",
+      "steps": [
+        { "instruction": "Head north on Bhagwan Das Road", "maneuver": "depart", "distance": 400, "duration": 40, "streetName": "Bhagwan Das Road" },
+        { "instruction": "Keep left onto Ring Road", "maneuver": "turn", "distance": 2800, "duration": 300, "streetName": "Ring Road" },
+        { "instruction": "Slight right onto Vikas Marg", "maneuver": "turn", "distance": 2200, "duration": 280, "streetName": "Vikas Marg" },
+        { "instruction": "Arrive at your destination", "maneuver": "arrive", "distance": 50, "duration": 10, "streetName": null }
+      ] }
   ]
 }

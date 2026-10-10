@@ -20,7 +20,7 @@ const OPS_POLL_MS = 30_000;
 type WorkOrderStatus = WorkOrder["status"];
 
 export default function OpsPage() {
-  const { zones, lang } = useApp();
+  const { zones, reloadZones, lang } = useApp();
   const toast = useToast();
   const [passcode, setPasscode] = useState("");
   const [authed, setAuthed] = useState(false);
@@ -78,6 +78,8 @@ export default function OpsPage() {
   const syncRef = useRef(syncAll);
   syncRef.current = syncAll;
 
+  // auto-refresh zone KPIs so the dashboard reflects live ingest data
+
   const onCreateWorkOrders = (plan: AgentPlan, focusZone: string | null) => {
     const base: WorkOrder[] =
       plan.workOrderIds.length > 0
@@ -117,12 +119,17 @@ export default function OpsPage() {
   }, []);
 
   // kick off a sync as soon as the passcode gate is passed, then poll in the background
+  // (also refresh zone KPIs so the dashboard reflects live ingest data)
   useEffect(() => {
     if (!authed) return;
     syncRef.current();
-    const id = setInterval(() => syncRef.current(), OPS_POLL_MS);
+    reloadZones();
+    const id = setInterval(() => {
+      syncRef.current();
+      reloadZones();
+    }, OPS_POLL_MS);
     return () => clearInterval(id);
-  }, [authed]);
+  }, [authed, reloadZones]);
 
   const advanceOrder = async (o: WorkOrder) => {
     const next: WorkOrderStatus = o.status === "open" ? "dispatched" : o.status === "dispatched" ? "resolved" : "resolved";
