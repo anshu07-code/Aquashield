@@ -113,7 +113,6 @@ export interface OsrmManeuver {
   type: string;
   modifier?: string;
   location?: [number, number];
-  name?: string;
 }
 
 export interface OsrmStep {
@@ -122,7 +121,7 @@ export interface OsrmStep {
   name?: string;
   distance: number;  // meters
   duration: number;  // seconds
-  instruction: string;
+  instruction?: string; // not present in raw OSRM; built from maneuver+name
 }
 
 export interface OsrmLeg {
@@ -196,9 +195,10 @@ export async function computeRoutes(input: ComputeRoutesInput): Promise<{ routes
   for (let i = 0; i < osrmData.routes.length; i++) {
     const r = osrmData.routes[i];
 
-    // Extract turn-by-turn steps from OSRM legs
+    // Extract turn-by-turn steps from OSRM legs (raw OSRM has no instruction
+    // field — build the text from the maneuver type/modifier + street name)
     const steps = (r.legs[0]?.steps ?? []).map((step: OsrmStep) => ({
-      instruction: step.instruction || maneuverInstruction(step.maneuver.type, step.maneuver.modifier, step.maneuver.name),
+      instruction: maneuverInstruction(step.maneuver.type, step.maneuver.modifier, step.name),
       maneuver: step.maneuver.type,
       distance: Math.round(step.distance),
       duration: Math.round(step.duration),
@@ -289,28 +289,50 @@ export function detectHazards(
 // ---------- Summary text ----------
 
 function maneuverInstruction(type: string, modifier?: string, name?: string): string {
-  const mod = modifier ? `${modifier} ` : "";
-  if (!name) return `${mod}${type}`.trim();
-  return `Turn ${mod}onto ${name}`;
+  const mod = modifier && modifier !== "straight" ? modifier : null;
+  const onto = name ? ` onto ${name}` : "";
+
+  switch (type) {
+    case "depart":
+      return `Head ${mod ? `${mod} ` : ""}on ${name ?? "the road"}`;
+    case "arrive":
+      return name ? `Arrive at ${name}` : "Arrive at your destination";
+    case "roundabout":
+      return `At the roundabout, take the ${mod ? `${mod} ` : ""}exit${onto}`;
+    case "rotary":
+      return `Enter the rotary, take the ${mod ? `${mod} ` : ""}exit${onto}`;
+    case "merge":
+      return `Merge ${mod ? `${mod} ` : "onto the main road"}${onto}`;
+    case "fork":
+      return `Keep ${mod ?? "straight"} at the fork${onto}`;
+    case "end of road":
+      return `Turn ${mod ? `${mod} ` : ""}at the end of the road${onto}`;
+    default:
+      return `Turn ${mod ? `${mod} ` : ""}${name ? `onto ${name}` : ""}`.trim().replace(/\s+/g, " ");
+  }
 }
+
+/** Maneuver types that count as a directional turn (for the summary). */
+const TURN_TYPES = new Set(["turn", "merge", "roundabout", "rotary", "exit roundabout", "exit rotary", "fork", "end of road"]);
 
 function buildSummary(
   hazards: ZoneHazard[],
   durationMin: number,
   distanceKm: number,
-  steps: { instruction: string }[],
+  steps: { maneuver: string }[],
 ): string {
-  const turnCount = steps.filter((s) =>
-    /^(turn|merge|depart|arrive| roundabout|rotary|passing)$/.test(s.instruction.toLowerCase()),
-  ).length;
+  const turnCount = steps.filter((s) => TURN_TYPES.has(s.maneuver)).length;
 
-  if (hazards.length === 0) {
+  // Only WATCH/HIGH/CRITICAL are real hazards for routing; SAFE zones aren't "avoided"
+  const active = hazards.filter((h) => h.tier !== "SAFE");
+
+  if (active.length === 0) {
     const turnStr = turnCount > 0 ? `, ${turnCount} turn${turnCount !== 1 ? "s" : ""}` : "";
     return `${Math.round(durationMin)} min, ${distanceKm.toFixed(1)} km — fastest route${turnStr}`;
   }
 
   const counts = { SAFE: 0, WATCH: 0, HIGH: 0, CRITICAL: 0 };
-  for (const h of hazards) counts[h.tier]++;
+  for (const h of active) counts[h.tier]++;
 
   const parts: string[] = [];
   if (counts.CRITICAL > 0) parts.push(`${counts.CRITICAL} CRITICAL`);
@@ -322,7 +344,7 @@ function buildSummary(
     return `Crosses ${hazardStr} — unsafe, ${Math.round(durationMin)} min${turnCount > 0 ? `, ${turnCount} turns` : ""}`;
   }
 
-  const extraMin = Math.round(HAZARD_LAMBDA * hazards.reduce((s, h) => s + HAZARD_WEIGHT[h.tier], 0));
+  const extraMin = Math.round(HAZARD_LAMBDA * active.reduce((s, h) => s + HAZARD_WEIGHT[h.tier], 0));
   return `Avoids ${hazardStr} — +${extraMin} min, ${Math.round(durationMin)} min total, ${distanceKm.toFixed(1)} km${turnCount > 0 ? `, ${turnCount} turns` : ""}`;
 }
 
