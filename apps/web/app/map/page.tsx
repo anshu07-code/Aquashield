@@ -11,7 +11,7 @@ import { RainSimulator } from "@/components/RainSimulator";
 import { ZoneSheet } from "@/components/ZoneSheet";
 import { RoutePanel } from "@/components/RoutePanel";
 import { ReportFlow } from "@/components/ReportFlow";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 const RiskMap = dynamic(() => import("@/components/map/RiskMap"), {
   ssr: false,
@@ -112,6 +112,16 @@ export default function MapPage() {
     if (locationDenied) toast.error(translate(lang, "map.locate.denied"));
   };
 
+  // Underpass risk-card carousel: left/right arrow buttons scroll by one card width.
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const scrollCards = (dir: -1 | 1) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const first = el.querySelector<HTMLElement>(":scope > *");
+    const step = first ? first.offsetWidth + 10 : 250;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
+
   const criticalZones = effectiveZones.filter((z) => z.tier === "CRITICAL");
   const hasCritical = criticalZones.length > 0;
 
@@ -175,10 +185,26 @@ export default function MapPage() {
         </div>
       ) : null}
 
-      {/* Zone quick-bar */}
+      {/* Zone quick-bar — bottom-right carousel; locate + report buttons on the same row */}
       {effectiveZones.length > 0 && !selectedId ? (
-        <div className="fixed bottom-[148px] left-3 right-3 z-40 lg:left-auto lg:right-auto lg:left-[320px] xl:left-[360px]">
-          <div className="no-scrollbar flex gap-2.5 overflow-x-auto pb-1">
+        <div className="fixed bottom-4 right-4 z-40 flex max-w-[min(100vw-1.5rem,54rem)] flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+          <div className="flex w-full items-center gap-2">
+            <button
+              onClick={() => scrollCards(-1)}
+              aria-label="Previous underpass risk card"
+              title="Previous"
+              className="glass grid h-11 w-11 shrink-0 place-items-center rounded-full border text-white/70 transition-all duration-200 hover:scale-105 hover:text-white active:scale-95"
+              style={{ borderColor: "rgba(255,255,255,0.12)" }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-5 w-5">
+                <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            <div
+              ref={carouselRef}
+              className="no-scrollbar flex min-w-0 flex-1 items-stretch gap-2.5 overflow-x-auto rounded-2xl py-1"
+            >
             {effectiveZones.map((z) => {
               const meta = TIER_META[z.tier];
               return (
@@ -211,49 +237,60 @@ export default function MapPage() {
               );
             })}
           </div>
+
+          <button
+            onClick={() => scrollCards(1)}
+            aria-label="Next underpass risk card"
+            title="Next"
+            className="glass grid h-11 w-11 shrink-0 place-items-center rounded-full border text-white/70 transition-all duration-200 hover:scale-105 hover:text-white active:scale-95"
+            style={{ borderColor: "rgba(255,255,255,0.12)" }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-5 w-5">
+              <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            </button>
+
+            {/* report — to the right of the carousel, with breathing room */}
+            <button
+              onClick={() => openReport(null)}
+              className="btn-static ml-3 flex h-11 shrink-0 items-center gap-2 rounded-2xl px-4"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                className="h-5 w-5"
+              >
+                <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+              </svg>
+              <span className="text-sm font-bold">
+                {translate(lang, "nav.report")}
+              </span>
+            </button>
+
+            {/* locate — to the right of the report button */}
+            <button
+              onClick={onLocate}
+              aria-label={translate(lang, "map.locate")}
+              title="Show my location"
+              className="glass grid h-11 w-11 shrink-0 place-items-center rounded-full border transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{ borderColor: "rgba(255,255,255,0.12)" }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--accent, #00b4d8)"
+                strokeWidth="2.2"
+                className="h-5 w-5"
+              >
+                <path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11Z" />
+                <circle cx="12" cy="10" r="2.6" />
+              </svg>
+            </button>
+          </div>
         </div>
       ) : null}
-
-      {/* Bottom action cluster */}
-      <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2.5 sm:bottom-6 sm:right-6">
-        <button
-          onClick={onLocate}
-          aria-label={translate(lang, "map.locate")}
-          title={translate(lang, "map.locate")}
-          className="glass grid place-items-center rounded-2xl border transition-all duration-200 hover:scale-105 active:scale-95"
-          style={{ width: 52, height: 52, borderColor: "rgba(255,255,255,0.12)" }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--accent, #00b4d8)"
-            strokeWidth="2.2"
-            className="h-5 w-5"
-          >
-            <path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11Z" />
-            <circle cx="12" cy="10" r="2.6" />
-          </svg>
-        </button>
-
-        <button
-          onClick={() => openReport(null)}
-          className="btn-primary flex h-14 gap-2.5 rounded-2xl px-5"
-          style={{ boxShadow: "0 8px 32px -6px rgba(0,180,216,0.5)" }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.4"
-            className="h-5 w-5"
-          >
-            <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-          </svg>
-          <span className="text-sm font-bold hidden sm:inline">
-            {translate(lang, "nav.report")}
-          </span>
-        </button>
-      </div>
 
       {/* Rain simulator */}
       <div className="fixed bottom-4 left-4 z-40 sm:bottom-6 sm:left-6">
