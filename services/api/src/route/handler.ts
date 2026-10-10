@@ -1,149 +1,308 @@
 /**
+ * services/api/src/route/handler.ts
+ * ==================================
  * POST /route — safe-route alternatives scored against zone hazards.
  *
- * OWNED BY P4 (routing lead). This is the working baseline so the frontend is never
- * blocked: it generates 2 alternative polylines, scores them against current zone risk,
- * and recommends the safest. P4 replaces `generateAlternatives` with Amazon Location
- * Service / OSRM `alternatives=true` — keep the output contract (RouteResponseSchema).
+ * OWNED BY P4 (routing lead). Real routing via OSRM public endpoint
+ * (router.project-osrm.org) — replaces the synthetic baseline router.
  *
- * Score: durationMin + λ * Σ hazardWeight(tier), hazardWeight = SAFE 0 · WATCH 2 · HIGH 6 · CRITICAL 20.
- * A route crossing a CRITICAL zone is `unsafe` and never recommended if an alternative exists.
+ * Provider:     OSRM public endpoint (no API key required)
+ * Fallback:      None in v1 — route failures return an error response.
+ * Future:        Amazon Location Service CalculateRoutes can replace OSRM
+ *                by swapping this module; the output contract stays identical.
+ *
+ * Flow:
+ *   1. Validate origin/destination coords
+ *   2. Call OSRM /route/v1/driving/{lng1},{lat1};{lng2},{lat2}?alternatives=3&overview=full&geometries=geojson
+ *   3. Parse OSRM response, normalize geometry
+ *   4. Load zone data via scanZones()
+ *   5. For each route: find hazard zones within 40m of the route polyline
+ *   6. Score each route: durationMin + λ × Σ(hazardWeight)
+ *   7. Mark CRITICAL-crossing routes unsafe; never recommend one if a safer
+ *      alternative exists
+ *   8. Validate against RouteResponseSchema and return
+ *
+ * NOTE: This module has NO risk formula. Risk scoring uses routing-policy
+ *       hazard weights (SAFE=0, WATCH=2, HIGH=6, CRITICAL=20). Risk values
+ *       come from packages/risk-core via the Lambda's ingest pipeline.
  */
+
 import { RouteRequestSchema, RouteResponseSchema, type Tier } from "@aquashield/types";
 import { route as wrap, ok, parseBody, validation, type ReqEvent, type Res } from "../shared/http.ts";
 import { scanZones, type ZoneItem } from "../shared/db.ts";
 import { haversineM, pointToSegmentM } from "../shared/geo.ts";
 
-const HAZARD_WEIGHT: Record<Tier, number> = { SAFE: 0, WATCH: 2, HIGH: 6, CRITICAL: 20 };
-const HAZARD_RADIUS_M = 40;     // polyline <-> zone proximity
-const AVG_SPEED_KMH = 28;       // city driving assumption for the baseline router
-const LAMBDA = 1;
+// ---------- Config ----------
 
-type P = [number, number]; // [lng, lat]
+export const OSRM_BASE = "https://router.project-osrm.org";
 
-function lerp(a: P, b: P, t: number): P {
-  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+/** Meters — a route within this distance of a zone center is considered "near" it. */
+export const ZONE_PROXIMITY_M = 40;
+
+/**
+ * Routing-policy hazard weights (separate from risk-core formula).
+ * Used only for route scoring, not for risk display.
+ *
+ * Interpretation: extra minutes added to travel time when crossing a zone.
+ * SAFE  → no delay
+ * WATCH → +2 min effective delay
+ * HIGH  → +6 min effective delay
+ * CRITICAL → +20 min effective delay
+ */
+export const HAZARD_WEIGHT: Record<Tier, number> = {
+  SAFE: 0,
+  WATCH: 2,
+  HIGH: 6,
+  CRITICAL: 20,
+};
+
+/**
+ * λ (lambda) — multiplier applied to the sum of hazard weights when computing
+ * the route score. Higher λ = risk-averse routing. Default 1.0.
+ */
+export const HAZARD_LAMBDA = 1.0;
+
+export const OSRM_TIMEOUT_MS = 8_000;
+
+// ---------- Types ----------
+
+export interface ZoneHazard {
+  zoneId: string;
+  name: string;
+  tier: "SAFE" | "WATCH" | "HIGH" | "CRITICAL";
 }
 
-/** Baseline alternatives. P4: replace with real routing provider, keep this shape. */
-function generateAlternatives(origin: [number, number], dest: [number, number]): { id: string; geometry: P[]; durationMin: number; distanceKm: number }[] {
-  const straight: P[] = Array.from({ length: 24 }, (_, i) => lerp(origin, dest, i / 23));
-  const dist = haversineM({ lat: origin[1], lng: origin[0] }, { lat: dest[1], lng: dest[0] });
-
-  // detour: bow the polyline to one side (perpendicular offset ~20% of distance)
-  const mid = lerp(origin, dest, 0.5);
-  const dx = dest[0] - origin[0];
-  const dy = dest[1] - origin[1];
-  const bow = Math.max(0.004, dist / 111320 * 0.2); // degrees-ish offset, at least ~400 m
-  const off: P = [mid[0] - dy * 0.001 * 100, mid[1] + dx * 0.001 * 100];
-  const scale = bow / (Math.hypot(off[0] - mid[0], off[1] - mid[1]) || 1);
-  const pushed: P = [mid[0] + (off[0] - mid[0]) * scale, mid[1] + (off[1] - mid[1]) * scale];
-  const detour: P[] = Array.from({ length: 32 }, (_, i) => {
-    const t = i / 31;
-    // quadratic bezier through `pushed`
-    const a = lerp(origin, pushed, t);
-    const b = lerp(pushed, dest, t);
-    return lerp(a, b, t);
-  });
-
-  const detourDist = polylineLength(detour);
-  const directDist = dist;
-  return [
-    { id: "r_fast", geometry: straight, durationMin: round1(directDist / 1000 / AVG_SPEED_KMH * 60), distanceKm: round1(directDist / 1000) },
-    { id: "r_alt", geometry: detour, durationMin: round1(detourDist / 1000 / AVG_SPEED_KMH * 60), distanceKm: round1(detourDist / 1000) },
-  ];
+export interface RouteResult {
+  id: string;
+  geometry: [number, number][]; // [lng, lat][] — GeoJSON order
+  durationMin: number;
+  distanceKm: number;
+  hazards: ZoneHazard[];
+  score: number;
+  unsafe: boolean;
+  recommended: boolean;
+  summary: string;
 }
 
-function polylineLength(poly: P[]): number {
-  let m = 0;
-  for (let i = 1; i < poly.length; i++) {
-    m += haversineM({ lat: poly[i - 1][1], lng: poly[i - 1][0] }, { lat: poly[i][1], lng: poly[i][0] });
+export interface ComputeRoutesInput {
+  origin: { lat: number; lng: number };
+  destination: { lat: number; lng: number };
+  /**
+   * Zones to check against. Caller typically fetches from DynamoDB.
+   * Minimal shape: { id, name, lat, lng, tier }
+   */
+  zones: Array<{
+    id: string;
+    name: string;
+    lat: number;
+    lng: number;
+    tier: "SAFE" | "WATCH" | "HIGH" | "CRITICAL";
+  }>;
+}
+
+export interface OsrmRoute {
+  geometry: { coordinates: [number, number][]; type: "LineString" };
+  duration: number; // seconds
+  distance: number;  // meters
+  legs: unknown[];
+}
+
+export interface OsrmResponse {
+  code: string;
+  routes: OsrmRoute[];
+  waypoints: Array<{ location: [number, number]; name: string }>;
+}
+
+// ---------- Public API ----------
+
+/**
+ * Compute safe routes between origin and destination using OSRM.
+ * Returns routes ranked by score (lower = better), with hazard information.
+ */
+export async function computeRoutes(input: ComputeRoutesInput): Promise<{ routes: RouteResult[] }> {
+  const { origin, destination, zones } = input;
+
+  // Build OSRM URL
+  const osrmUrl =
+    `${OSRM_BASE}/route/v1/driving/` +
+    `${origin.lng},${origin.lat};${destination.lng},${destination.lat}` +
+    `?alternatives=3&overview=full&geometries=geojson&steps=false`;
+
+  let osrmData: OsrmResponse;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), OSRM_TIMEOUT_MS);
+
+    const res = await fetch(osrmUrl, {
+      signal: controller.signal,
+      headers: { "User-Agent": "JalRakshak/1.0 (hackathon project)" },
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`OSRM returned HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    osrmData = (await res.json()) as OsrmResponse;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("abort")) {
+      throw new Error(`OSRM request timed out after ${OSRM_TIMEOUT_MS}ms`);
+    }
+    throw new Error(`OSRM request failed: ${msg}`);
   }
-  return m;
+
+  if (osrmData.code !== "Ok" || !osrmData.routes || osrmData.routes.length === 0) {
+    throw new Error(`OSRM returned no routes (code: ${osrmData.code}). Try different coordinates.`);
+  }
+
+  // Build RouteResults
+  const results: RouteResult[] = [];
+
+  for (let i = 0; i < osrmData.routes.length; i++) {
+    const r = osrmData.routes[i];
+    const routeHazards = detectHazards(r.geometry.coordinates, zones);
+
+    // Compute score
+    const hazardSum = routeHazards.reduce((sum, h) => sum + HAZARD_WEIGHT[h.tier], 0);
+    const score = Math.round(r.duration / 60 + HAZARD_LAMBDA * hazardSum);
+
+    // Determine unsafe / recommended
+    const crossesCritical = routeHazards.some((h) => h.tier === "CRITICAL");
+    const unsafe = crossesCritical;
+
+    const summary = buildSummary(routeHazards, r.duration / 60, r.distance / 1000);
+
+    results.push({
+      id: `route_${i + 1}`,
+      geometry: r.geometry.coordinates,
+      durationMin: Math.round(r.duration / 60),
+      distanceKm: Math.round((r.distance / 1000) * 10) / 10,
+      hazards: routeHazards,
+      score,
+      unsafe,
+      recommended: false, // set below after ranking
+      summary,
+    });
+  }
+
+  // Rank: lower score = better. Mark recommended.
+  // Rule: never recommend a route that crosses CRITICAL if a safer alternative exists.
+  if (results.length === 1) {
+    results[0].recommended = true; // only option
+  } else {
+    // Sort by score ascending (best first)
+    results.sort((a, b) => a.score - b.score);
+
+    const safeRoutes = results.filter((r) => !r.unsafe);
+    if (safeRoutes.length > 0) {
+      // Mark the best safe route as recommended
+      safeRoutes[0].recommended = true;
+    } else {
+      // Every route is unsafe — recommend the least-bad one (lowest score)
+      results[0].recommended = true;
+    }
+  }
+
+  // Validate against schema
+  const parsed = RouteResponseSchema.parse({ routes: results });
+  return parsed as unknown as { routes: RouteResult[] };
 }
 
-function round1(v: number): number {
-  return Math.round(v * 10) / 10;
-}
+// ---------- Hazard detection ----------
 
-/** Zones whose centroid is within HAZARD_RADIUS_M of any polyline segment. */
-function hazardsOf(poly: P[], zones: ZoneItem[]): Map<string, ZoneItem> {
-  const hits = new Map<string, ZoneItem>();
-  for (const z of zones) {
-    for (let i = 1; i < poly.length; i++) {
+/**
+ * Find all zones within ZONE_PROXIMITY_M of the route polyline.
+ * Checks every segment (not just vertices) for accuracy.
+ * Uses the shared pointToSegmentM (metres) helper.
+ */
+export function detectHazards(
+  coords: [number, number][],
+  zones: ComputeRoutesInput["zones"]
+): ZoneHazard[] {
+  if (coords.length < 2 || zones.length === 0) return [];
+
+  const hazards: ZoneHazard[] = [];
+
+  for (const zone of zones) {
+    for (let i = 1; i < coords.length; i++) {
       const d = pointToSegmentM(
-        { lat: z.lat, lng: z.lng },
-        { lat: poly[i - 1][1], lng: poly[i - 1][0] },
-        { lat: poly[i][1], lng: poly[i][0] },
+        { lat: zone.lat, lng: zone.lng },
+        { lat: coords[i - 1][1], lng: coords[i - 1][0] },
+        { lat: coords[i][1], lng: coords[i][0] },
       );
-      if (d <= HAZARD_RADIUS_M) {
-        hits.set(z.zoneId, z);
+      if (d <= ZONE_PROXIMITY_M) {
+        hazards.push({ zoneId: zone.id, name: zone.name, tier: zone.tier });
         break;
       }
     }
   }
-  return hits;
+
+  return hazards;
 }
 
-const round2 = (v: number) => Math.round(v * 100) / 100;
+// ---------- Summary text ----------
 
+function buildSummary(hazards: ZoneHazard[], durationMin: number, distanceKm: number): string {
+  if (hazards.length === 0) {
+    return `Fastest route — ${Math.round(durationMin)} min, ${distanceKm.toFixed(1)} km`;
+  }
+
+  const counts = { SAFE: 0, WATCH: 0, HIGH: 0, CRITICAL: 0 };
+  for (const h of hazards) counts[h.tier]++;
+
+  const parts: string[] = [];
+
+  if (counts.CRITICAL > 0) parts.push(`${counts.CRITICAL} CRITICAL`);
+  if (counts.HIGH > 0) parts.push(`${counts.HIGH} HIGH`);
+  if (counts.WATCH > 0) parts.push(`${counts.WATCH} WATCH`);
+
+  const hazardStr = parts.join(", ");
+
+  if (counts.CRITICAL > 0) {
+    return `Crosses ${hazardStr} ${counts.CRITICAL > 1 ? "zones" : "zone"} — unsafe, ${Math.round(durationMin)} min`;
+  }
+
+  const extraMin = Math.round(HAZARD_LAMBDA * hazards.reduce((s, h) => s + HAZARD_WEIGHT[h.tier], 0));
+
+  if (extraMin > 0) {
+    return `Avoids ${hazardStr} underpasses — +${extraMin} min, ${Math.round(durationMin)} min total`;
+  }
+
+  return `Route with ${hazardStr} — ${Math.round(durationMin)} min, ${distanceKm.toFixed(1)} km`;
+}
+
+// ---------- Lambda handler ----------
+
+/**
+ * POST /route — Lambda handler. Wraps computeRoutes with the shared HTTP
+ * error handling, validates the request body, loads zones from DynamoDB,
+ * and returns a schema-validated RouteResponse.
+ */
 export const handler = wrap(async (event: ReqEvent): Promise<Res> => {
   const body = parseBody(RouteRequestSchema, event);
-  const origin: [number, number] = [body.origin.lng, body.origin.lat];
-  const dest: [number, number] = [body.destination.lng, body.destination.lat];
 
   if (haversineM(body.origin, body.destination) < 50) {
     throw validation("Origin and destination are the same place");
   }
 
-  const zones = await scanZones();
-  const candidates = generateAlternatives(origin, dest);
+  const zoneItems = await scanZones();
 
-  const scored = candidates.map((c) => {
-    const hazardMap = hazardsOf(c.geometry, zones);
-    const hazards = [...hazardMap.values()].map((z) => ({
-      zoneId: z.zoneId,
-      name: z.name,
-      tier: (z.tier ?? "SAFE") as Tier,
-    }));
-    const hazardSum = hazards.reduce((s, h) => s + HAZARD_WEIGHT[h.tier], 0);
-    const score = round2(c.durationMin + LAMBDA * hazardSum);
-    const unsafe = hazards.some((h) => h.tier === "CRITICAL");
-    return { ...c, hazards, score, unsafe };
-  });
+  const zones = zoneItems.map((z: ZoneItem): ComputeRoutesInput["zones"][number] => ({
+    id: z.zoneId,
+    name: z.name,
+    lat: z.lat,
+    lng: z.lng,
+    tier: (z.tier ?? "SAFE") as "SAFE" | "WATCH" | "HIGH" | "CRITICAL",
+  }));
 
-  scored.sort((a, b) => a.score - b.score);
-  const safe = scored.filter((s) => !s.unsafe);
-  const recommendedId = (safe[0] ?? scored[0]).id;
+  const { routes } = await computeRoutes({ origin: body.origin, destination: body.destination, zones });
 
-  // summary sentence vs the fastest option: "Avoids 1 flooded underpass - +6 min"
-  const fastest = [...scored].sort((a, b) => a.durationMin - b.durationMin)[0];
-  const rec = scored.find((s) => s.id === recommendedId)!;
-  const avoided = fastest.hazards
-    .filter((h) => h.tier === "HIGH" || h.tier === "CRITICAL")
-    .filter((h) => !rec.hazards.some((r) => r.zoneId === h.zoneId));
-  const underpasses = avoided.filter((h) => zones.find((z) => z.zoneId === h.zoneId)?.isUnderpass).length;
-  const extraMin = Math.round(rec.durationMin - fastest.durationMin);
-  let summary: string;
-  if (!avoided.length) {
-    summary = `No flooded zones avoided - ${rec.durationMin} min`;
-  } else if (underpasses > 0) {
-    summary = `Avoids ${underpasses} flooded underpass${underpasses === 1 ? "" : "es"} - +${extraMin} min`;
-  } else {
-    summary = `Avoids ${avoided.length} flooded zone${avoided.length === 1 ? "" : "s"} - +${extraMin} min`;
-  }
-
-  return ok(RouteResponseSchema, {
-    routes: scored.map((s) => ({
-      id: s.id,
-      geometry: s.geometry,
-      durationMin: s.durationMin,
-      distanceKm: s.distanceKm,
-      hazards: s.hazards,
-      score: s.score,
-      unsafe: s.unsafe,
-      recommended: s.id === recommendedId,
-      summary: s.id === recommendedId ? summary : `Alternative - ${s.durationMin} min`,
-    })),
-  });
+  return ok(RouteResponseSchema, { routes });
 });
+
+// ---------- Re-exports for convenience ----------
+
+export type { RouteOption } from "@aquashield/types";
