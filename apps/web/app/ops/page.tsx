@@ -51,6 +51,10 @@ export default function OpsPage() {
   }, [passcode]);
 
   const loadReports = useCallback(async () => {
+    // Reports are fetched per-zone, so if zones aren't ready yet we must NOT
+    // "succeed" with an empty list — that would render a false 0 in the KPI.
+    // Keep reportsLoading=true; the zones-arrival effect re-syncs instead.
+    if (zones.length === 0) return;
     try {
       const lists = await Promise.all(
         zones.map((z) => fetchZoneReports(z.id).catch(() => [] as Report[])),
@@ -130,6 +134,18 @@ export default function OpsPage() {
     }, OPS_POLL_MS);
     return () => clearInterval(id);
   }, [authed, reloadZones]);
+
+  // If zones weren't loaded when the first sync ran (zones empty → loadReports
+  // skipped reports), re-sync once they arrive so the Active-reports KPI gets
+  // the real count immediately instead of waiting up to one poll cycle.
+  const zonesEverSynced = useRef(false);
+  useEffect(() => {
+    if (!authed || zonesEverSynced.current) return;
+    if (zones.length > 0) {
+      zonesEverSynced.current = true;
+      syncRef.current();
+    }
+  }, [authed, zones]);
 
   const advanceOrder = async (o: WorkOrder) => {
     const next: WorkOrderStatus = o.status === "open" ? "dispatched" : o.status === "dispatched" ? "resolved" : "resolved";

@@ -100,9 +100,13 @@ export function KpiStrip({
               </span>
             </div>
             <div className="mt-2.5 flex items-baseline gap-2">
-              <span className="font-display text-3xl font-bold tabular-nums" style={{ color: it.color }}>
-                {it.value}
-              </span>
+              {it.key === "ops.kpi.reports" && reportsLoading ? (
+                <div className="skeleton mb-0.5 h-7 w-10 rounded-lg" />
+              ) : (
+                <span className="font-display text-3xl font-bold tabular-nums" style={{ color: it.color }}>
+                  {it.value}
+                </span>
+              )}
               {it.pulse ? (
                 <span className="relative flex h-2 w-2">
                   <span
@@ -113,9 +117,6 @@ export function KpiStrip({
                 </span>
               ) : null}
             </div>
-            {it.key === "ops.kpi.reports" && reportsLoading ? (
-              <div className="skeleton mt-2 h-2 w-16 rounded-full" />
-            ) : null}
           </div>
         ))}
       </div>
