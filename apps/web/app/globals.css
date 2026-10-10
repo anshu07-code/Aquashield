@@ -527,3 +527,19 @@ input[type="range"].sim-range::-moz-range-thumb {
 .animate-spin-slow  { animation: spin-slow 3s linear infinite; }
 .animate-float      { animation: float 4s ease-in-out infinite; }
 .animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+
+/* ---- Reduced motion: drop decorative animation, keep state changes visible ---- */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-sheet-up,
+  .animate-pop,
+  .animate-float,
+  .animate-glow-pulse {
+    animation: none !important;
+  }
+  .zone-marker,
+  .zone-marker .zm-dot,
+  .zone-marker .zm-ring {
+    transition: none !important;
+  }
+}
