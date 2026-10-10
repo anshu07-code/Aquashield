@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useApp } from "@/lib/store";
 import { LANGS, translate } from "@/lib/i18n";
@@ -53,6 +53,7 @@ function LogoMark({ size = 36 }: { size?: number }) {
 export function TopBar() {
   const { lang, setLang, simActive, zones, staleCount } = useApp();
   const [clock, setClock] = useState("");
+  const headerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const tick = () =>
@@ -62,14 +63,29 @@ export function TopBar() {
     return () => clearInterval(i);
   }, []);
 
+  // Expose the measured bar height (incl. top padding) as --topbar-h so below-bar
+  // overlays (Legend, critical strip) never overlap it, at any viewport width.
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const apply = () => {
+      const h = Math.ceil(el.getBoundingClientRect().height);
+      document.documentElement.style.setProperty("--topbar-h", `${h}px`);
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const critical = zones.filter((z) => z.tier === "CRITICAL").length;
   const high = zones.filter((z) => z.tier === "HIGH").length;
   const watch = zones.filter((z) => z.tier === "WATCH").length;
   const alertLevel = critical > 0 ? "CRITICAL" : high > 0 ? "HIGH" : watch > 0 ? "WATCH" : "SAFE";
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 sm:px-5 sm:pt-4">
-      <div className="glass-strong pointer-events-auto flex w-full max-w-7xl items-center gap-4 rounded-3xl px-4 py-3">
+    <header ref={headerRef} className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 sm:pt-4">
+      <div className="glass-strong pointer-events-auto flex w-full items-center gap-4 rounded-3xl px-4 py-3">
 
         {/* Left: logo + wordmark */}
         <Link href="/" className="flex min-w-0 items-center gap-3">
