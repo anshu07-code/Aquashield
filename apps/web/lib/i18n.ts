@@ -164,9 +164,11 @@ const en = {
   "route.originLabel": "Starting point",
 
   "ops.title": "Ops Command",
-  "ops.sub": "Delhi flood operations · JalRakshak",
+  "ops.sub": "Delhi flood operations · AquaShield",
   "ops.passcode": "Ops passcode",
   "ops.enter": "Enter dashboard",
+  "ops.checking": "Checking…",
+  "ops.demo": "DEMO: Use password Aquashield2026! to enter.",
   
   "ops.wrong": "Wrong passcode",
   "ops.back": "Back to map",
@@ -504,6 +506,8 @@ const hi: Record<keyof typeof en, string> = {
   "ops.sub": "दिल्ली बाढ़ ऑपरेशन्स · जलरक्षक",
   "ops.passcode": "ऑप्स पासकोड",
   "ops.enter": "डैशबोर्ड खोलें",
+  "ops.checking": "जाँच हो रही है…",
+  "ops.demo": "डेमो: दर्ज करने के लिए पासवर्ड Aquashield2026! का उपयोग करें।",
   "ops.wrong": "गलत पासकोड",
   "ops.back": "मैप पर वापस",
   "ops.kpi.critical": "गंभीर ज़ोन",
