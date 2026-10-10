@@ -43,10 +43,10 @@ TODO: embed `docs/architecture.png`. See `docs/ARCHITECTURE.md`.
 Explainable weighted index, not a probability. See `docs/RISK_ENGINE.md`. Tests: `npm test`.
 
 ## AI agent
-TODO: tools, guardrails (human-in-the-loop), example output.
+"Ask Aquashield" (/ops) is a [Strands Agents SDK](https://github.com/Strands-Agents-SDK) agent (Python Lambda) that answers with grounded plans — **it never invents numbers**, every fact comes from a tool call (`get_zone_risk`, `get_forecast`, `get_nearby_reports`, `get_nearby_zones`, `plan_safe_route`, `create_work_order`, `draft_alert`, `publish_alert`). Plans include bilingual alert drafts (EN + HI, <160 chars). Human-in-the-loop: work orders/alerts require `execute=true` set by an operator. Output validates against `AgentPlanSchema` (Pydantic mirror of the zod contract). Eval: `python services/agent/test_agent.py` (mock mode).
 
 ## Evaluation
-TODO: vision accuracy on our labelled image set (n=__), confusion matrix, limitations.
+Vision triage evaluated on a labelled set of **32 images** (`data/eval/images/` + `data/eval/labels.json`; credits intentionally omitted — source PDF did not supply provenance). `data/eval/run_eval.py` runs the **same shipped vision module** (via `data/eval/vision-cli.ts` bridge) and prints accuracy/precision/recall/F1 + confusion matrix to `data/eval/results.md`. Pipeline verified end-to-end; **accuracy numbers are pending until Bedrock inference runs** (`python data/eval/run_eval.py` with valid AWS creds + `BEDROCK_MODEL_ID`). Limitations: visual-estimate depth tiers, one flood/non-flood binary metric so far.
 
 ## Data sources & licences
 TODO: Open-Meteo, OpenStreetMap contributors (ODbL), public waterlogging sources (see `data/SOURCES.md`), image credits.
