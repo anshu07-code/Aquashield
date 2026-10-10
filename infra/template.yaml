@@ -176,6 +176,24 @@ Resources:
             ApiId: !Ref HttpApi
             Path: /alerts/{id}/publish
             Method: POST
+        AlertList:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /alerts
+            Method: GET
+        AlertGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /alerts/{id}
+            Method: GET
+        AlertPatch:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /alerts/{id}
+            Method: PATCH
 
   # AI agent (placeholder plan builder until P3's Strands Lambda lands; contract-stable)
   AgentFunction:
