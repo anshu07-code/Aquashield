@@ -75,10 +75,10 @@
     },
     {
       "type": "Feature",
-      "id": "z_daryaoganj",
+      "id": "z_isbt_kashmere_gate",
       "geometry": { "type": "Point", "coordinates": [77.2410, 28.6680] },
       "properties": {
-        "id": "z_daryaoganj",
+        "id": "z_isbt_kashmere_gate",
         "name": "ISBT Kashmere Gate Underpass",
         "lat": 28.6680,
         "lng": 77.2410,
@@ -129,10 +129,10 @@
     },
     {
       "type": "Feature",
-      "id": "z_pratap_nagar",
+      "id": "z_pandav_nagar",
       "geometry": { "type": "Point", "coordinates": [77.2830, 28.6480] },
       "properties": {
-        "id": "z_pratap_nagar",
+        "id": "z_pandav_nagar",
         "name": "Pandav Nagar Underpass",
         "lat": 28.6480,
         "lng": 77.2830,
@@ -195,8 +195,8 @@
         "drainageDeficit": 76,
         "historyScore": 75,
         "criticalRainMmHr": 35,
-        "source": "PARTIALLY VERIFIED: https://www.youtube.com/watch?v=SVay97eS_98 — YouTube video titled 'Flooded underpass near Old Yamuna Bridge during monsoon in Delhi' (title verified during audit; video itself not watchable in this environment). Old Yamuna Bridge is ~1 km NE of the Seelampur coordinates [77.2710, 28.6720]. This corroborates underpass flooding in the Seelampur corridor but does NOT independently confirm a named 'Seelampur Underpass' structure. Coordinates estimated from OpenStreetMap landmark proximity (Seelampur). Depression depth estimated from DEM. History score from PWD North Delhi waterlogging reports — PARTIALLY VERIFIED (no single named-underpass source found).",
-        "dataQuality": "coordinates: ESTIMATE | depressionDepthM: ESTIMATE | drainageDeficit: ESTIMATE | historyScore: ESTIMATE | criticalRainMmHr: ESTIMATE | status: PARTIALLY VERIFIED (YouTube evidence is corridor-level, not a named underpass)"
+        "source": "VERIFIED (corridor-level evidence): ToI (https://timesofindia.indiatimes.com/city/delhi/delhi-fails-first-real-monsoon-test/articleshow/132295208.cms, Jul 10 2026) — 'By 2 pm, PWD was swamped with complaints of deluged areas, including Seelampur, GT Road, Babarpur, Loni Road...'; Delhi Traffic Police flagged waterlogging at Pandav Nagar underpass, Murga Mandi (Ghazipur), ISBT flyover underpass. Seelampur corridor waterlogging is explicitly named in PWD's 10-Jul-2026 deluge complaint list. Earlier YouTube evidence (https://www.youtube.com/watch?v=SVay97eS_98) titled 'Flooded underpass near Old Yamuna Bridge during monsoon in Delhi' corroborates corridor flooding, but the video itself was not watchable in this environment. NOTE: evidence confirms Seelampur AREA waterlogging (PWD complaints) — it does NOT independently confirm a named 'Seelampur Underpass' structure; coordinates estimated from OpenStreetMap landmark proximity (Seelampur). Depression depth estimated from DEM. Drainage deficit from built-up density. History score from PWD North Delhi waterlogging reports + ToI corridor citation (10-Jul-2026).",
+        "dataQuality": "coordinates: ESTIMATE | depressionDepthM: ESTIMATE | drainageDeficit: ESTIMATE | historyScore: ESTIMATE | criticalRainMmHr: ESTIMATE | status: VERIFIED corridor-level (ToI 10-Jul-2026 names Seelampur in PWD deluge complaints; NOT a named underpass structure)"
       }
     },
     {
@@ -219,10 +219,10 @@
     },
     {
       "type": "Feature",
-      "id": "z_rohtak_road",
+      "id": "z_mundka",
       "geometry": { "type": "Point", "coordinates": [77.0870, 28.6615] },
       "properties": {
-        "id": "z_rohtak_road",
+        "id": "z_mundka",
         "name": "Mundka Underpass",
         "lat": 28.6615,
         "lng": 77.0870,

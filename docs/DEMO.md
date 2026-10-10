@@ -265,14 +265,14 @@ Show the actual Lambda invocations if CloudWatch is set up.
 | z_prahladpur | Pul Prahladpur Underpass | (28.5047, 77.2900) | ROUTE-SNAPPED via OSRM + OSM; HT corroborates | Historical hotspot; PWD removed from 2024 hotspot list |
 | z_zakhira | Zakhira Underpass | (28.6657, 77.1535) | ROUTE-SNAPPED via OSRM + OSM; HT corroborates | PWD INR 4.36 crore, 60-day drain project Apr 2026 |
 | z_ito | ITO Intersection | (28.6289, 77.2406) | ROUTE-SNAPPED via OSRM + OSM; HT corroborates | Surface intersection; PWD officially reported waterlogging at ITO (HT Jul 2026) |
-| z_daryaoganj | ISBT Kashmere Gate Underpass | (28.6680, 77.2410) | OSM proximity (ISBT area); NDTV/HT/NIE corroborate | CORRECTED: was "Daryaoganj" — coordinates match ISBT, not Daryaganj proper |
+| z_isbt_kashmere_gate | ISBT Kashmere Gate Underpass | (28.6680, 77.2410) | OSM proximity (ISBT area); NDTV/HT/NIE corroborate | CORRECTED: was "Daryaoganj" — coordinates match ISBT, not Daryaganj proper |
 | z_nd_railway | New Delhi Railway Station Underpass | (28.6422, 77.2200) | OSM proximity (NDLS) | Plausible; specific underpass name loose but location accurate |
 | z_azad_market | Azad Market Underpass | (28.6596, 77.2092) | OSM proximity; WION corroborates | Azad Market Railway Underpass + Ram Bagh Road confirmed by traffic police (WION Jul 2025) |
-| z_pratap_nagar | Pandav Nagar Underpass | (28.6480, 77.2830) | OSM proximity; ToI corroborates | CORRECTED: was "Pratap Nagar Underpass" (NW Delhi) — ToI names "Pandav Nagar underpass" (E Delhi), ~8 km apart, NOT adjacent |
+| z_pandav_nagar | Pandav Nagar Underpass | (28.6480, 77.2830) | OSM proximity; ToI corroborates | CORRECTED: was "Pratap Nagar Underpass" (NW Delhi) — ToI names "Pandav Nagar underpass" (E Delhi), ~8 km apart, NOT adjacent |
 | z_rajinder_nagar | Rajinder Nagar Underpass | (28.6420, 77.1765) | OSM proximity; India Today/ABPLive corroborate | Old Rajinder Nagar repeatedly flooded Jul-Aug 2024 |
 | z_mayur_vihar | Mayur Vihar Underpass | (28.5935, 77.2890) | OSM proximity; DownToEarth/Hindu/ET corroborate | Yamuna flooding of Mayur Vihar Phase 1 relief camps Aug-Sep 2025 |
-| z_seelampur | Seelampur Underpass | (28.6720, 77.2710) | OSM proximity; YouTube corroborates | PARTIALLY VERIFIED: video "Flooded underpass near Old Yamuna Bridge" (~1 km NE) — corridor evidence, no named underpass |
+| z_seelampur | Seelampur Underpass | (28.6720, 77.2710) | OSM proximity; ToI corroborates | VERIFIED corridor-level: PWD deluge complaints named Seelampur (ToI 10-Jul-2026); also YouTube "Flooded underpass near Old Yamuna Bridge" |
 | z_shakur_basti | Shakur Basti Underpass | (28.6842, 77.1328) | OSM proximity | Shakurbasti railway underpass exists; specific waterlogging unconfirmed |
-| z_rohtak_road | Mundka Underpass | (28.6615, 77.0870) | OSM proximity; TimesNow/Jagran corroborate | CORRECTED: was "Rohtak Road Underpass (Narela)" — coords match Mundka, not Narela |
+| z_mundka | Mundka Underpass | (28.6615, 77.0870) | OSM proximity; TimesNow/Jagran corroborate | CORRECTED: was "Rohtak Road Underpass (Narela)" — coords match Mundka, not Narela |
 | z_pitampura | Pitampura Underpass | (28.7010, 77.1360) | OSM proximity; HT/DownToEarth corroborate | PWD confirms Pitampura waterlogging (HT Jul 2026) |
 | z_model_town | Model Town Underpass | (28.7180, 77.1930) | OSM proximity | Plausible; area near GT Karnal Road floods; specific underpass unconfirmed |
