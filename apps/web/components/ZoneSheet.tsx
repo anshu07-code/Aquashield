@@ -55,8 +55,8 @@ export function ZoneSheet() {
 
   return (
     <div
-      className="glass-strong fixed inset-x-0 bottom-0 z-[60] mt-5 mb-5 flex max-h-[82vh] flex-col overflow-hidden rounded-t-[2rem] shadow-sheet animate-sheet-up
-                 md:inset-y-0 md:left-auto md:right-0 md:bottom-0 md:top-auto md:h-[82vh] md:max-h-[82vh] md:w-[430px] md:animate-fade-in md:rounded-l-3xl md:rounded-tr-none md:shadow-glow"
+      className="glass-strong fixed inset-x-0 bottom-0 z-[60] mt-5 mb-2 flex max-h-[83vh] flex-col overflow-hidden rounded-t-[2rem] shadow-sheet animate-sheet-up
+                 md:inset-y-0 md:left-auto md:right-0 md:bottom-0 md:top-auto md:h-[83vh] md:max-h-[83vh] md:w-[430px] md:animate-fade-in md:rounded-l-3xl md:rounded-tr-none md:shadow-glow"
       role="dialog"
       aria-modal="true"
       aria-label={zone?.name ?? "Zone detail"}
@@ -67,7 +67,7 @@ export function ZoneSheet() {
       </div>
 
       {/* header */}
-      <div className="flex shrink-0 items-start gap-3 px-5 pb-3 pt-3 md:px-6 md:pt-5">
+      <div className="flex shrink-0 items-start gap-3 px-5 pb-2 pt-2 md:px-4 md:pt-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             {zone ? (
