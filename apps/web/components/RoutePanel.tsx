@@ -47,13 +47,25 @@ export function RoutePanel() {
     if (userLocation && usingMyLocation) setOrigin(userLocation);
   }, [userLocation, usingMyLocation]);
 
-  // auto-run when opened from the zone sheet
+  // auto-run when opened / when dest is picked — skip if using geolocation (that flow has its own findRoutes)
   useEffect(() => {
-    if (routeOpen && dest && !routes && !routeLoading && !routeError) {
+    if (routeOpen && dest && !routes && !routeLoading && !routeError && !usingMyLocation) {
       findRoutes(origin, dest);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeOpen, dest]);
+  }, [routeOpen, dest, origin, usingMyLocation]);
+
+  // When geolocation succeeds → update origin state AND trigger route find
+  // This effect runs when userLocation is set by the locate() success callback
+  useEffect(() => {
+    if (userLocation && usingMyLocation) {
+      setOrigin(userLocation);
+      if (dest) {
+        findRoutes(userLocation, dest);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLocation, usingMyLocation]);
 
   // reset tab when panel opens
   useEffect(() => {
@@ -73,9 +85,23 @@ export function RoutePanel() {
   };
 
   const useMyLocationOrigin = () => {
-    locate(() => toast.error(translate(lang, "map.locate.denied")));
+    let denied = false;
+    locate(() => {
+      denied = true;
+      toast.error(translate(lang, "map.locate.denied"));
+      if (dest) findRoutes(DEFAULT_ORIGIN, dest);
+    });
+    setOriginText(translate(lang, "route.fromMe"));
     setUsingMyLocation(true);
     setOriginDropdown(false);
+    // Safety net: if no response (success or error) within 10s, treat as denied
+    setTimeout(() => {
+      if (!userLocation && !denied) {
+        denied = true;
+        toast.error(translate(lang, "map.locate.denied"));
+        if (dest) findRoutes(DEFAULT_ORIGIN, dest);
+      }
+    }, 10000);
   };
 
   const onFind = () => {
@@ -183,7 +209,7 @@ export function RoutePanel() {
                   {originDropdown && (
                     <div className="absolute left-0 right-0 z-50 mt-1 rounded-2xl border border-white/12 bg-[#030b1a] py-1.5 shadow-glow max-h-52 overflow-y-auto">
                       <button
-                        onMouseDown={useMyLocationOrigin}
+                        onClick={useMyLocationOrigin}
                         className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-sky-300 hover:bg-white/[0.07] transition"
                       >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.1} className="h-4 w-4 shrink-0">
@@ -195,7 +221,7 @@ export function RoutePanel() {
                       {zones.map((z) => (
                         <button
                           key={z.id}
-                          onMouseDown={() => selectOrigin(z)}
+                          onClick={() => selectOrigin(z)}
                           className="flex w-full items-center gap-2 px-3.5 py-2 text-left text-sm text-white/75 hover:bg-white/[0.07] transition"
                         >
                           <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: TIER_META[z.tier].color }} />

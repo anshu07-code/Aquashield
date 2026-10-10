@@ -45,18 +45,16 @@ const STATUS_STYLE: Record<Report["status"], string> = {
   unverified: "border-amber-400/35 bg-amber-400/12 text-amber-300",
   rejected: "border-rose-400/35 bg-rose-400/12 text-rose-300",
   needs_review: "border-sky-400/35 bg-sky-400/12 text-sky-300",
+  resolved: "border-emerald-400/35 bg-emerald-400/12 text-emerald-300",
 };
 
-function statusKey(s: Report["status"]) {
+function statusKey(s: Report["status"]): "zone.verified" | "zone.unverified" | "zone.rejected" | "zone.needsReview" | "zone.verified" {
   switch (s) {
-    case "verified":
-      return "zone.verified";
-    case "unverified":
-      return "zone.unverified";
-    case "rejected":
-      return "zone.rejected";
-    case "needs_review":
-      return "zone.needsReview";
+    case "verified":    return "zone.verified";
+    case "unverified":  return "zone.unverified";
+    case "rejected":    return "zone.rejected";
+    case "needs_review": return "zone.needsReview";
+    case "resolved":    return "zone.verified";
   }
 }
 
