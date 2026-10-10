@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MOCKS = path.join(__dirname, "..", "mocks");
-const PORT = 3001;
+const PORT = Number(process.env.MOCK_PORT) || 3001;
 
 // Read a mock file, return parsed JSON
 function readMock(filename: string) {
@@ -30,6 +30,18 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type, x-ops-passcode",
   "Content-Type": "application/json",
 };
+
+// In-memory alerts store seeded from mocks/alerts.json so the full flow
+// (draft -> publish -> GET /alerts shows it on the map) works live in mock mode.
+type MockAlert = {
+  id: string;
+  zoneId: string;
+  lang: "en" | "hi";
+  text: string;
+  status: "draft" | "published";
+  publishedAt: string | null;
+};
+const alertsStore: MockAlert[] = [...((readMock("alerts.json") as { alerts?: MockAlert[] })?.alerts ?? [])];
 
 // Parse URL, method; route to mock or 404
 function route(req: http.IncomingMessage, res: http.ServerResponse) {
@@ -151,10 +163,18 @@ function route(req: http.IncomingMessage, res: http.ServerResponse) {
         return;
       }
 
+      // GET /alerts (public — published only, what the citizen map reads)
+      if (pathname === "/alerts" && method === "GET") {
+        res.writeHead(200, CORS);
+        res.end(JSON.stringify({ alerts: alertsStore.filter((a) => a.status === "published").sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "")) }));
+        return;
+      }
+
       // POST /alerts (create draft alert — from agent tool / ops UI button)
       if (pathname === "/alerts" && method === "POST") {
-        let created = { id: `al_${Date.now().toString(36)}`, status: "draft", publishedAt: null };
+        let created: MockAlert = { id: `al_${Date.now().toString(36)}`, zoneId: "", lang: "en", text: "", status: "draft", publishedAt: null };
         try { created = { ...created, ...JSON.parse(body) }; } catch { /* ignore */ }
+        alertsStore.push({ ...created, status: "draft", publishedAt: null });
         res.writeHead(201, CORS);
         res.end(JSON.stringify(created));
         return;
@@ -171,15 +191,14 @@ function route(req: http.IncomingMessage, res: http.ServerResponse) {
       // POST /alerts/:id/publish
       const alertPub = pathname.match(/^\/alerts\/(.+)\/publish$/);
       if (alertPub && method === "POST") {
+        const id = alertPub[1];
+        const idx = alertsStore.findIndex((a) => a.id === id);
+        if (idx >= 0) {
+          alertsStore[idx] = { ...alertsStore[idx], status: "published", publishedAt: new Date().toISOString() };
+        }
         res.writeHead(200, CORS);
-        res.end(JSON.stringify({
-          id: alertPub[1],
-          zoneId: "z_minto",
-          lang: "en",
-          text: "Minto Bridge underpass flooding — avoid the area.",
-          status: "published",
-          publishedAt: new Date().toISOString(),
-        }));
+        const pub = alertsStore.find((a) => a.id === id);
+        res.end(JSON.stringify(pub ?? { id, status: "published", publishedAt: new Date().toISOString() }));
         return;
       }
 

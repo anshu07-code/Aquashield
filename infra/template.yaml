@@ -170,6 +170,12 @@ Resources:
             ApiId: !Ref HttpApi
             Path: /alerts
             Method: POST
+        AlertList:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /alerts
+            Method: GET
         AlertPublish:
           Type: HttpApi
           Properties:

@@ -1,0 +1,20 @@
+{
+  "alerts": [
+    {
+      "id": "al_001",
+      "zoneId": "z_minto",
+      "lang": "en",
+      "text": "Minto Bridge underpass waterlogged — avoid the area, use alternate route.",
+      "status": "published",
+      "publishedAt": "2026-10-11T05:00:00.000Z"
+    },
+    {
+      "id": "al_002",
+      "zoneId": "z_isbt_kashmere_gate",
+      "lang": "hi",
+      "text": "आईएसबीटी कश्मीरी गेट अंडरपास में पानी भर रहा है — कृपया वैकल्पिक मार्ग अपनाएं।",
+      "status": "published",
+      "publishedAt": "2026-10-11T04:30:00.000Z"
+    }
+  ]
+}

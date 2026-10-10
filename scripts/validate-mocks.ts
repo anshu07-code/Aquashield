@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import {
   ZoneListResponseSchema, ZoneDetailSchema, CreateReportResponseSchema,
   RouteResponseSchema, AgentPlanSchema, WorkOrderListResponseSchema,
+  AlertListResponseSchema,
 } from "../packages/types/src/index.ts";
 
 const checks: [string, { parse: (v: unknown) => unknown }][] = [
@@ -11,6 +12,7 @@ const checks: [string, { parse: (v: unknown) => unknown }][] = [
   ["mocks/route-response.json", RouteResponseSchema],
   ["mocks/agent-plan.json", AgentPlanSchema],
   ["mocks/workorders.json", WorkOrderListResponseSchema],
+  ["mocks/alerts.json", AlertListResponseSchema],
 ];
 let failed = false;
 for (const [file, schema] of checks) {

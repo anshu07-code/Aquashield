@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { LatLng, RouteOption, ZoneSummary } from "@aquashield/types";
+import type { Alert, LatLng, RouteOption, ZoneSummary } from "@aquashield/types";
 import { TIER_META } from "@/lib/tiers";
 
 const DELHI: [number, number] = [77.215, 28.615];
@@ -51,14 +51,18 @@ type Props = {
   selectedRouteId?: string | null;
   userLocation?: LatLng | null;
   simActive?: boolean;
+  /** Published public alerts — zones with one get an exclamation badge on their marker. */
+  alerts?: Alert[];
+  /** Preferred alert language (falls back to English). */
+  lang?: "en" | "hi";
 };
 
-function buildMarker(zone: ZoneSummary, selected: boolean): HTMLButtonElement {
+function buildMarker(zone: ZoneSummary, selected: boolean, hasAlert: boolean): HTMLButtonElement {
   const meta = TIER_META[zone.tier];
   const pulse = zone.risk >= 55;
   const el = document.createElement("button");
   el.type = "button";
-  el.className = `zone-marker${pulse ? " is-pulse" : ""}${selected ? " is-selected" : ""}`;
+  el.className = `zone-marker${pulse ? " is-pulse" : ""}${selected ? " is-selected" : ""}${hasAlert ? " has-alert" : ""}`;
   el.style.color = meta.color;
   el.setAttribute("aria-label", `${zone.name}, risk ${zone.risk}, ${meta.label}`);
   const dot = document.createElement("span");
@@ -74,6 +78,17 @@ function buildMarker(zone: ZoneSummary, selected: boolean): HTMLButtonElement {
   label.className = "zm-label";
   label.textContent = zone.name;
   el.append(pulseEl, ring, dot, label);
+  if (hasAlert) {
+    const badge = document.createElement("span");
+    badge.className = "zm-alert-badge";
+    badge.textContent = "!";
+    badge.setAttribute("role", "button");
+    badge.setAttribute("aria-label", `${zone.name}: published alert`);
+    badge.title = "Published alert";
+    // badge has its own click handler (on the marker effect) — stop it from selecting the zone
+    badge.dataset.alertBadge = "1";
+    el.append(badge);
+  }
   return el;
 }
 
@@ -85,16 +100,74 @@ export default function RiskMap({
   selectedRouteId,
   userLocation,
   simActive = false,
+  alerts = [],
+  lang = "en",
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
   const userMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const alertPopupRef = useRef<maplibregl.Popup | null>(null);
   const [ready, setReady] = useState(false);
 
   // keep the latest callback without re-initialising the map on every render
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
+
+  // published alerts per zone (newest first)
+  const alertsByZone = useRef(new Map<string, Alert[]>());
+  alertsByZone.current = alerts.reduce((map, a) => {
+    const list = map.get(a.zoneId) ?? [];
+    list.push(a);
+    return map.set(a.zoneId, list.sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "")));
+  }, new Map<string, Alert[]>());
+
+  const closeAlertPopup = useRef(() => {
+    alertPopupRef.current?.remove();
+    alertPopupRef.current = null;
+  });
+
+  const openAlertPopup = useRef((zone: ZoneSummary) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const zoneAlerts = alertsByZone.current.get(zone.id) ?? [];
+    if (zoneAlerts.length === 0) return;
+
+    closeAlertPopup.current();
+    const node = document.createElement("div");
+    node.className = "alert-popup";
+    const title = document.createElement("p");
+    title.className = "alert-popup-title";
+    title.textContent = `⚠ ${zone.name}`;
+    node.append(title);
+
+    // prefer current language, fall back to English
+    const ordered = lang === "hi"
+      ? [...zoneAlerts].sort((a, b) => Number(b.lang === "hi") - Number(a.lang === "hi"))
+      : [...zoneAlerts].sort((a, b) => Number(b.lang === "en") - Number(a.lang === "en"));
+
+    ordered.forEach((alert, i) => {
+      if (i > 0) {
+        const sep = document.createElement("hr");
+        sep.className = "alert-popup-sep";
+        node.append(sep);
+      }
+      const text = document.createElement("p");
+      text.className = "alert-popup-msg";
+      text.textContent = alert.text;
+      node.append(text);
+      const meta = document.createElement("span");
+      meta.className = "alert-popup-meta";
+      const when = alert.publishedAt ? new Date(alert.publishedAt).toLocaleString() : "";
+      meta.textContent = `${alert.lang === "hi" ? "हिं" : "EN"} · ${when}`;
+      node.append(meta);
+    });
+
+    alertPopupRef.current = new maplibregl.Popup({ closeButton: true, closeOnClick: false, maxWidth: "300px", offset: 16 })
+      .setLngLat([zone.lng, zone.lat])
+      .setDOMContent(node)
+      .addTo(map);
+  });
 
   // ---- init ----
   useEffect(() => {
@@ -113,12 +186,16 @@ export default function RiskMap({
     });
     mapRef.current = map;
     map.on("load", () => setReady(true));
-    map.on("click", () => onSelectRef.current(null));
+    map.on("click", () => {
+      closeAlertPopup.current();
+      onSelectRef.current(null);
+    });
     return () => {
       markersRef.current.forEach((m) => m.remove());
       markersRef.current.clear();
       userMarkerRef.current?.remove();
       userMarkerRef.current = null;
+      closeAlertPopup.current();
       map.remove();
       mapRef.current = null;
       setReady(false);
@@ -146,18 +223,33 @@ export default function RiskMap({
     markersRef.current.forEach((m) => m.remove());
     markersRef.current.clear();
     for (const zone of zones) {
-      const el = buildMarker(zone, zone.id === selectedId);
+      const hasAlert = alertsByZone.current.has(zone.id);
+      const el = buildMarker(zone, zone.id === selectedId, hasAlert);
       const marker = new maplibregl.Marker({ element: el, anchor: "center" })
         .setLngLat([zone.lng, zone.lat])
         .addTo(map);
       el.addEventListener("click", (ev) => {
+        // clicking the exclamation badge shows the alert, not the zone sheet
+        const target = ev.target as HTMLElement;
+        if (target.closest?.("[data-alert-badge]")) {
+          ev.stopPropagation();
+          closeAlertPopup.current();
+          openAlertPopup.current(zone);
+          return;
+        }
+        closeAlertPopup.current();
         ev.stopPropagation();
         onSelectRef.current(zone.id);
       });
       markersRef.current.set(zone.id, marker);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zones, selectedId]);
+  }, [zones, selectedId, alerts]);
+
+  // close the alert popup when a zone is manually selected via the sheets/carousel
+  useEffect(() => {
+    if (selectedId) closeAlertPopup.current();
+  }, [selectedId]);
 
   // ---- fly to selection ----
   useEffect(() => {

@@ -21,9 +21,11 @@ Mock coordinates/names in `mocks/` are placeholders; P4 replaces them with verif
 | POST | `/workorders` | `CreateWorkOrderRequest` | `WorkOrder` | - |
 | PATCH | `/workorders/{id}` | `WorkOrderPatch` | `WorkOrder` | - |
 | POST | `/alerts` | `CreateAlertRequest` | `Alert` | - |
+| GET | `/alerts` (public) | - | `AlertListResponse` | `mocks/alerts.json` |
 | POST | `/alerts/{id}/publish` | - | `Alert` | - |
 
-Ops endpoints (`/workorders`, `/alerts/*`, `/agent/ask` with `execute=true`) require header `x-ops-passcode`.
+Ops endpoints (`/workorders`, `/alerts` POST/publish, `/agent/ask` with `execute=true`) require header `x-ops-passcode`.
+`GET /alerts` is intentionally public — citizens read published alerts to light up the map (published only, never drafts).
 
 ## Semantics that everyone must agree on
 - `risk`: integer 0-100. `tier`: SAFE <30, WATCH 30-54, HIGH 55-74, CRITICAL >=75.

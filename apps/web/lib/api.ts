@@ -10,6 +10,7 @@ import {
   AgentAskRequestSchema,
   AgentPlanSchema,
   AlertSchema,
+  AlertListResponseSchema,
   CreateAlertRequestSchema,
   CreateReportRequestSchema,
   CreateReportResponseSchema,
@@ -23,6 +24,7 @@ import {
   type Report,
   type AgentPlan,
   type LatLng,
+  type Alert,
   type ReportType,
   type RouteOption,
   type WorkOrder,
@@ -192,6 +194,22 @@ export async function fetchRoutes(
 }
 
 // ---------- agent / ops ----------
+
+/** GET /alerts (public) — published alerts only, newest first, for the citizen map. */
+export async function fetchPublishedAlerts(): Promise<Alert[]> {
+  try {
+    const data = parse(
+      AlertListResponseSchema,
+      await getJson(`${API_URL}/alerts`),
+    );
+    return data.alerts;
+  } catch (err) {
+    // If the backend hasn't been redeployed with the GET /alerts route yet, or is
+    // unreachable, degrade gracefully to no alerts rather than breaking the map.
+    if (err instanceof ApiError && err.status === 404) return [];
+    throw err;
+  }
+}
 
 export async function askAgent(params: {
   question: string;

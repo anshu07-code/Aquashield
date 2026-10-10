@@ -1,7 +1,8 @@
 /**
  * POST /workorders · GET /workorders · PATCH /workorders/{id}
  * POST /alerts · POST /alerts/{id}/publish
- * All ops endpoints require the x-ops-passcode header (docs/CONTRACT.md).
+ * GET /alerts — PUBLIC, published alerts only (citizen map reads it without a passcode).
+ * All other ops endpoints require the x-ops-passcode header (docs/CONTRACT.md).
  */
 import { randomUUID } from "node:crypto";
 import {
@@ -9,6 +10,7 @@ import {
   WorkOrderPatchSchema,
   WorkOrderSchema,
   AlertSchema,
+  AlertListResponseSchema,
   CreateWorkOrderRequestSchema,
   CreateAlertRequestSchema,
 } from "@aquashield/types";
@@ -75,6 +77,16 @@ async function createWorkOrder(event: ReqEvent): Promise<Res> {
   return ok(WorkOrderSchema, { id, zoneId, type, priority, status: "open", note, createdAt }, 201);
 }
 
+/** Public (no passcode): published alerts only, newest first. */
+async function listPublishedAlerts(): Promise<Res> {
+  const res = await ddb.send(new ScanCommand({ TableName: Tables.alerts }));
+  const alerts = ((res.Items ?? []) as { id: string; zoneId: string; lang: "en" | "hi"; text: string; status: "draft" | "published"; publishedAt: string | null }[])
+    .filter((a) => a.status === "published")
+    .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""))
+    .map((a) => ({ id: a.id, zoneId: a.zoneId, lang: a.lang, text: a.text, status: a.status, publishedAt: a.publishedAt }));
+  return ok(AlertListResponseSchema, { alerts });
+}
+
 async function createDraftAlert(event: ReqEvent): Promise<Res> {
   const { zoneId, lang, text } = parseBody(CreateAlertRequestSchema, event);
   const id = `al_${randomUUID().slice(0, 8)}`;
@@ -118,7 +130,11 @@ async function publishAlert(event: ReqEvent): Promise<Res> {
 }
 
 export const handler = route(async (event: ReqEvent): Promise<Res> => {
-  assertOps(event); // every ops endpoint is passcode protected
+  // Public citizen read — published alerts light up the map (no passcode needed).
+  if (event.requestContext.http.method === "GET" && event.rawPath === "/alerts") {
+    return listPublishedAlerts();
+  }
+  assertOps(event); // every other route stays passcode protected
   if (event.routeKey === "POST /workorders") return createWorkOrder(event);
   if (event.routeKey === "POST /alerts") return createDraftAlert(event);
   const method = event.requestContext.http.method;

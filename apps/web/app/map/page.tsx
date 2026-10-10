@@ -68,6 +68,7 @@ export default function MapPage() {
     effectiveZones,
     zonesError,
     reloadZones,
+    alerts,
     selectedId,
     selectZone,
     closeZone,
@@ -147,6 +148,8 @@ export default function MapPage() {
         selectedRouteId={selectedRouteId}
         userLocation={userLocation}
         simActive={simActive}
+        alerts={alerts}
+        lang={lang}
       />
 
       <div className="pointer-events-none absolute inset-0 z-0 map-overlay-scan" />

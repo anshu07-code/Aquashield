@@ -11,6 +11,7 @@ import {
 } from "react";
 import { computeRisk } from "@aquashield/risk-core";
 import type {
+  Alert,
   LatLng,
   RiskBreakdown,
   RouteOption,
@@ -19,6 +20,7 @@ import type {
 } from "@aquashield/types";
 import {
   ApiError,
+  fetchPublishedAlerts,
   fetchRoutes,
   fetchZoneDetail,
   fetchZones,
@@ -38,6 +40,11 @@ type AppState = {
   zonesLoading: boolean;
   zonesError: string | null;
   reloadZones: () => void;
+
+  // published alerts (citizen map badges)
+  alerts: Alert[];
+  alertsError: string | null;
+  reloadAlerts: () => void;
 
   // zone sheet
   selectedId: string | null;
@@ -113,6 +120,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [zonesLoading, setZonesLoading] = useState(true);
   const [zonesError, setZonesError] = useState<string | null>(null);
 
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [alertsError, setAlertsError] = useState<string | null>(null);
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<ZoneDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -153,16 +163,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const reloadAlerts = useCallback(async () => {
+    try {
+      const list = await fetchPublishedAlerts();
+      setAlerts(list);
+      setAlertsError(null);
+    } catch (e) {
+      setAlertsError(errMsg(e));
+    }
+  }, []);
+
   // initial load
   useEffect(() => {
     reloadZones();
-  }, [reloadZones]);
+    reloadAlerts();
+  }, [reloadZones, reloadAlerts]);
 
   // background polling — keeps the map + ops dashboard live without a manual refresh
   useEffect(() => {
-    const id = setInterval(() => reloadZones({ silent: true }), ZONES_POLL_MS);
+    const id = setInterval(() => {
+      reloadZones({ silent: true });
+      reloadAlerts();
+    }, ZONES_POLL_MS);
     return () => clearInterval(id);
-  }, [reloadZones]);
+  }, [reloadZones, reloadAlerts]);
 
   const selectZone = useCallback(
     async (id: string) => {
@@ -287,6 +311,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     zonesLoading,
     zonesError,
     reloadZones,
+    alerts,
+    alertsError,
+    reloadAlerts,
     selectedId,
     detail,
     detailLoading,

@@ -213,6 +213,11 @@ export const AlertSchema = z.object({
   status: z.enum(["draft", "published"]),
   publishedAt: z.string().nullable(),
 });
+export type Alert = z.infer<typeof AlertSchema>;
+
+/** Public, citizen-facing: published alerts only (auth-free GET /alerts). */
+export const AlertListResponseSchema = z.object({ alerts: z.array(AlertSchema) });
+export type AlertListResponse = z.infer<typeof AlertListResponseSchema>;
 
 // ---------- ops create endpoints (agent tools + ops UI: "Create work order" / "Draft alert") ----------
 export const CreateWorkOrderRequestSchema = z.object({
