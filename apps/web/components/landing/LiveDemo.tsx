@@ -8,15 +8,8 @@ import { translate } from "@/lib/i18n";
 
 const RiskMap = dynamic(() => import("@/components/map/RiskMap"), { ssr: false });
 
-const DEMO_ZONES = [
-  { id: "z_minto",     name: "Minto Bridge",     lat: 28.6328, lng: 77.2197, isUnderpass: true,  risk: 78, tier: "CRITICAL" as const, etaMin: null, updatedAt: new Date().toISOString(), stale: false },
-  { id: "z_zakhira",  name: "Zakhira Underpass", lat: 28.6657, lng: 77.1535, isUnderpass: true,  risk: 31, tier: "WATCH"    as const, etaMin: null, updatedAt: new Date().toISOString(), stale: false },
-  { id: "z_ito",      name: "ITO Intersection",  lat: 28.6289, lng: 77.2405, isUnderpass: false, risk: 62, tier: "HIGH"      as const, etaMin: null, updatedAt: new Date().toISOString(), stale: false },
-  { id: "z_prahladpur",name: "Prahladpur",        lat: 28.6519, lng: 77.1770, isUnderpass: true,  risk: 55, tier: "HIGH"      as const, etaMin: null, updatedAt: new Date().toISOString(), stale: false },
-];
-
 export function LiveDemo() {
-  const { lang } = useApp();
+  const { lang, effectiveZones } = useApp();
 
   return (
     <section
@@ -60,7 +53,7 @@ export function LiveDemo() {
           {/* Map */}
           <div className="relative h-[460px] w-full sm:h-[560px]">
             <RiskMap
-              zones={DEMO_ZONES}
+              zones={effectiveZones}
               selectedId={null}
               onSelect={() => {}}
               routes={null}
