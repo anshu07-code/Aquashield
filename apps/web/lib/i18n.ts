@@ -233,7 +233,6 @@ const en = {
     "AI-powered real-time monitoring of Delhi's flood-prone underpasses. Predict. Verify. Protect.",
   "landing.hero.cta.map": "Explore Live Map",
   "landing.hero.cta.features": "View Features",
-  "landing.hero.scroll": "Scroll",
 
   "landing.features.eyebrow": "What AquaShield Does",
   "landing.features.title1": "Built for Delhi's",
@@ -551,7 +550,6 @@ const hi: Record<keyof typeof en, string> = {
     "दिल्ली के बाढ़-प्रवण अंडरपासों की AI-आधारित रीयल-टाइम निगरानी। पहचानें। सत्यापित करें। सुरक्षित करें।",
   "landing.hero.cta.map": "लाइव मैप देखें",
   "landing.hero.cta.features": "फ़ीचर्स देखें",
-  "landing.hero.scroll": "स्क्रॉल",
 
   "landing.features.eyebrow": "एक्वाशील्ड क्या करता है",
   "landing.features.title1": "दिल्ली के लिए बनाया गया",

@@ -216,28 +216,12 @@ export function HeroSection() {
           ].map(tech => (
             <span
               key={tech.name}
-              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/40"
+              className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white"
             >
-              <span style={{ color: "#00b4d8" }}>{tech.icon}</span>
+              <span style={{ color: "#ffffff" }}>{tech.icon}</span>
               {tech.name}
             </span>
           ))}
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div
-        className="absolute bottom-32 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        style={{ animationDelay: "0.6s" }}
-      >
-        <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">
-          {translate(lang, "landing.hero.scroll")}
-        </span>
-        <div className="relative h-10 w-6 rounded-full border border-white/20">
-          <div
-            className="absolute left-1/2 top-1.5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-cyan-400"
-            style={{ animation: "scroll-dot 1.5s ease-in-out infinite" }}
-          />
         </div>
       </div>
 
@@ -247,11 +231,6 @@ export function HeroSection() {
       </div>
 
       <style>{`
-        @keyframes scroll-dot {
-          0% { top: 6px; opacity: 1; }
-          60% { top: 22px; opacity: 0.3; }
-          100% { top: 6px; opacity: 1; }
-        }
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
