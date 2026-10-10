@@ -186,7 +186,10 @@ export default function OpsPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (passcode.trim()) setAuthed(true);
+                if (passcode.trim()) {
+                  sessionStorage.setItem("aq_ops_passcode", passcode.trim());
+                  setAuthed(true);
+                }
               }}
               className="space-y-4 p-6"
             >

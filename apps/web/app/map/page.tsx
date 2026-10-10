@@ -12,7 +12,8 @@ import { RainSimulator } from "@/components/RainSimulator";
 import { ZoneSheet } from "@/components/ZoneSheet";
 import { RoutePanel } from "@/components/RoutePanel";
 import { ReportFlow } from "@/components/ReportFlow";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { fetchAlerts } from "@/lib/api";
 
 const RiskMap = dynamic(() => import("@/components/map/RiskMap"), {
   ssr: false,
@@ -125,6 +126,16 @@ export default function MapPage() {
   const criticalZones = effectiveZones.filter((z) => z.tier === "CRITICAL");
   const hasCritical = criticalZones.length > 0;
 
+  // live count of published public alerts (shown as a badge under the top bar)
+  const [publishedCount, setPublishedCount] = useState<number | null>(null);
+  useEffect(() => {
+    let on = true;
+    fetchAlerts({ status: "published" })
+      .then((list) => { if (on) setPublishedCount(list.filter((a) => a.status === "published").length); })
+      .catch(() => { if (on) setPublishedCount(0); });
+    return () => { on = false; };
+  }, []);
+
   return (
     <main
       className="relative h-[100dvh] w-screen overflow-hidden"
@@ -187,8 +198,27 @@ export default function MapPage() {
             </span>
             <p className="flex-1 text-[11.5px] font-bold" style={{ color: TIER_META.CRITICAL.color }}>
               {criticalZones.length} critical zone{criticalZones.length > 1 ? "s" : ""} — avoid these areas
+              {publishedCount != null && publishedCount > 0 ? (
+                <span className="ml-1.5 text-amber-300">{publishedCount} alert{publishedCount > 1 ? "s" : ""}</span>
+              ) : null}
             </p>
           </div>
+        </div>
+      ) : null}
+
+      {/* Active public alerts badge (when no critical zones to avoid overlap) */}
+      {!hasCritical && publishedCount != null && publishedCount > 0 ? (
+        <div
+          className="fixed left-1/2 z-40 flex w-max -translate-x-1/2 items-center gap-2 rounded-2xl border border-amber-400/40 bg-[#150f06]/90 px-4 py-2 backdrop-blur-xl animate-fade-in"
+          style={{ top: "calc(var(--topbar-h, 76px) + 6px)" }}
+        >
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
+          </span>
+          <span className="text-[11.5px] font-bold text-amber-200">
+            {publishedCount} active public alert{publishedCount > 1 ? "s" : ""}
+          </span>
         </div>
       ) : null}
 
