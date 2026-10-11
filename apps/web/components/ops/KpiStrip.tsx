@@ -22,7 +22,7 @@ export function KpiStrip({
   const critical = zones.filter((z) => z.tier === "CRITICAL").length;
   const high = zones.filter((z) => z.tier === "HIGH").length;
   const open = workOrders.filter((w) => w.status === "open").length;
-  const activeReports = reports.filter((r) => r.status !== "rejected").length;
+  const activeReports = reports.filter((r) => r.status !== "rejected" && r.status !== "resolved").length;
 
   const items: {
     key: TKey;

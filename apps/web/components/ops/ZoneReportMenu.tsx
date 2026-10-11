@@ -6,14 +6,14 @@
  * Reports splits into Active (live citizen submissions, AI-verified,
  * with the uploaded photo) and Past (resolved).
  *
- * Honest note: the backend has no "resolve report" endpoint, so resolution
- * is tracked client-side in localStorage — it's real UI state on real data,
- * not faked numbers. The Alerts pane lists live published/draft alerts from
- * the alerts API, filtered by zone.
+ * Honest note: resolution now persists to the backend (PATCH /reports/{zoneId}/{id},
+ * ops passcode-gated) so the ops KPI and the /map live-reports list both drop the
+ * report. localStorage still remembers past resolves for the "Past" view. The Alerts
+ * pane lists live published/draft alerts from the alerts API, filtered by zone.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Alert, Report, ZoneSummary } from "@aquashield/types";
-import { fetchZoneReports, fetchAlerts } from "@/lib/api";
+import { fetchZoneReports, fetchAlerts, resolveReport } from "@/lib/api";
 import { translate, type Lang } from "@/lib/i18n";
 import { clockTime } from "@/lib/format";
 
@@ -287,12 +287,23 @@ export function ZoneReportMenu({ zone, lang }: { zone: ZoneSummary; lang: Lang }
     [reports, resolvedIds],
   );
 
-  const handleResolve = (r: Report) => {
+  const handleResolve = async (r: Report) => {
+    // Persist to the backend first (ops-gated). If it fails we still mark locally
+    // (keeps the UI responsive); the KPI + /map read the backend, so a live resolve
+    // drops them both.
+    const passcode =
+      typeof window !== "undefined" ? (sessionStorage.getItem("aquashield.ops.passcode") ?? undefined) : undefined;
+    try {
+      await resolveReport(zone.id, r.id, passcode);
+    } catch {
+      // backend unreachable / not authorised — still show progress locally
+    }
     setResolvedIds((prev) => {
       const next = prev.includes(r.id) ? prev : [...prev, r.id];
       writeResolved(zone.id, next);
       return next;
     });
+    load();
   };
 
   return (

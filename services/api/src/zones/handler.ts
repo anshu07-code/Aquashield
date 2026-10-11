@@ -85,10 +85,10 @@ async function zoneDetail(event: ReqEvent): Promise<Res> {
     .filter((p) => Date.parse(p.ts) > nowMs)
     .slice(0, 12);
 
-  // reports: exclude rejected; sign short-lived GET URLs when a photo exists
+  // reports: exclude rejected AND resolved (resolved = past, not "live"); sign short-lived GET URLs when a photo exists
   const reports = await Promise.all(
     reportsRaw
-      .filter((r) => r.status !== "rejected")
+      .filter((r) => r.status !== "rejected" && r.status !== "resolved")
       .sort((a, b) => b.ts.localeCompare(a.ts))
       .map(async (r) => {
         let imageUrl: string | null = null;

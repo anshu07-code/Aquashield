@@ -17,15 +17,16 @@ import {
   CreateReportRequestSchema,
   CreateReportResponseSchema,
   ReportsListSchema,
+  ResolveReportResponseSchema,
 } from "@aquashield/types";
 import { computeRisk, type ZoneStatic } from "@aquashield/risk-core";
 import {
-  route, ok, parseBody, validation, noZoneNearby, notFound, imageRejected,
+  route, ok, parseBody, validation, noZoneNearby, notFound, imageRejected, assertOps,
   type ReqEvent, type Res,
 } from "../shared/http.ts";
 import {
   ddb, Tables, getZone, scanZones, activeReports, putReport, putZoneRisk, putSnapshot,
-  latestSnapshot, type ZoneItem, type ReportItem,
+  latestSnapshot, resolveReport as dbResolveReport, type ZoneItem, type ReportItem,
 } from "../shared/db.ts";
 import { haversineM } from "../shared/geo.ts";
 import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
@@ -234,7 +235,7 @@ async function listReports(event: ReqEvent): Promise<Res> {
   const items = await activeReports(zoneId);
   const reports = await Promise.all(
     items
-      .filter((r) => r.status !== "rejected")
+      .filter((r) => r.status !== "rejected" && r.status !== "resolved")
       .sort((a, b) => b.ts.localeCompare(a.ts))
       .map(async (r) => ({
         id: r.id,
@@ -253,8 +254,34 @@ async function listReports(event: ReqEvent): Promise<Res> {
   return ok(ReportsListSchema, { reports });
 }
 
+/** PATCH /reports/{zoneId}/{id} — ops marks a citizen report resolved (persists to DynamoDB). */
+async function resolveReport(event: ReqEvent): Promise<Res> {
+  assertOps(event);
+  const zoneId = event.pathParameters?.zoneId;
+  const id = event.pathParameters?.id;
+  if (!zoneId || !id) throw validation("zoneId and id path parameters are required");
+  const updated = await dbResolveReport(zoneId, id);
+  if (!updated) throw notFound("Report");
+  const report = {
+    id: updated.id,
+    zoneId: updated.zoneId,
+    ts: updated.ts,
+    type: updated.type,
+    imageUrl: updated.imageKey && process.env.MEDIA_BUCKET
+      ? await getSignedUrl(s3, new GetObjectCommand({ Bucket: bucket(), Key: updated.imageKey }), { expiresIn: 600 }).catch(() => null)
+      : null,
+    note: updated.note ?? null,
+    vision: updated.vision,
+    trust: updated.trust,
+    status: updated.status,
+    resolvedAt: updated.resolvedAt ?? null,
+  };
+  return ok(ResolveReportResponseSchema, { report });
+}
+
 export const handler = route(async (event: ReqEvent): Promise<Res> => {
   if (event.routeKey === "POST /reports/presign") return presign(event);
   if (event.routeKey === "POST /reports") return createReport(event);
+  if (event.routeKey === "PATCH /reports/{zoneId}/{id}") return resolveReport(event);
   return listReports(event); // GET /reports?zoneId=
 });

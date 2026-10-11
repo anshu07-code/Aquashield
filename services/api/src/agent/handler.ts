@@ -80,7 +80,7 @@ function fallbackPlan(
   const risk = snap?.risk ?? z.risk ?? 0;
   const tier = snap?.tier ?? z.tier ?? "SAFE";
   const verifiedCount = reports.filter((r) => r.status === "verified").length;
-  const activeCount = reports.filter((r) => r.status !== "rejected").length;
+  const activeCount = reports.filter((r) => r.status !== "rejected" && r.status !== "resolved").length;
 
   const action = ACTION_FOR_TIER[tier] ?? ACTION_FOR_TIER.WATCH;
   const low = tier === "CRITICAL" || tier === "HIGH";
@@ -243,7 +243,7 @@ function dataContext(
   snap: SnapshotItem | undefined,
   reports: Awaited<ReturnType<typeof activeReports>>,
 ): Record<string, unknown> {
-  const active = reports.filter((r) => r.status !== "rejected");
+  const active = reports.filter((r) => r.status !== "rejected" && r.status !== "resolved");
   return {
     selectedZone: {
       id: z.zoneId,

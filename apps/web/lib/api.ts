@@ -18,6 +18,7 @@ import {
   PresignResponseSchema,
   ReportsListSchema,
   ReportStatusSchema,
+  ResolveReportResponseSchema,
   RouteResponseSchema,
   WorkOrderListResponseSchema,
   ZoneDetailSchema,
@@ -132,6 +133,21 @@ export async function fetchZoneReports(zoneId: string): Promise<Report[]> {
     await getJson(`${API_URL}/reports?zoneId=${encodeURIComponent(zoneId)}`),
   );
   return data.reports;
+}
+
+/** `PATCH /reports/{zoneId}/{id}` — ops marks a citizen report resolved (persists to DB). */
+export async function resolveReport(
+  zoneId: string,
+  id: string,
+  passcode?: string,
+): Promise<z.infer<typeof ResolveReportResponseSchema>> {
+  return parse(
+    ResolveReportResponseSchema,
+    await getJson(`${API_URL}/reports/${encodeURIComponent(zoneId)}/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: passcode ? { "x-ops-passcode": passcode } : undefined,
+    }),
+  );
 }
 
 // ---------- reports ----------
