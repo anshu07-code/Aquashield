@@ -158,10 +158,14 @@ async function createReport(event: ReqEvent): Promise<Res> {
   };
   await putReport(report);
 
-  // --- recompute zone risk: live evidence = trust of active non-rejected reports near the zone
+  // --- recompute zone risk: live evidence = trust of active reports that actually
+  //     show water (a clear-road photo must never push flooding risk up)
+  const claimsFlooding = vision.floodedRoad || vision.waterDepthTier !== "none";
   const previousRisk = snap?.risk ?? zone.risk ?? 0;
-  const reportTrusts = zoneReports.filter((r) => r.status !== "rejected").map((r) => r.trust);
-  if (status !== "rejected") reportTrusts.push(trust);
+  const reportTrusts = zoneReports
+    .filter((r) => r.status !== "rejected" && (r.vision.floodedRoad || r.vision.waterDepthTier !== "none"))
+    .map((r) => r.trust);
+  if (status !== "rejected" && claimsFlooding) reportTrusts.push(trust);
 
   const breakdown = computeRisk(
     staticOf(zone),

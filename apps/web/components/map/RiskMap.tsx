@@ -51,16 +51,18 @@ type Props = {
   selectedRouteId?: string | null;
   userLocation?: LatLng | null;
   simActive?: boolean;
+  /** zone ids with an active published alert — rendered as an alert badge on the marker */
+  alertedZoneIds?: ReadonlySet<string>;
 };
 
-function buildMarker(zone: ZoneSummary, selected: boolean): HTMLButtonElement {
+function buildMarker(zone: ZoneSummary, selected: boolean, alerted: boolean): HTMLButtonElement {
   const meta = TIER_META[zone.tier];
   const pulse = zone.risk >= 55;
   const el = document.createElement("button");
   el.type = "button";
   el.className = `zone-marker${pulse ? " is-pulse" : ""}${selected ? " is-selected" : ""}`;
   el.style.color = meta.color;
-  el.setAttribute("aria-label", `${zone.name}, risk ${zone.risk}, ${meta.label}`);
+  el.setAttribute("aria-label", `${zone.name}, risk ${zone.risk}, ${meta.label}${alerted ? ", alert" : ""}`);
   const dot = document.createElement("span");
   dot.className = "zm-dot";
   dot.style.background = meta.color;
@@ -74,6 +76,14 @@ function buildMarker(zone: ZoneSummary, selected: boolean): HTMLButtonElement {
   label.className = "zm-label";
   label.textContent = zone.name;
   el.append(pulseEl, ring, dot, label);
+  if (alerted) {
+    // pulsing amber "!" badge pinned to the top-right of the marker
+    const badge = document.createElement("span");
+    badge.className = "zm-alert";
+    badge.textContent = "!";
+    badge.setAttribute("aria-label", "Active public alert");
+    el.append(badge);
+  }
   return el;
 }
 
@@ -85,6 +95,7 @@ export default function RiskMap({
   selectedRouteId,
   userLocation,
   simActive = false,
+  alertedZoneIds,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -146,7 +157,7 @@ export default function RiskMap({
     markersRef.current.forEach((m) => m.remove());
     markersRef.current.clear();
     for (const zone of zones) {
-      const el = buildMarker(zone, zone.id === selectedId);
+      const el = buildMarker(zone, zone.id === selectedId, alertedZoneIds?.has(zone.id) ?? false);
       const marker = new maplibregl.Marker({ element: el, anchor: "center" })
         .setLngLat([zone.lng, zone.lat])
         .addTo(map);
@@ -157,7 +168,7 @@ export default function RiskMap({
       markersRef.current.set(zone.id, marker);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zones, selectedId]);
+  }, [zones, selectedId, alertedZoneIds]);
 
   // ---- fly to selection ----
   useEffect(() => {

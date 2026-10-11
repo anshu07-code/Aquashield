@@ -132,3 +132,8 @@ test("statusFrom: verified at high confidence", () => {
 test("statusFrom: unverified at low confidence", () => {
   assert.equal(statusFrom(makeVision({ confidence: 0.3 })), "unverified");
 });
+
+test("statusFrom: no standing water is unverified, never verified", () => {
+  const clear = makeVision({ floodedRoad: false, waterDepthTier: "none", confidence: 0.95 });
+  assert.equal(statusFrom(clear), "unverified");
+});
