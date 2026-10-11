@@ -12,7 +12,8 @@ import { RainSimulator } from "@/components/RainSimulator";
 import { ZoneSheet } from "@/components/ZoneSheet";
 import { RoutePanel } from "@/components/RoutePanel";
 import { ReportFlow } from "@/components/ReportFlow";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { fetchAlerts } from "@/lib/api";
 
 const RiskMap = dynamic(() => import("@/components/map/RiskMap"), {
   ssr: false,
@@ -127,6 +128,34 @@ export default function MapPage() {
   const criticalZones = effectiveZones.filter((z) => z.tier === "CRITICAL");
   const hasCritical = criticalZones.length > 0;
 
+  // Live public alerts: which underpasses are under alert (polled + refreshed on
+  // focus so newly published alerts appear without a page reload). Alerts belong to
+  // their own underpass (zoneId), so the count is the number of underpasses, per-zone.
+  const [alertedZoneIds, setAlertedZoneIds] = useState<ReadonlySet<string>>(new Set());
+  useEffect(() => {
+    let on = true;
+    const refresh = () => {
+      fetchAlerts({ status: "published" })
+        .then((list) => {
+          if (!on) return;
+          setAlertedZoneIds(new Set(list.filter((a) => a.status === "published").map((a) => a.zoneId)));
+        })
+        .catch(() => { if (on) setAlertedZoneIds(new Set()); });
+    };
+    refresh();
+    const id = window.setInterval(refresh, 30_000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      on = false;
+      window.clearInterval(id);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
+
+  const alertedUnderpasses = [...alertedZoneIds].filter((id) =>
+    effectiveZones.some((z) => z.id === id),
+  ).length;
+
   return (
     <main
       className="relative h-[100dvh] w-screen overflow-hidden"
@@ -150,6 +179,7 @@ export default function MapPage() {
         selectedRouteId={selectedRouteId}
         userLocation={userLocation}
         simActive={simActive}
+        alertedZoneIds={alertedZoneIds}
       />
 
       <div className="pointer-events-none absolute inset-0 z-0 map-overlay-scan" />
@@ -190,8 +220,27 @@ export default function MapPage() {
             </span>
             <p className="flex-1 text-[11.5px] font-bold" style={{ color: TIER_META.CRITICAL.color }}>
               {criticalZones.length} critical zone{criticalZones.length > 1 ? "s" : ""} — avoid these areas
+              {alertedUnderpasses > 0 ? (
+                <span className="ml-1.5 text-amber-300">{alertedUnderpasses} underpass{alertedUnderpasses > 1 ? "es" : ""} under alert</span>
+              ) : null}
             </p>
           </div>
+        </div>
+      ) : null}
+
+      {/* Active underpass-alert badge (when no critical zones to avoid overlap) */}
+      {!hasCritical && alertedUnderpasses > 0 ? (
+        <div
+          className="fixed left-1/2 z-40 flex w-max -translate-x-1/2 items-center gap-2 rounded-2xl border border-amber-400/40 bg-[#150f06]/90 px-4 py-2 backdrop-blur-xl animate-fade-in"
+          style={{ top: "calc(var(--topbar-h, 76px) + 6px)" }}
+        >
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
+          </span>
+          <span className="text-[11.5px] font-bold text-amber-200">
+            {alertedUnderpasses} underpass{alertedUnderpasses > 1 ? "es" : ""} under alert
+          </span>
         </div>
       ) : null}
 

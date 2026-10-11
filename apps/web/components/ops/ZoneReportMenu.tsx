@@ -8,12 +8,12 @@
  *
  * Honest note: the backend has no "resolve report" endpoint, so resolution
  * is tracked client-side in localStorage — it's real UI state on real data,
- * not faked numbers. Alerts have no list endpoint yet, so that pane is a
- * labelled placeholder (per team decision).
+ * not faked numbers. The Alerts pane lists live published/draft alerts from
+ * the alerts API, filtered by zone.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Report, ZoneSummary } from "@aquashield/types";
-import { fetchZoneReports } from "@/lib/api";
+import type { Alert, Report, ZoneSummary } from "@aquashield/types";
+import { fetchZoneReports, fetchAlerts } from "@/lib/api";
 import { translate, type Lang } from "@/lib/i18n";
 import { clockTime } from "@/lib/format";
 import { ReportCard } from "@/components/report/ReportCard";
@@ -38,6 +38,29 @@ function writeResolved(zoneId: string, ids: string[]) {
     localStorage.setItem(LS_KEY(zoneId), JSON.stringify(ids));
   } catch {
     // storage full / private mode — resolution stays in-memory for the session
+  }
+}
+
+const STATUS_STYLE: Record<Report["status"], string> = {
+  verified: "border-emerald-400/35 bg-emerald-400/12 text-emerald-300",
+  unverified: "border-amber-400/35 bg-amber-400/12 text-amber-300",
+  rejected: "border-rose-400/35 bg-rose-400/12 text-rose-300",
+  needs_review: "border-sky-400/35 bg-sky-400/12 text-sky-300",
+  resolved: "border-emerald-400/35 bg-emerald-400/12 text-emerald-300",
+};
+
+function statusKey(s: Report["status"]) {
+  switch (s) {
+    case "verified":
+      return "zone.verified";
+    case "unverified":
+      return "zone.unverified";
+    case "rejected":
+      return "zone.rejected";
+    case "needs_review":
+      return "zone.needsReview";
+    case "resolved":
+      return "zone.resolved";
   }
 }
 
@@ -92,6 +115,139 @@ function SkeletonRows() {
             <div className="skeleton h-3 w-1/3 rounded-full" />
             <div className="skeleton h-4 w-20 rounded-full" />
           </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ReportCard({
+  report,
+  resolved,
+  onResolve,
+  lang,
+}: {
+  report: Report;
+  resolved: boolean;
+  onResolve?: (r: Report) => void;
+  lang: Lang;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/8 bg-black/20 p-3">
+      <div className="flex gap-3">
+        {report.imageUrl ? (
+          <a href={report.imageUrl} target="_blank" rel="noreferrer" className="block shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={report.imageUrl}
+              alt={translate(lang, `report.type.${report.type}`)}
+              className="h-16 w-24 rounded-xl object-cover ring-1 ring-white/10 transition hover:ring-white/25"
+            />
+          </a>
+        ) : (
+          <div className="grid h-16 w-24 shrink-0 place-items-center rounded-xl border border-dashed border-white/10 bg-white/[0.02]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-5 w-5 text-white/25">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="9" cy="9" r="1.8" />
+              <path d="M3 17l5-5 4 4 2-2 4 5" strokeLinecap="round" />
+            </svg>
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${STATUS_STYLE[report.status]}`}
+            >
+              {translate(lang, statusKey(report.status))}
+            </span>
+            <span className="text-[10px] font-semibold text-white/45">
+              {translate(lang, `report.type.${report.type}`)}
+            </span>
+            <span className="ml-auto text-[10px] tabular-nums text-white/35">{clockTime(report.ts)}</span>
+          </div>
+          {report.vision.waterDepthTier !== "none" ? (
+            <p className="mt-1 text-[11.5px] font-medium text-white/80">
+              {translate(lang, "report.depth")}:{" "}
+              {translate(lang, `depth.${report.vision.waterDepthTier}`)}
+              {report.vision.confidence ? ` · ${Math.round(report.vision.confidence * 100)}%` : ""}
+            </p>
+          ) : null}
+          {report.note ? (
+            <p className="truncate text-[11px] text-white/50" title={report.note}>
+              {report.note}
+            </p>
+          ) : (
+            <p className="truncate text-[11px] italic text-white/35">{report.vision.explanation}</p>
+          )}
+          <div className="mt-1.5 flex items-center gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Trust</span>
+            <div className="h-1.5 w-14 overflow-hidden rounded-full bg-white/8">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-300"
+                style={{ width: `${Math.round(report.trust * 100)}%` }}
+              />
+            </div>
+            <span className="text-[10px] font-bold tabular-nums text-emerald-300">
+              {Math.round(report.trust * 100)}%
+            </span>
+            {!resolved && onResolve ? (
+              <button
+                onClick={() => onResolve(report)}
+                className="ml-auto inline-flex items-center gap-1 rounded-full border border-aqua-400/40 bg-aqua-400/10 px-2.5 py-1 text-[10px] font-bold text-aqua-300 transition hover:bg-aqua-400/20"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} className="h-3 w-3">
+                  <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {translate(lang, "ops.zone.resolve")}
+              </button>
+            ) : resolved ? (
+              <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold text-emerald-300">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} className="h-3 w-3">
+                  <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {translate(lang, "ops.zone.resolved")}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ZoneAlertsList({ zoneId, lang }: { zoneId: string; lang: Lang }) {
+  const [alerts, setAlerts] = useState<Alert[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const stored = sessionStorage.getItem("aquashield.ops.passcode") ?? undefined;
+    fetchAlerts({ zoneId }, stored)
+      .then((a) => { if (!cancelled) { setAlerts(a); setLoading(false); } })
+      .catch((e: unknown) => { if (!cancelled) { setError(e instanceof Error ? e.message : "Failed to load alerts"); setLoading(false); } });
+    return () => { cancelled = true; };
+  }, [zoneId]);
+
+  if (loading) return (
+    <div className="space-y-1.5 py-1">
+      {[0,1].map(i => <div key={i} className="skeleton h-10 w-full rounded-xl" />)}
+    </div>
+  );
+  if (error) return <p className="text-[10.5px] text-rose-300/80">{error}</p>;
+  if (!alerts?.length) return <p className="text-[10.5px] text-white/40">{translate(lang, "zone.alert.none")}</p>;
+  return (
+    <div className="space-y-1.5">
+      {alerts.map((a) => (
+        <div key={a.id} className={`rounded-xl border px-2.5 py-2 text-[11px] ${a.status === "published" ? "border-amber-400/30 bg-amber-400/8 text-amber-200" : a.status === "resolved" ? "border-emerald-400/25 bg-emerald-400/8 text-emerald-300" : "border-white/10 bg-white/4 text-white/60"}`}>
+          <div className="mb-0.5 flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 rounded-full ${a.status === "published" ? "bg-amber-400" : a.status === "resolved" ? "bg-emerald-400" : "bg-white/30"}`} />
+            <span className="font-bold uppercase tracking-wider">{a.status}</span>
+            <span className="ml-auto text-[9.5px] text-white/35">{clockTime(a.publishedAt ?? a.createdAt)}</span>
+          </div>
+          <p className="leading-snug">{a.lang === "hi" || lang === "hi" ? a.text : a.text}</p>
         </div>
       ))}
     </div>
@@ -262,13 +418,11 @@ export function ZoneReportMenu({ zone, lang }: { zone: ZoneSummary; lang: Lang }
       {view === "alerts" && (
         <div>
           <BackButton lang={lang} onClick={() => setView("root")} />
-          <div className="grid place-items-center gap-1.5 py-4 text-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className="h-6 w-6 text-white/20">
-              <path d="M12 3a5 5 0 0 0-3.2 8.8c.5.5.8 1.1.9 1.7h4.6c.1-.6.4-1.2.9-1.7A5 5 0 0 0 12 3Z" strokeLinejoin="round" />
-              <path d="M10 18h4M10.5 21h3" strokeLinecap="round" />
-            </svg>
-            <p className="text-xs font-semibold text-white/60">{translate(lang, "ops.zone.alerts.coming")}</p>
-            <p className="max-w-[16rem] text-[10.5px] text-white/35">{translate(lang, "ops.zone.alerts.coming.sub")}</p>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-white/50">
+              {translate(lang, "ops.zone.alerts")}
+            </p>
+            <ZoneAlertsList zoneId={zone.id} lang={lang} />
           </div>
         </div>
       )}
