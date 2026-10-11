@@ -144,7 +144,7 @@ function Gauge({ avg }: { avg: number }) {
   const meta = TIER_META[avg >= 75 ? "CRITICAL" : avg >= 55 ? "HIGH" : avg >= 30 ? "WATCH" : "SAFE"];
 
   return (
-    <svg viewBox="0 0 160 100" className="h-24 w-full max-w-[240px]" role="img" aria-label="Average risk gauge">
+    <svg viewBox="0 0 160 100" className="h-32 w-full max-w-[320px]" role="img" aria-label="Average risk gauge">
       <path
         d={`M ${start.x} ${start.y} A ${R} ${R} 0 0 1 ${end.x} ${end.y}`}
         fill="none"
@@ -418,12 +418,11 @@ export function AnalyticsBoard({
 
         {/* avg gauge */}
         <div className="card p-4">
-          <h3 className="text-sm font-bold text-white">{translate(lang, "ops.analytics.gauge")}</h3>
-          <div className="mt-3 flex items-end justify-between gap-3">
+          <h3 className="text-sm font-bold text-white">
+            {translate(lang, "ops.analytics.gauge")}
+          </h3>
+          <div className="mt-3 flex justify-center">
             <Gauge avg={avg} />
-            <p className="max-w-[9rem] text-[11px] leading-relaxed text-white/40">
-              {translate(lang, "ops.analytics.gauge.sub")}
-            </p>
           </div>
         </div>
       </div>
@@ -456,4 +455,3 @@ export function AnalyticsBoard({
     </section>
   );
 }
-

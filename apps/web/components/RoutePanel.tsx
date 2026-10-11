@@ -208,16 +208,6 @@ export function RoutePanel() {
                   </button>
                   {originDropdown && (
                     <div className="absolute left-0 right-0 z-50 mt-1 rounded-2xl border border-white/12 bg-[#030b1a] py-1.5 shadow-glow max-h-52 overflow-y-auto">
-                      <button
-                        onClick={useMyLocationOrigin}
-                        className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-sky-300 hover:bg-white/[0.07] transition"
-                      >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.1} className="h-4 w-4 shrink-0">
-                          <circle cx="12" cy="12" r="9" />
-                          <path d="M12 7v5l3 2" strokeLinecap="round" />
-                        </svg>
-                        {translate(lang, "route.fromMe")}
-                      </button>
                       {zones.map((z) => (
                         <button
                           key={z.id}
