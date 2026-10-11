@@ -326,22 +326,6 @@ function PlanCard({
         </div>
       </div>
 
-      <p className="flex items-center gap-1.5 text-[10px] leading-relaxed text-white/35">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-3 w-3 shrink-0">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 11v5m0-8.5h.01" strokeLinecap="round" />
-        </svg>
-        {translate(lang, "ops.plan.human")}
-      </p>
-
-      <div className="flex flex-wrap gap-2">
-        {plan.toolsUsed.map((t) => (
-          <span key={t} className="chip text-[9.5px]">
-            {t}
-          </span>
-        ))}
-      </div>
-
       {plan.confidenceNote ? (
         <p className="text-[10.5px] italic leading-relaxed text-white/40">{plan.confidenceNote}</p>
       ) : null}
