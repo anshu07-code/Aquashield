@@ -256,6 +256,7 @@ function ZoneAlertsList({ zoneId, lang }: { zoneId: string; lang: Lang }) {
 export function ZoneReportMenu({ zone, lang }: { zone: ZoneSummary; lang: Lang }) {
   const [view, setView] = useState<View>("root");
   const [reports, setReports] = useState<Report[] | null>(null);
+  const [resolvedReports, setResolvedReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resolvedIds, setResolvedIds] = useState<string[]>(() => readResolved(zone.id));
@@ -264,8 +265,12 @@ export function ZoneReportMenu({ zone, lang }: { zone: ZoneSummary; lang: Lang }
     setLoading(true);
     setError(null);
     try {
-      const list = await fetchZoneReports(zone.id);
-      setReports(list);
+      const [activeList, resolvedList] = await Promise.all([
+        fetchZoneReports(zone.id),
+        fetchZoneReports(zone.id, "resolved"),
+      ]);
+      setReports(activeList);
+      setResolvedReports(resolvedList);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load reports");
     } finally {
@@ -282,10 +287,14 @@ export function ZoneReportMenu({ zone, lang }: { zone: ZoneSummary; lang: Lang }
     () => (reports ?? []).filter((r) => !resolvedIds.includes(r.id) && r.status !== "rejected"),
     [reports, resolvedIds],
   );
-  const resolved = useMemo(
-    () => (reports ?? []).filter((r) => resolvedIds.includes(r.id)),
-    [reports, resolvedIds],
-  );
+  // Past (resolved) = reports the backend has persisted as resolved + any legacy
+  // localStorage-only resolves from before the backend endpoint existed.
+  const resolved = useMemo(() => {
+    const fromBackend = resolvedReports;
+    const fromLocal = (reports ?? []).filter((r) => resolvedIds.includes(r.id));
+    const seen = new Set<string>();
+    return [...fromBackend, ...fromLocal].filter((r) => (seen.has(r.id) ? false : (seen.add(r.id), true)));
+  }, [resolvedReports, reports, resolvedIds]);
 
   const handleResolve = async (r: Report) => {
     // Persist to the backend first (ops-gated). If it fails we still mark locally
