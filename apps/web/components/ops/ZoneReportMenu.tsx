@@ -16,6 +16,7 @@ import type { Alert, Report, ZoneSummary } from "@aquashield/types";
 import { fetchZoneReports, fetchAlerts } from "@/lib/api";
 import { translate, type Lang } from "@/lib/i18n";
 import { clockTime } from "@/lib/format";
+import { ReportCard } from "@/components/report/ReportCard";
 
 const LS_KEY = (zoneId: string) => `aq.ops.resolved.${zoneId}`;
 
