@@ -255,7 +255,6 @@ function PlanCard({
         <span className="rounded-full border border-aqua-400/35 bg-aqua-400/12 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-aqua-200">
           {translate(lang, "ops.plan")}
         </span>
-        <span className="label">{translate(lang, "ops.plan.confidence")}</span>
         <span className="ml-auto text-[10px] font-semibold text-white/40">{plan.toolsUsed.length} tools</span>
       </div>
 
