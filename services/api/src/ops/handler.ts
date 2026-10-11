@@ -170,18 +170,16 @@ async function publishAlert(event: ReqEvent): Promise<Res> {
 }
 
 export const handler = route(async (event: ReqEvent): Promise<Res> => {
-  assertOps(event); // every ops endpoint is passcode protected
-  const method = event.requestContext.http.method;
-
+  // Alert reads are public (citizens on the map see published alerts); writes assert individually.
   // Specific routeKey checks (must come before generic method fallbacks)
-  if (event.routeKey === "POST /workorders") return createWorkOrder(event);
-  if (event.routeKey === "GET /workorders") return listWorkOrders();
+  if (event.routeKey === "POST /workorders") { assertOps(event); return createWorkOrder(event); }
+  if (event.routeKey === "GET /workorders") { assertOps(event); return listWorkOrders(); }
   if (event.routeKey === "GET /alerts") return listAlerts(event);
   if (event.routeKey === "GET /alerts/{id}") return getAlertHandler(event);
-  if (event.routeKey === "POST /alerts") return createDraftAlert(event);
-  if (event.routeKey === "POST /alerts/{id}/publish") return publishAlert(event);
-  if (event.routeKey === "PATCH /workorders/{id}") return patchWorkOrder(event);
-  if (event.routeKey === "PATCH /alerts/{id}") return patchAlert(event);
+  if (event.routeKey === "POST /alerts") { assertOps(event); return createDraftAlert(event); }
+  if (event.routeKey === "POST /alerts/{id}/publish") { assertOps(event); return publishAlert(event); }
+  if (event.routeKey === "PATCH /workorders/{id}") { assertOps(event); return patchWorkOrder(event); }
+  if (event.routeKey === "PATCH /alerts/{id}") { assertOps(event); return patchAlert(event); }
 
   throw notFound("Route");
 });
