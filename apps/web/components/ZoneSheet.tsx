@@ -58,8 +58,12 @@ function ZoneAlertCard({ zoneId, lang }: { zoneId: string; lang: Lang }) {
     };
   }, [zoneId]);
 
-  // Most recent published alert wins; otherwise the most recent resolved alert (context).
+  // Highest priority: published, then resolved context — prefer the copy that matches
+  // the UI language (the backend stores en+hi versions of each alert).
+  const pick = (s: Alert["status"]) => alerts?.find((a) => a.status === s && a.lang === lang);
   const active =
+    pick("published") ??
+    pick("resolved") ??
     alerts?.find((a) => a.status === "published") ??
     alerts?.find((a) => a.status === "resolved");
 
@@ -100,7 +104,7 @@ function ZoneAlertCard({ zoneId, lang }: { zoneId: string; lang: Lang }) {
         </span>
       </div>
       <p className="mt-2 text-sm font-semibold leading-snug text-white/90">
-        {active.lang === "hi" || lang === "hi" ? active.text : active.text}
+        {active.text}
       </p>
       <p className="mt-1.5 text-[10.5px] text-white/40">
         {translate(lang, "zone.alert.publishedAt")}: {clockTime(active.publishedAt ?? active.createdAt)}

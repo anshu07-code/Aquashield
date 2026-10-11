@@ -44,6 +44,8 @@ export function computeTrust(i: TrustInputs): number {
 export function statusFrom(vision: VisionAnalysis): "verified" | "unverified" | "rejected" | "needs_review" {
   if (vision.confidence === 0 && vision.explanation.includes("Vision unavailable")) return "needs_review";
   if (!vision.isRoadScene) return "rejected";
+  // A photo with no standing water does not verify a waterlogging claim.
+  if (!vision.floodedRoad && vision.waterDepthTier === "none") return "unverified";
   if (vision.confidence >= 0.7) return "verified";
   return "unverified";
 }
