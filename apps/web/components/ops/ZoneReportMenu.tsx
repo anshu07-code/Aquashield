@@ -223,7 +223,7 @@ function ZoneAlertsList({ zoneId, lang }: { zoneId: string; lang: Lang }) {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    const stored = sessionStorage.getItem("aq_ops_passcode") ?? undefined;
+    const stored = sessionStorage.getItem("aquashield.ops.passcode") ?? undefined;
     fetchAlerts({ zoneId }, stored)
       .then((a) => { if (!cancelled) { setAlerts(a); setLoading(false); } })
       .catch((e: unknown) => { if (!cancelled) { setError(e instanceof Error ? e.message : "Failed to load alerts"); setLoading(false); } });
