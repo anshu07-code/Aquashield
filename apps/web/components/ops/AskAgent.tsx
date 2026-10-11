@@ -97,7 +97,7 @@ export function AskAgent({
       setPublished(true);
       toast.success(translate(lang, "ops.plan.published"));
     } catch (e) {
-      const msg = e instanceof ApiError ? e.message : "Publish failed";
+      const msg = e instanceof ApiError ? `(${e.code}) ${e.message}` : e instanceof Error ? e.message : "Publish failed. Check console.";
       toast.error(translate(lang, "ops.error"), msg);
     }
   };
