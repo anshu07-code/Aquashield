@@ -9,7 +9,8 @@ frontend:
       commands:
         - cd apps/web && npm run build
   artifacts:
-    baseDirectory: apps/web/.next
+    # Static export output (`output: "export"` in next.config.mjs → plain out/ folder)
+    baseDirectory: apps/web/out
     files:
       - "**/*"
   cache:
