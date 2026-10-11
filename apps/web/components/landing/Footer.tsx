@@ -84,6 +84,14 @@ export function Footer() {
             {translate(lang, "landing.footer.copy")}
           </p>
           <div className="flex items-center gap-4">
+            <a
+              href="https://youtube.com/playlist?list=PLfQqXjqQA0_A&si=ayB4XdOpde9iG7YT"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] font-semibold text-[#0096c7] transition-colors hover:text-[#4cc3e8]"
+            >
+              ▶ {translate(lang, "landing.footer.demo")}
+            </a>
             {["AWS", "Lambda", "DynamoDB", "Bedrock", "SNS"].map((tech) => (
               <span
                 key={tech}
