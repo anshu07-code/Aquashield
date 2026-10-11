@@ -15,6 +15,7 @@ Mock coordinates/names in `mocks/` are placeholders; P4 replaces them with verif
 | POST | `/reports/presign` | `PresignRequest` | `PresignResponse` | - |
 | POST | `/reports` | `CreateReportRequest` | `CreateReportResponse` | `mocks/report-response.json` |
 | GET | `/reports?zoneId=` | - | `{ reports: Report[] }` | - |
+| PATCH | `/reports/{zoneId}/{id}` | - | `ResolveReportResponse` `{ report: Report }` | - |
 | POST | `/route` | `RouteRequest` | `RouteResponse` | `mocks/route-response.json` |
 | POST | `/agent/ask` | `AgentAskRequest` | `AgentPlan` | `mocks/agent-plan.json` |
 | GET | `/workorders` | - | `WorkOrderListResponse` | `mocks/workorders.json` |

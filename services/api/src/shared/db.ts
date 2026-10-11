@@ -89,7 +89,8 @@ export interface ReportItem {
   lng?: number;
   vision: VisionAnalysis;
   trust: number;
-  status: "verified" | "unverified" | "rejected" | "needs_review";
+  status: "verified" | "unverified" | "rejected" | "needs_review" | "resolved";
+  resolvedAt?: string; // set when status becomes "resolved"
 }
 
 export interface WorkOrderItem {
@@ -162,6 +163,29 @@ export async function putSnapshot(item: SnapshotItem): Promise<void> {
 
 export async function putReport(item: ReportItem): Promise<void> {
   await ddb.send(new PutCommand({ TableName: Tables.reports, Item: item }));
+}
+
+/** Fetch a single report by zoneId + report id (sk = `${ts}#${id}`, isScanJsonTimestamp gate). */
+export async function getReport(zoneId: string, id: string, nowMs = Date.now()): Promise<ReportItem | undefined> {
+  // Reports table: pk = zoneId, sk = `${ts}#${id}` — scan-and-match is fine for MVP-scale per zone.
+  const res = await ddb.send(
+    new QueryCommand({
+      TableName: Tables.reports,
+      KeyConditionExpression: "zoneId = :z",
+      ExpressionAttributeValues: { ":z": zoneId },
+    }),
+  );
+  const items = (res.Items ?? []) as ReportItem[];
+  return items.find((r) => r.id === id && (r.ttl ?? 0) * 1000 > nowMs);
+}
+
+/** Mark a citizen report resolved (ops action). Persists status + resolvedAt. */
+export async function resolveReport(zoneId: string, id: string, resolvedAt = new Date().toISOString()): Promise<ReportItem | undefined> {
+  const report = await getReport(zoneId, id);
+  if (!report) return undefined;
+  const updated: ReportItem = { ...report, status: "resolved", resolvedAt };
+  await putReport(updated);
+  return updated;
 }
 
 export async function putZoneRisk(
