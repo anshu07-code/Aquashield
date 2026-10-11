@@ -4,35 +4,12 @@ import Link from "next/link";
 import { useApp } from "@/lib/store";
 import { translate } from "@/lib/i18n";
 import { TIER_META } from "@/lib/tiers";
-import { clockTime, etaText, relTime } from "@/lib/format";
+import { etaText, relTime } from "@/lib/format";
 import { RiskGauge } from "@/components/zone/RiskGauge";
 import { FactorBars } from "@/components/zone/FactorBars";
 import { ForecastSpark } from "@/components/zone/ForecastSpark";
 import { Skeleton, ErrorState } from "@/components/ui/Feedback";
-import type { ReportStatus } from "@/lib/api";
-
-const STATUS_STYLE: Record<ReportStatus, string> = {
-  verified: "border-emerald-400/35 bg-emerald-400/12 text-emerald-300",
-  unverified: "border-amber-400/35 bg-amber-400/12 text-amber-300",
-  rejected: "border-rose-400/35 bg-rose-400/12 text-rose-300",
-  needs_review: "border-sky-400/35 bg-sky-400/12 text-sky-300",
-  resolved: "border-white/20 bg-white/5 text-white/40",
-};
-
-function statusKey(s: ReportStatus) {
-  switch (s) {
-    case "verified":
-      return "zone.verified";
-    case "unverified":
-      return "zone.unverified";
-    case "rejected":
-      return "zone.rejected";
-    case "needs_review":
-      return "zone.needsReview";
-    case "resolved":
-      return "zone.resolved";
-  }
-}
+import { ReportCard } from "@/components/report/ReportCard";
 
 export function ZoneSheet() {
   const {
@@ -228,56 +205,23 @@ export function ZoneSheet() {
             <div className="card p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="label">{translate(lang, "zone.reports")}</span>
-                {detail ? (
-                  <span className="text-[11px] font-semibold text-white/40">{detail.reports.length}</span>
+                {detail && !detailLoading ? (
+                  <span className="text-[11px] font-semibold text-white/40">
+                    {detail.reports.filter((r) => r.status !== "rejected").length}
+                  </span>
                 ) : null}
               </div>
               {detailLoading ? (
                 <div className="space-y-2.5">
                   <Skeleton className="h-16 w-full" />
                 </div>
-              ) : detail && detail.reports.length > 0 ? (
+              ) : detail && detail.reports.some((r) => r.status !== "rejected") ? (
                 <div className="space-y-2.5">
-                  {detail.reports.map((r) => (
-                    <div
-                      key={r.id}
-                      className="rounded-2xl border border-white/8 bg-white/[0.03] p-3"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${STATUS_STYLE[r.status]}`}
-                        >
-                          {translate(lang, statusKey(r.status))}
-                        </span>
-                        <span className="ml-auto text-[10px] tabular-nums text-white/35">
-                          {clockTime(r.ts)}
-                        </span>
-                      </div>
-                      {r.vision.waterDepthTier !== "none" ? (
-                        <p className="mt-2 text-xs font-semibold text-white/85">
-                          {translate(lang, "zone.risk")}: {translate(lang, `depth.${r.vision.waterDepthTier}`)}
-                        </p>
-                      ) : null}
-                      {r.note ? <p className="mt-1 text-[11.5px] text-white/55">{r.note}</p> : null}
-                      {r.vision.explanation ? (
-                        <p className="mt-1 text-[11.5px] italic leading-relaxed text-white/45">
-                          “{r.vision.explanation}”
-                        </p>
-                      ) : null}
-                      <div className="mt-2.5 flex items-center gap-2">
-                        <span className="label">{translate(lang, "zone.trust")}</span>
-                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/8">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-300"
-                            style={{ width: `${Math.round(r.trust * 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-[10px] font-bold tabular-nums text-emerald-300">
-                          {Math.round(r.trust * 100)}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                  {detail.reports
+                    .filter((r) => r.status !== "rejected")
+                    .map((r) => (
+                      <ReportCard key={r.id} report={r} resolved={false} lang={lang} />
+                    ))}
                 </div>
               ) : (
                 <p className="py-2 text-center text-[11.5px] text-white/40">
