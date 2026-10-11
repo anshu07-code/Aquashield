@@ -28,7 +28,7 @@ export function Footer() {
       links: [
         { label: translate(lang, "landing.footer.t1"), href: "#" },
         { label: translate(lang, "landing.footer.t2"), href: "#" },
-        { label: translate(lang, "landing.footer.t3"), href: "https://youtube.com/playlist?list=PLfQqXjqQA0_A&si=ayB4XdOpde9iG7YT" },
+        { label: translate(lang, "landing.footer.t3"), href: "#" },
       ],
     },
   ];
@@ -67,8 +67,6 @@ export function Footer() {
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        target={link.href.startsWith("http") ? "_blank" : undefined}
-                        rel={link.href.startsWith("http") ? "noreferrer" : undefined}
                         className="text-sm text-white/45 transition-colors hover:text-white/80"
                       >
                         {link.label}
