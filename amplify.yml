@@ -1,0 +1,17 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Bootstrap the whole npm workspace (installs @aquashield/types + risk-core)
+        - npm ci
+    build:
+      commands:
+        - cd apps/web && npm run build
+  artifacts:
+    baseDirectory: apps/web/.next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - apps/web/.next/cache/**
