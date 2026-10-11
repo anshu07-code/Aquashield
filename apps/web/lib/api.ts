@@ -126,11 +126,12 @@ export async function fetchZoneDetail(id: string): Promise<ZoneDetail> {
   }
 }
 
-/** `GET /reports?zoneId=` — active citizen reports for one zone (real data). */
-export async function fetchZoneReports(zoneId: string): Promise<Report[]> {
+/** `GET /reports?zoneId=` — active citizen reports for one zone; pass `status` to filter (e.g. "resolved" for the /ops Past tab). */
+export async function fetchZoneReports(zoneId: string, status?: string): Promise<Report[]> {
+  const qs = status ? `&status=${encodeURIComponent(status)}` : "";
   const data = parse(
     ReportsListSchema,
-    await getJson(`${API_URL}/reports?zoneId=${encodeURIComponent(zoneId)}`),
+    await getJson(`${API_URL}/reports?zoneId=${encodeURIComponent(zoneId)}${qs}`),
   );
   return data.reports;
 }

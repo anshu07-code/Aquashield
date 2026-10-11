@@ -231,11 +231,16 @@ async function createReport(event: ReqEvent): Promise<Res> {
 
 async function listReports(event: ReqEvent): Promise<Res> {
   const zoneId = event.queryStringParameters?.zoneId;
+  const status = event.queryStringParameters?.status;
   if (!zoneId) throw validation("zoneId query parameter is required");
   const items = await activeReports(zoneId);
+  // No ?status= → active only (exclude rejected + resolved).
+  // ?status=resolved → the resolved (past) list so /ops can show it.
+  const filtered = status
+    ? items.filter((r) => r.status === status)
+    : items.filter((r) => r.status !== "rejected" && r.status !== "resolved");
   const reports = await Promise.all(
-    items
-      .filter((r) => r.status !== "rejected" && r.status !== "resolved")
+    filtered
       .sort((a, b) => b.ts.localeCompare(a.ts))
       .map(async (r) => ({
         id: r.id,
