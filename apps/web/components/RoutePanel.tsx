@@ -550,6 +550,7 @@ function AskWidget({ destName, dest, zones, lang }: { destName: string; dest: La
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState<AgentPlan | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showWhy, setShowWhy] = useState(false);
 
   const destZone = zones.find((z) => z.lat === dest?.lat && z.lng === dest?.lng);
 
@@ -641,14 +642,52 @@ function AskWidget({ destName, dest, zones, lang }: { destName: string; dest: La
             <span className="text-[10px] text-white/40">{plan.toolsUsed.length} tools used</span>
           </div>
           <p className="text-sm font-semibold leading-relaxed text-white/90">{plan.summary}</p>
-          {plan.actions.length > 0 && (
+
+          {/* Why — collapsible reasoning behind the answer */}
+          {plan.why.length > 0 && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+              <button
+                onClick={() => setShowWhy((v) => !v)}
+                className="flex w-full items-center gap-1.5 text-left"
+                aria-expanded={showWhy}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.2}
+                  className={`h-3.5 w-3.5 text-aqua-300 transition-transform ${showWhy ? "rotate-90" : ""}`}
+                >
+                  <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/55">
+                  {translate(lang, "ops.plan.why")}
+                </span>
+              </button>
+              {showWhy && (
+                <ul className="mt-2 space-y-1.5">
+                  {plan.why.map((w, i) => (
+                    <li key={i} className="flex gap-2 text-[11.5px] leading-relaxed text-white/60">
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-aqua-400" />
+                      {w}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {/* Non-monitor actions only (skip "monitor" statements) */}
+          {plan.actions.some((a) => a.type !== "monitor") && (
             <div className="space-y-1.5">
-              {plan.actions.map((a, i) => (
-                <div key={i} className="flex items-start gap-2 text-[11.5px] text-white/65">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-aqua-400" />
-                  <span><span className="font-bold text-white/85">{a.type.replace(/_/g, " ")}</span>: {a.reason}</span>
-                </div>
-              ))}
+              {plan.actions
+                .filter((a) => a.type !== "monitor")
+                .map((a, i) => (
+                  <div key={i} className="flex items-start gap-2 text-[11.5px] text-white/65">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-aqua-400" />
+                    <span><span className="font-bold text-white/85">{a.type.replace(/_/g, " ")}</span>: {a.reason}</span>
+                  </div>
+                ))}
             </div>
           )}
           <p className="mt-2 text-center text-[10px] text-white/30">{translate(lang, "route.askResult")}</p>
