@@ -134,6 +134,9 @@ export const CreateReportResponseSchema = z.object({
 });
 /** GET /reports?zoneId= — active reports for one zone. */
 export const ReportsListSchema = z.object({ reports: z.array(ReportSchema) });
+/** PATCH /reports/{zoneId}/{id} — mark a citizen report resolved (ops only). */
+export const ResolveReportRequestSchema = z.object({ resolvedAt: z.string().optional() });
+export const ResolveReportResponseSchema = z.object({ report: ReportSchema });
 
 // ---------- routing ----------
 export const RouteRequestSchema = z.object({

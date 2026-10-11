@@ -346,6 +346,7 @@ const en = {
   "landing.footer.t1": "Environmental Hacks 2026",
   "landing.footer.t2": "WeMakeDevs x AWS",
   "landing.footer.t3": "Demo Video",
+  "landing.footer.demo": "Demo video",
   "landing.footer.copy": "© 2026 AquaShield · Built for Delhi · WeMakeDevs x AWS Environmental Hacks",
 } as const;
 
@@ -689,6 +690,7 @@ const hi: Record<keyof typeof en, string> = {
   "landing.footer.t1": "एनवायरनमेंटल हैक्स 2026",
   "landing.footer.t2": "WeMakeDevs x AWS",
   "landing.footer.t3": "डेमो वीडियो",
+  "landing.footer.demo": "डेमो वीडियो",
   "landing.footer.copy": "© 2026 एक्वाशील्ड · दिल्ली के लिए बना · WeMakeDevs x AWS एनवायरनमेंटल हैक्स",
 };
 
