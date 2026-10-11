@@ -111,10 +111,12 @@ export default function MapPage() {
   const onLocate = () => {
     locate();
     if (locationDenied) toast.error(translate(lang, "map.locate.denied"));
+    mapRef.current?.panToUser();
   };
 
   // Underpass risk-card carousel: left/right arrow buttons scroll by one card width.
   const carouselRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<{ panToUser: () => void } | null>(null);
   const scrollCards = (dir: -1 | 1) => {
     const el = carouselRef.current;
     if (!el) return;
@@ -169,6 +171,7 @@ export default function MapPage() {
       />
 
       <RiskMap
+        ref={mapRef}
         zones={effectiveZones}
         selectedId={selectedId}
         onSelect={handleSelect}

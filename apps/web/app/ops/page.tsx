@@ -24,6 +24,8 @@ export default function OpsPage() {
   const toast = useToast();
   const [passcode, setPasscode] = useState("");
   const [authed, setAuthed] = useState(false);
+  const [gateLoading, setGateLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [zoneId, setZoneId] = useState<string | null>(null);
   const [pending, setPending] = useState<WorkOrder[]>([]);
   const [clock, setClock] = useState("");
@@ -37,6 +39,53 @@ export default function OpsPage() {
   const [reportsError, setReportsError] = useState<string | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<number | null>(null);
   const syncInFlight = useRef(false);
+
+  // Ops gate: unlock only when the backend ACCEPTS the passcode (backend enforces it
+  // on every ops endpoint; GET /workorders → 200 on success, 401 on wrong).
+  const OPS_SESSION_KEY = "aquashield.ops.passcode";
+
+  // Validate a passcode against the backend and unlock only on success ("ok").
+  // "wrong" = 401 (definitely a bad passcode), "error" = couldn't reach backend.
+  // Shared by the submit handler (typing) and the auto-restore-on-refresh path.
+  const verifyPasscode = useCallback(
+    async (candidate: string): Promise<"ok" | "wrong" | "error"> => {
+      try {
+        await fetchWorkOrders(candidate);
+        return "ok";
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 401) return "wrong";
+        // network / backend down — don't hard-block, don't pretend success either
+        setAuthError(e instanceof Error ? e.message : "Could not reach the backend");
+        return "error";
+      }
+    },
+    [],
+  );
+
+  // restore session on mount: if a stored passcode validates, skip the gate
+  useEffect(() => {
+    let cancelled = false;
+    const stored = (() => {
+      try { return sessionStorage.getItem(OPS_SESSION_KEY); } catch { return null; }
+    })();
+    if (!stored) return;
+    (async () => {
+      setGateLoading(true);
+      const result = await verifyPasscode(stored);
+      if (cancelled) return;
+      setGateLoading(false);
+      if (result === "ok") {
+        setPasscode(stored);
+        setAuthed(true);
+      } else if (result === "wrong") {
+        // passcode was revoked/rotated → drop it
+        sessionStorage.removeItem(OPS_SESSION_KEY);
+      }
+      // "error" (backend unreachable): keep the stored passcode for the next
+      // refresh, just show the gate now (fail open to the safe default).
+    })();
+    return () => { cancelled = true; };
+  }, [verifyPasscode]);
 
   const loadOrders = useCallback(async () => {
     try {
@@ -184,12 +233,21 @@ export default function OpsPage() {
             </div>
 
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                if (passcode.trim()) {
-                  sessionStorage.setItem("aq_ops_passcode", passcode.trim());
-                  setAuthed(true);
+                if (!passcode.trim() || gateLoading) return;
+                setGateLoading(true);
+                setAuthError(null);
+                const result = await verifyPasscode(passcode.trim());
+                setGateLoading(false);
+                if (result !== "ok") {
+                  if (result === "wrong") setAuthError(translate(lang, "ops.wrong"));
+                  // "error": verifyPasscode already surfaced the backend message
+                  setPasscode("");
+                  return;
                 }
+                try { sessionStorage.setItem(OPS_SESSION_KEY, passcode.trim()); } catch { /* ignore */ }
+                setAuthed(true);
               }}
               className="space-y-4 p-6"
             >
@@ -203,21 +261,36 @@ export default function OpsPage() {
                   autoFocus
                   suppressHydrationWarning
                   value={passcode}
-                  onChange={(e) => setPasscode(e.target.value)}
+                  onChange={(e) => {
+                    setPasscode(e.target.value);
+                    setAuthError(null);
+                  }}
                   placeholder="••••••••"
                   className="input mt-1.5 tracking-[0.3em]"
                 />
               </div>
-              <button type="submit" className="btn-primary w-full" disabled={!passcode.trim()}>
-                {translate(lang, "ops.enter")}
+              {authError ? (
+                <p className="text-[11.5px] font-medium text-rose-300">{authError}</p>
+              ) : null}
+              <button type="submit" className="btn-primary w-full" disabled={!passcode.trim() || gateLoading}>
+                {gateLoading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-900/30 border-t-slate-900" />
+                    {translate(lang, "ops.checking")}
+                  </>
+                ) : (
+                  translate(lang, "ops.enter")
+                )}
               </button>
-              <p className="text-center text-[10.5px] text-white/35">{translate(lang, "ops.passcode.hint")}</p>
+              <p className="text-center text-[10.5px] font-semibold text-aqua-200/80">
+                {translate(lang, "ops.demo")}
+              </p>
             </form>
           </div>
 
           <div className="mt-4 text-center">
             <Link
-              href="/"
+              href="/map"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/45 transition hover:text-white/80"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="h-3.5 w-3.5">
@@ -279,8 +352,10 @@ export default function OpsPage() {
             </Link>
             <button
               onClick={() => {
+                try { sessionStorage.removeItem(OPS_SESSION_KEY); } catch { /* ignore */ }
                 setAuthed(false);
                 setPasscode("");
+                setAuthError(null);
                 setPending([]);
               }}
               className="btn-outline px-3.5 text-xs"

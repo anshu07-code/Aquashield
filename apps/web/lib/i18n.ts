@@ -6,7 +6,7 @@ export const LANGS: { code: Lang; label: string }[] = [
 ];
 
 const en = {
-  "app.name": "JalRakshak",
+  "app.name": "AquaShield",
   "app.tagline": "Flood guard",
   "app.city": "Delhi · Underpass watch",
   "nav.ops": "Ops",
@@ -161,7 +161,7 @@ const en = {
   "route.error": "Routing failed. Please try again.",
   "route.selectZone": "Set destination",
   "route.zoneDest": "Selected zone as destination",
-  "route.askTab": "Ask JalRakshak",
+  "route.askTab": "Ask AquaShield",
   "route.askTabPh": "Ask about this zone or route…",
   "route.askResult": "AI response ready — press Execute in /ops to act on it.",
   "route.fromCentral": "Central Delhi",
@@ -169,10 +169,12 @@ const en = {
   "route.originLabel": "Starting point",
 
   "ops.title": "Ops Command",
-  "ops.sub": "Delhi flood operations · JalRakshak",
+  "ops.sub": "Delhi flood operations · AquaShield",
   "ops.passcode": "Ops passcode",
   "ops.enter": "Enter dashboard",
-  "ops.passcode.hint": "Demo build: any passcode works (mock backend).",
+  "ops.checking": "Checking…",
+  "ops.demo": "DEMO : Use password Aquashield2026! to enter.",
+  
   "ops.wrong": "Wrong passcode",
   "ops.back": "Back to map",
   "ops.kpi.critical": "Critical zones",
@@ -182,7 +184,7 @@ const en = {
   "ops.kpi.live": "Live · auto-sync",
   "ops.hotspots": "Ranked hotspots",
   "ops.hotspots.sub": "Sorted by Flood Risk Index",
-  "ops.ask": "Ask JalRakshak",
+  "ops.ask": "Ask AquaShield",
   "ops.ask.ph": "Ask about a zone… e.g. “What should we do at Minto Bridge?”",
   "ops.ask.button": "Ask AI",
   "ops.ask.thinking": "Agent is thinking…",
@@ -320,8 +322,6 @@ const en = {
   "landing.live.sub": "Live data from AWS Lambda + DynamoDB · Refreshes every 15 min",
   "landing.live.status": "LIVE DATA",
   "landing.live.updated": "Updated just now",
-  "landing.live.cta.app": "Open Full App",
-  "landing.live.cta.ops": "Ops Dashboard",
 
   "landing.cta.eyebrow": "WeMakeDevs x AWS Environmental Hacks 2026",
   "landing.cta.title1": "Ready to protect",
@@ -516,7 +516,8 @@ const hi: Record<keyof typeof en, string> = {
   "ops.sub": "दिल्ली बाढ़ ऑपरेशन्स · जलरक्षक",
   "ops.passcode": "ऑप्स पासकोड",
   "ops.enter": "डैशबोर्ड खोलें",
-  "ops.passcode.hint": "डेमो बिल्ड: कोई भी पासकोड चलेगा (मॉक बैकएंड)।",
+  "ops.checking": "जाँच हो रही है…",
+  "ops.demo": "डेमो: दर्ज करने के लिए पासवर्ड Aquashield2026! का उपयोग करें।",
   "ops.wrong": "गलत पासकोड",
   "ops.back": "मैप पर वापस",
   "ops.kpi.critical": "गंभीर ज़ोन",
@@ -664,8 +665,6 @@ const hi: Record<keyof typeof en, string> = {
   "landing.live.sub": "AWS Lambda + DynamoDB से लाइव डेटा · हर 15 मिनट रीफ़्रेश",
   "landing.live.status": "लाइव डेटा",
   "landing.live.updated": "अभी अपडेट हुआ",
-  "landing.live.cta.app": "पूरा ऐप खोलें",
-  "landing.live.cta.ops": "ऑप्स डैशबोर्ड",
 
   "landing.cta.eyebrow": "WeMakeDevs x AWS एनवायरनमेंटल हैक्स 2026",
   "landing.cta.title1": "क्या आप तैयार हैं",
