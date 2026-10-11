@@ -1,14 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useApp } from "@/lib/store";
-import { translate } from "@/lib/i18n";
+import { translate, type Lang } from "@/lib/i18n";
 import { TIER_META } from "@/lib/tiers";
 import { clockTime, etaText, relTime } from "@/lib/format";
 import { RiskGauge } from "@/components/zone/RiskGauge";
 import { FactorBars } from "@/components/zone/FactorBars";
 import { ForecastSpark } from "@/components/zone/ForecastSpark";
 import { Skeleton, ErrorState } from "@/components/ui/Feedback";
+import { fetchAlerts } from "@/lib/api";
+import type { Alert } from "@aquashield/types";
 import type { ReportStatus } from "@/lib/api";
 
 const STATUS_STYLE: Record<ReportStatus, string> = {
@@ -32,6 +35,82 @@ function statusKey(s: ReportStatus) {
     case "resolved":
       return "zone.resolved";
   }
+}
+
+/** Read-only "public alert" feed for the selected zone. Reads real alerts from the backend. */
+function ZoneAlertCard({ zoneId, lang }: { zoneId: string; lang: Lang }) {
+  const [alerts, setAlerts] = useState<Alert[] | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setAlerts(null);
+    setFailed(false);
+    fetchAlerts({ zoneId })
+      .then((a) => {
+        if (!cancelled) setAlerts(a);
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [zoneId]);
+
+  // Highest priority: published, then resolved context — prefer the copy that matches
+  // the UI language (the backend stores en+hi versions of each alert).
+  const pick = (s: Alert["status"]) => alerts?.find((a) => a.status === s && a.lang === lang);
+  const active =
+    pick("published") ??
+    pick("resolved") ??
+    alerts?.find((a) => a.status === "published") ??
+    alerts?.find((a) => a.status === "resolved");
+
+  if (alerts === null && !failed) {
+    return <Skeleton className="h-[76px] w-full rounded-2xl" />;
+  }
+  if (failed) {
+    return (
+      <div className="card border-white/8 p-3.5">
+        <span className="label">{translate(lang, "zone.alert")}</span>
+        <p className="mt-1 text-[11px] text-white/40">{translate(lang, "ops.error")}</p>
+      </div>
+    );
+  }
+  if (!active) {
+    return (
+      <div className="card border-white/8 p-3.5">
+        <span className="label">{translate(lang, "zone.alert")}</span>
+        <p className="mt-1 text-[11.5px] text-white/40">{translate(lang, "zone.alert.none")}</p>
+      </div>
+    );
+  }
+
+  const resolved = active.status === "resolved";
+  return (
+    <div className={resolved ? "card border-emerald-400/25 p-4" : "card border-amber-400/40 p-4"}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="label">{translate(lang, "zone.alert")}</span>
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+            resolved
+              ? "border-emerald-400/35 bg-emerald-400/12 text-emerald-300"
+              : "border-amber-400/35 bg-amber-400/12 text-amber-300"
+          }`}
+        >
+          <span className={`h-1.5 w-1.5 rounded-full ${resolved ? "bg-emerald-400" : "bg-amber-400"}`} />
+          {translate(lang, resolved ? "zone.alert.resolved" : "zone.alert.published")}
+        </span>
+      </div>
+      <p className="mt-2 text-sm font-semibold leading-snug text-white/90">
+        {active.text}
+      </p>
+      <p className="mt-1.5 text-[10.5px] text-white/40">
+        {translate(lang, "zone.alert.publishedAt")}: {clockTime(active.publishedAt ?? active.createdAt)}
+      </p>
+    </div>
+  );
 }
 
 export function ZoneSheet() {
@@ -154,6 +233,9 @@ export function ZoneSheet() {
                 ) : null}
               </div>
             </div>
+
+            {/* public alert (real backend) */}
+            {zone ? <ZoneAlertCard zoneId={zone.id} lang={lang} /> : null}
 
             {/* rain stats */}
             {detail ? (

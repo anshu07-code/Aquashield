@@ -371,6 +371,32 @@ body {
 .zone-marker:hover .zm-label,
 .zone-marker.is-selected .zm-label { opacity: 1; }
 
+/* Pulsing amber "!" badge for underpasses with an active published alert */
+.zone-marker .zm-alert {
+  position: absolute;
+  top: -9px;
+  right: -11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #150f06;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 20px;
+  text-align: center;
+  box-shadow: 0 0 0 4px rgba(245,158,11,0.18), 0 4px 12px -2px rgba(0,0,0,0.7);
+  z-index: 6;
+  animation: zm-alert-ping 2.4s ease-in-out infinite;
+  pointer-events: none;
+  font-family: inherit;
+}
+@keyframes zm-alert-ping {
+  0% { box-shadow: 0 0 0 0 rgba(245,158,11,0.55), 0 4px 12px -2px rgba(0,0,0,0.7); }
+  70% { box-shadow: 0 0 0 12px rgba(245,158,11,0), 0 4px 12px -2px rgba(0,0,0,0.7); }
+  100% { box-shadow: 0 0 0 0 rgba(245,158,11,0), 0 4px 12px -2px rgba(0,0,0,0.7); }
+}
+
 /* ---- User location dot ---- */
 .user-dot {
   width: 18px;

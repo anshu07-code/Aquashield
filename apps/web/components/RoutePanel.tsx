@@ -625,11 +625,7 @@ function AskWidget({ destName, dest, zones, lang }: { destName: string; dest: La
               ))}
             </div>
           )}
-          <div className="rounded-xl border border-white/8 bg-white/[0.03] p-3">
-            <span className="label">Draft alert (EN)</span>
-            <p className="mt-1.5 text-[11.5px] leading-relaxed text-white/70">{plan.alertDraft.en}</p>
-          </div>
-          <p className="text-center text-[10px] text-white/30">{translate(lang, "route.askResult")}</p>
+          <p className="mt-2 text-center text-[10px] text-white/30">{translate(lang, "route.askResult")}</p>
         </div>
       )}
     </div>
