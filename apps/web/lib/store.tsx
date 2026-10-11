@@ -271,12 +271,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       onDenied?.();
       return;
     }
+    // Safety timeout: if neither success nor error fires within 12s, treat as denied
+    const safetyTimer = setTimeout(() => {
+      setLocationDenied(true);
+      onDenied?.();
+    }, 12000);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        clearTimeout(safetyTimer);
         setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setLocationDenied(false);
       },
       () => {
+        clearTimeout(safetyTimer);
         setLocationDenied(true);
         onDenied?.();
       },

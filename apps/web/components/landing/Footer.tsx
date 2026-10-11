@@ -26,9 +26,9 @@ export function Footer() {
     {
       title: translate(lang, "landing.footer.col.track"),
       links: [
-        { label: translate(lang, "landing.footer.t1"), href: "#" },
-        { label: translate(lang, "landing.footer.t2"), href: "#" },
-        { label: translate(lang, "landing.footer.t3"), href: "#" },
+        { label: translate(lang, "landing.footer.t1"), href: "https://www.wemakedevs.org/aws/env" },
+        { label: translate(lang, "landing.footer.t2"), href: "https://www.wemakedevs.org/" },
+        { label: translate(lang, "landing.footer.t3"), href: "https://youtube.com/playlist?list=PLfQqXjqQA0_A&si=ayB4XdOpde9iG7YT" },
       ],
     },
   ];
